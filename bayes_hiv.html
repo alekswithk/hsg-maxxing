@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bayes' Rule — HIV Test</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #ffffff; color: #3d3d3a;
+      padding: 24px 20px; min-height: 100vh;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a18; color: #c2c0b6; }
+      .card { background: #2c2c2a !important; }
+      .tree-box { background: #2c2c2a !important; border-color: #444 !important; }
+      .tree-box.highlight { background: #1D4A3A !important; border-color: #1D9E75 !important; }
+    }
+    h2 { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+    p.sub { font-size: 13px; color: #888780; margin-bottom: 20px; }
+
+    .slider-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px;
+    }
+    .card {
+      background: #f1efe8; border-radius: 8px; padding: 10px 14px;
+    }
+    .card .lbl { font-size: 11px; color: #888780; margin-bottom: 3px; }
+    .card input[type=range] { width: 100%; margin: 2px 0; }
+    .card .val { font-size: 13px; font-weight: 500; }
+
+    .result-bar-wrap { margin-bottom: 20px; }
+    .result-bar-label { font-size: 12px; color: #888780; margin-bottom: 6px; }
+    .result-bar-track {
+      height: 28px; border-radius: 6px; background: #f1efe8;
+      overflow: hidden; display: flex;
+    }
+    .result-bar-fill {
+      height: 100%; transition: width 0.3s ease;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 8px; font-size: 12px; font-weight: 500; color: #fff;
+      min-width: 2px;
+    }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+    }
+    .metric { background: #f1efe8; border-radius: 8px; padding: 10px 14px; }
+    @media (prefers-color-scheme: dark) { .metric { background: #2c2c2a; } }
+    .metric .mlbl { font-size: 11px; color: #888780; margin-bottom: 2px; }
+    .metric .mval { font-size: 18px; font-weight: 500; }
+
+    .tree { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .tree-row { display: flex; gap: 8px; align-items: stretch; }
+    .tree-box {
+      flex: 1; background: #f1efe8; border: 1.5px solid #d3d1c7;
+      border-radius: 8px; padding: 8px 12px; font-size: 12px; line-height: 1.5;
+    }
+    .tree-box.highlight {
+      background: #e1f5ee; border-color: #1D9E75;
+    }
+    .tree-box .state { font-weight: 500; font-size: 13px; }
+    .tree-box .prob { color: #888780; }
+    .tree-label {
+      font-size: 11px; color: #888780; width: 80px; flex-shrink: 0;
+      display: flex; align-items: center;
+    }
+
+    .explainer {
+      background: #f1efe8; border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; line-height: 1.65; color: #888780;
+    }
+    @media (prefers-color-scheme: dark) {
+      .result-bar-track { background: #2c2c2a; }
+      .card { background: #2c2c2a; }
+      .explainer { background: #2c2c2a; }
+    }
+  </style>
+</head>
+<body>
+
+<h2>Bayes' Rule — HIV Test</h2>
+<p class="sub">Drag the sliders to see how the posterior probability changes with the base rate and test accuracy.</p>
+
+<div class="slider-grid">
+  <div class="card">
+    <div class="lbl">Base rate q (prior)</div>
+    <input type="range" id="sl-q" min="0.001" max="0.3" step="0.001" value="0.003763" oninput="update()">
+    <div class="val">q = <span id="lbl-q">0.38%</span></div>
+  </div>
+  <div class="card">
+    <div class="lbl">False positive rate</div>
+    <input type="range" id="sl-fp" min="0.001" max="0.2" step="0.001" value="0.015" oninput="update()">
+    <div class="val"><span id="lbl-fp">1.50%</span></div>
+  </div>
+  <div class="card">
+    <div class="lbl">False negative rate</div>
+    <input type="range" id="sl-fn" min="0.0001" max="0.1" step="0.0001" value="0.0003" oninput="update()">
+    <div class="val"><span id="lbl-fn">0.03%</span></div>
+  </div>
+</div>
+
+<div class="result-bar-wrap">
+  <div class="result-bar-label">Probability of HIV given a positive test — Pr(HIV | test+)</div>
+  <div class="result-bar-track">
+    <div class="result-bar-fill" id="bar" style="background:#1D9E75; width:20%;">20%</div>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="metric">
+    <div class="mlbl">Prior Pr(HIV)</div>
+    <div class="mval" id="m-prior" style="color:#378ADD"></div>
+  </div>
+  <div class="metric">
+    <div class="mlbl">Pr(test+ | HIV)</div>
+    <div class="mval" id="m-tpr" style="color:#1D9E75"></div>
+  </div>
+  <div class="metric">
+    <div class="mlbl">Pr(HIV | test+) — posterior</div>
+    <div class="mval" id="m-post" style="color:#D85A30"></div>
+  </div>
+</div>
+
+<div class="tree" id="tree"></div>
+
+<div class="explainer" id="explainer"></div>
+
+<script>
+  function fmt(x, digits) { return (x * 100).toFixed(digits) + '%'; }
+
+  function update() {
+    const q   = parseFloat(document.getElementById('sl-q').value);
+    const fp  = parseFloat(document.getElementById('sl-fp').value);
+    const fn  = parseFloat(document.getElementById('sl-fn').value);
+    const tpr = 1 - fn;   // Pr(test+ | HIV)
+    const tnr = 1 - fp;   // Pr(test- | healthy)
+
+    document.getElementById('lbl-q').textContent  = fmt(q, 2);
+    document.getElementById('lbl-fp').textContent = fmt(fp, 2);
+    document.getElementById('lbl-fn').textContent = fmt(fn, 2);
+
+    // Joint probabilities
+    const vp = q * tpr;         // Pr(HIV, test+)
+    const vm = q * fn;          // Pr(HIV, test-)
+    const hp = (1-q) * fp;      // Pr(healthy, test+)
+    const hm = (1-q) * tnr;     // Pr(healthy, test-)
+    const pPos = vp + hp;       // Pr(test+) by law of total probability
+
+    // Posterior
+    const post = vp / pPos;
+
+    // Update bar
+    const pct = Math.min(100, post * 100);
+    const bar = document.getElementById('bar');
+    bar.style.width = Math.max(pct, 2) + '%';
+    bar.textContent = fmt(post, 1);
+    bar.style.background = post > 0.5 ? '#D85A30' : post > 0.15 ? '#BA7517' : '#1D9E75';
+
+    document.getElementById('m-prior').textContent = fmt(q, 3);
+    document.getElementById('m-tpr').textContent   = fmt(tpr, 2);
+    document.getElementById('m-post').textContent  = fmt(post, 1);
+
+    // Tree
+    document.getElementById('tree').innerHTML = `
+      <div class="tree-row">
+        <div class="tree-label">Prior</div>
+        <div class="tree-box highlight">
+          <div class="state">HIV &nbsp; Pr = ${fmt(q,3)}</div>
+        </div>
+        <div class="tree-box">
+          <div class="state">Healthy &nbsp; Pr = ${fmt(1-q,3)}</div>
+        </div>
+      </div>
+      <div class="tree-row">
+        <div class="tree-label">Test result</div>
+        <div class="tree-box highlight">
+          <div class="state">HIV ∩ test+</div>
+          <div class="prob">Pr = ${fmt(q,3)} × ${fmt(tpr,3)} = ${fmt(vp,4)}</div>
+        </div>
+        <div class="tree-box">
+          <div class="state">HIV ∩ test−</div>
+          <div class="prob">Pr = ${fmt(q,3)} × ${fmt(fn,4)} = ${fmt(vm,5)}</div>
+        </div>
+        <div class="tree-box highlight">
+          <div class="state">Healthy ∩ test+</div>
+          <div class="prob">Pr = ${fmt(1-q,3)} × ${fmt(fp,3)} = ${fmt(hp,4)}</div>
+        </div>
+        <div class="tree-box">
+          <div class="state">Healthy ∩ test−</div>
+          <div class="prob">Pr = ${fmt(1-q,3)} × ${fmt(tnr,3)} = ${fmt(hm,4)}</div>
+        </div>
+      </div>
+      <div class="tree-row">
+        <div class="tree-label">Posterior</div>
+        <div class="tree-box highlight" style="flex:2">
+          <div class="state">Pr(test+) = ${fmt(vp,4)} + ${fmt(hp,4)} = ${fmt(pPos,4)} &nbsp;(law of total probability)</div>
+          <div class="prob" style="margin-top:4px">Pr(HIV | test+) = ${fmt(vp,4)} / ${fmt(pPos,4)} = <strong>${fmt(post,1)}</strong></div>
+        </div>
+      </div>`;
+
+    const interpretation = post < 0.1
+      ? `Even with a positive test, the probability of HIV is only <strong>${fmt(post,1)}</strong>. The base rate is so low that most positive tests are false positives. This is the key insight of Bayes' rule: a highly accurate test can still be misleading when the condition is rare.`
+      : post < 0.5
+      ? `A positive test raises the probability to <strong>${fmt(post,1)}</strong> — a significant update from the prior of ${fmt(q,2)}, but still below 50%. The base rate is pulling the posterior down.`
+      : `With a base rate of ${fmt(q,2)}, a positive test gives strong evidence: posterior = <strong>${fmt(post,1)}</strong>. When the condition is common, accurate tests are highly informative.`;
+
+    document.getElementById('explainer').innerHTML =
+      `<strong>Bayes' rule applied:</strong> Pr(HIV | test+) = Pr(test+ | HIV) × Pr(HIV) / Pr(test+)
+      = ${fmt(tpr,3)} × ${fmt(q,3)} / ${fmt(pPos,4)} = <strong>${fmt(post,1)}</strong>.<br><br>${interpretation}`;
+  }
+
+  update();
+</script>
+</body>
+</html>

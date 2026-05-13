@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simpson's Paradox</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #ffffff; color: #3d3d3a;
+      padding: 24px 20px; min-height: 100vh;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a18; color: #c2c0b6; }
+      .card { background: #2c2c2a !important; }
+      .tbl th { background: #2c2c2a !important; }
+    }
+
+    h2 { font-size: 17px; font-weight: 500; margin-bottom: 6px; }
+    p.sub { font-size: 13px; color: #888780; margin-bottom: 20px; line-height: 1.6; }
+
+    .slider-section { margin-bottom: 20px; }
+    .slider-section h3 { font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #888780; text-transform: uppercase; letter-spacing: .04em; }
+    .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card { background: #f1efe8; border-radius: 8px; padding: 10px 14px; }
+    @media (prefers-color-scheme: dark) { .card { background: #2c2c2a; } }
+    .card .lbl { font-size: 11px; color: #888780; margin-bottom: 3px; }
+    .card input[type=range] { width: 100%; margin: 2px 0; }
+    .card .val { font-size: 13px; font-weight: 500; }
+
+    .bars-section { margin-bottom: 24px; }
+    .bar-group { margin-bottom: 14px; }
+    .bar-group-label { font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+    .bar-rowlabel { font-size: 12px; color: #888780; width: 70px; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 22px; border-radius: 5px; background: #f1efe8; overflow: hidden; }
+    @media (prefers-color-scheme: dark) { .bar-track { background: #2c2c2a; } }
+    .bar-fill { height: 100%; border-radius: 5px; display: flex; align-items: center; justify-content: flex-end; padding-right: 7px; font-size: 11px; font-weight: 500; color: #fff; transition: width .3s ease; min-width: 2px; }
+    .bar-pctlabel { font-size: 12px; font-weight: 500; width: 42px; text-align: right; }
+
+    .verdict {
+      border-radius: 8px; padding: 12px 16px; font-size: 13px; font-weight: 500;
+      margin-bottom: 16px; line-height: 1.5;
+    }
+    .verdict.paradox { background: #fcebeb; color: #A32D2D; }
+    .verdict.noparadox { background: #e1f5ee; color: #0F6E56; }
+    @media (prefers-color-scheme: dark) {
+      .verdict.paradox { background: #3a1f1f; color: #F09595; }
+      .verdict.noparadox { background: #0d2e22; color: #5DCAA5; }
+    }
+
+    .explainer { background: #f1efe8; border-radius: 8px; padding: 12px 16px; font-size: 13px; line-height: 1.65; color: #888780; }
+    @media (prefers-color-scheme: dark) { .explainer { background: #2c2c2a; } }
+
+    .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; margin-bottom: 20px; }
+    .tbl th { background: #f1efe8; padding: 6px 10px; text-align: center; font-weight: 500; border-bottom: 1px solid #d3d1c7; }
+    .tbl td { padding: 6px 10px; text-align: center; border-bottom: 1px solid #f1efe8; }
+    .tbl tr:last-child td { border-bottom: none; font-weight: 500; }
+    .tbl .winner { color: #1D9E75; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<h2>Simpson's Paradox</h2>
+<p class="sub">The drug outperforms placebo in every subgroup — yet can appear worse overall. Adjust the trial allocation to see when the paradox appears and why.</p>
+
+<div class="slider-section">
+  <h3>Women in trial</h3>
+  <div class="slider-grid">
+    <div class="card">
+      <div class="lbl">Women assigned to treatment</div>
+      <input type="range" id="wt" min="10" max="590" step="10" value="450" oninput="update()">
+      <div class="val"><span id="lbl-wt">450</span> / 600</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Recovery rate — women on treatment</div>
+      <input type="range" id="wr-t" min="0.05" max="0.95" step="0.01" value="0.30" oninput="update()">
+      <div class="val"><span id="lbl-wrt">30%</span></div>
+    </div>
+  </div>
+  <div class="slider-grid" style="margin-top:8px">
+    <div class="card">
+      <div class="lbl">Recovery rate — women on placebo</div>
+      <input type="range" id="wr-p" min="0.05" max="0.95" step="0.01" value="0.20" oninput="update()">
+      <div class="val"><span id="lbl-wrp">20%</span></div>
+    </div>
+    <div></div>
+  </div>
+</div>
+
+<div class="slider-section">
+  <h3>Men in trial</h3>
+  <div class="slider-grid">
+    <div class="card">
+      <div class="lbl">Men assigned to treatment</div>
+      <input type="range" id="mt" min="10" max="590" step="10" value="150" oninput="update()">
+      <div class="val"><span id="lbl-mt">150</span> / 600</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Recovery rate — men on treatment</div>
+      <input type="range" id="mr-t" min="0.05" max="0.95" step="0.01" value="0.70" oninput="update()">
+      <div class="val"><span id="lbl-mrt">70%</span></div>
+    </div>
+  </div>
+  <div class="slider-grid" style="margin-top:8px">
+    <div class="card">
+      <div class="lbl">Recovery rate — men on placebo</div>
+      <input type="range" id="mr-p" min="0.05" max="0.95" step="0.01" value="0.60" oninput="update()">
+      <div class="val"><span id="lbl-mrp">60%</span></div>
+    </div>
+    <div></div>
+  </div>
+</div>
+
+<div class="bars-section" id="bars"></div>
+<div class="verdict" id="verdict"></div>
+<div class="explainer" id="explainer"></div>
+
+<script>
+  function pct(x) { return (x * 100).toFixed(1) + '%'; }
+
+  function bar(label, rate, color) {
+    const w = Math.max(rate * 100, 1).toFixed(1);
+    return `
+      <div class="bar-row">
+        <div class="bar-rowlabel">${label}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${w}%;background:${color}">${pct(rate)}</div>
+        </div>
+        <div class="bar-pctlabel" style="color:${color}">${pct(rate)}</div>
+      </div>`;
+  }
+
+  function update() {
+    const wTreat = parseInt(document.getElementById('wt').value);
+    const wPlace = 600 - wTreat;
+    const mTreat = parseInt(document.getElementById('mt').value);
+    const mPlace = 600 - mTreat;
+
+    const wrT = parseFloat(document.getElementById('wr-t').value);
+    const wrP = parseFloat(document.getElementById('wr-p').value);
+    const mrT = parseFloat(document.getElementById('mr-t').value);
+    const mrP = parseFloat(document.getElementById('mr-p').value);
+
+    document.getElementById('lbl-wt').textContent  = wTreat;
+    document.getElementById('lbl-wrt').textContent = pct(wrT);
+    document.getElementById('lbl-wrp').textContent = pct(wrP);
+    document.getElementById('lbl-mt').textContent  = mTreat;
+    document.getElementById('lbl-mrt').textContent = pct(mrT);
+    document.getElementById('lbl-mrp').textContent = pct(mrP);
+
+    // Recovered counts
+    const wRecT = Math.round(wTreat * wrT);
+    const wRecP = Math.round(wPlace * wrP);
+    const mRecT = Math.round(mTreat * mrT);
+    const mRecP = Math.round(mPlace * mrP);
+
+    const totalTreat = wTreat + mTreat;
+    const totalPlace = wPlace + mPlace;
+    const totalRecT  = wRecT + mRecT;
+    const totalRecP  = wRecP + mRecP;
+    const overallT   = totalRecT / totalTreat;
+    const overallP   = totalRecP / totalPlace;
+
+    const paradox = overallT < overallP;
+
+    // Bars
+    document.getElementById('bars').innerHTML = `
+      <div class="bar-group">
+        <div class="bar-group-label">Women</div>
+        ${bar('Treatment', wrT, '#1D9E75')}
+        ${bar('Placebo', wrP, '#888780')}
+      </div>
+      <div class="bar-group">
+        <div class="bar-group-label">Men</div>
+        ${bar('Treatment', mrT, '#1D9E75')}
+        ${bar('Placebo', mrP, '#888780')}
+      </div>
+      <div class="bar-group">
+        <div class="bar-group-label">Overall (aggregated)</div>
+        ${bar('Treatment', overallT, paradox ? '#D85A30' : '#1D9E75')}
+        ${bar('Placebo', overallP, paradox ? '#1D9E75' : '#888780')}
+      </div>`;
+
+    // Verdict
+    const verdictEl = document.getElementById('verdict');
+    if (paradox) {
+      verdictEl.className = 'verdict paradox';
+      verdictEl.innerHTML = `⚠ Simpson's Paradox detected. Treatment is better in both subgroups (+${pct(wrT-wrP)} for women, +${pct(mrT-mrP)} for men) but appears worse overall (${pct(overallT)} vs ${pct(overallP)}).`;
+    } else {
+      verdictEl.className = 'verdict noparadox';
+      verdictEl.innerHTML = `No paradox. Treatment is better in both subgroups and also in the aggregate (${pct(overallT)} vs ${pct(overallP)}).`;
+    }
+
+    // Explainer
+    const confound = wTreat / 600 > 0.5 && wrT < mrT
+      ? `Women are over-represented in the treatment group (${wTreat} of ${totalTreat} = ${pct(wTreat/totalTreat)}) and have a lower baseline recovery rate (${pct(wrP)} placebo) than men (${pct(mrP)} placebo). This makes the treatment group look worse than it is.`
+      : `The treatment allocation is more balanced here, so the confounding effect of gender is weaker.`;
+
+    document.getElementById('explainer').innerHTML =
+      `<strong>Why this happens:</strong> ${confound}<br><br>
+      In probability terms, it is wrong to assume Pr(recovered | treatment) is the same for men and women. Gender is a <em>confounding variable</em> — correlated with both treatment assignment and the outcome. Aggregating without conditioning on gender mixes groups with different baseline rates in different proportions, reversing the apparent effect.`;
+  }
+
+  update();
+</script>
+</body>
+</html>
