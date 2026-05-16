@@ -10,8 +10,8 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 
 ### Intro to Programming
 
-https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html
+[Link](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html)
 
 ### Microeconomics III
 
-https://alekswithk.github.io/hsg-maxxing/Micro_III/file_name.html
+[Link](https://alekswithk.github.io/hsg-maxxing/Micro_III/file_name.html)
