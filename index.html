@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSG Maxxing — Study Tools</title>
+  <style>
+    :root {
+      --bg: #080d18;
+      --bg2: #0e1525;
+      --bg3: #141d30;
+      --border: #1e2d4a;
+      --border-light: #2d4268;
+      --text: #cdd9ed;
+      --text-dim: #7d91ad;
+      --text-bright: #eef2fa;
+      --gold: #f0a500;
+      --gold-light: #ffc94a;
+      --green: #2dd480;
+      --radius: 16px;
+      --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(240, 165, 0, 0.10), transparent 32rem),
+        linear-gradient(135deg, var(--bg), #0b1222 70%);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    .page {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 36px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      color: var(--text-bright);
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+    }
+
+    .intro {
+      max-width: 690px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    .github-link {
+      color: #05070d;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .github-link:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+    }
+
+    .section-title {
+      color: var(--text-bright);
+      font-size: 1.15rem;
+      margin: 34px 0 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 230px;
+      background: rgba(14, 21, 37, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-light);
+      background: rgba(20, 29, 48, 0.96);
+    }
+
+    .card h3 {
+      color: var(--text-bright);
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      font-size: 0.94rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .tag {
+      border: 1px solid rgba(240, 165, 0, 0.24);
+      background: rgba(240, 165, 0, 0.08);
+      color: var(--gold-light);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 650;
+    }
+
+    .open {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .placeholder {
+      opacity: 0.66;
+      cursor: default;
+    }
+
+    .placeholder:hover {
+      transform: none;
+      border-color: var(--border);
+      background: rgba(14, 21, 37, 0.92);
+    }
+
+    footer {
+      margin-top: 42px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    code {
+      color: var(--gold-light);
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+
+    @media (max-width: 720px) {
+      header { flex-direction: column; }
+      .github-link { align-self: flex-start; }
+      .page { padding-top: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <div class="eyebrow">HSG Maxxing</div>
+        <h1>Study tools</h1>
+        <p class="intro">
+          A central entry page for the HTML study tools hosted with GitHub Pages. Add new tools by placing HTML files in the relevant course folder and linking them here.
+        </p>
+      </div>
+      <a class="github-link" href="https://github.com/alekswithk/hsg-maxxing" target="_blank" rel="noopener">Open repository</a>
+    </header>
+
+    <section aria-labelledby="courses-title">
+      <h2 class="section-title" id="courses-title">Courses</h2>
+      <div class="grid">
+        <a class="card" href="Intro_to_Programming/itp_studytool.html">
+          <div>
+            <h3>Intro to Programming</h3>
+            <p>Exam-preparation study tool for the course 4,222 Introduction to Programming.</p>
+            <div class="tag-row">
+              <span class="tag">HTML</span>
+              <span class="tag">Quiz</span>
+              <span class="tag">Programming</span>
+            </div>
+          </div>
+          <span class="open">Open tool →</span>
+        </a>
+
+        <a class="card" href="Micro_III/file_name.html">
+          <div>
+            <h3>Microeconomics III</h3>
+            <p>Replace <code>file_name.html</code> with the actual HTML file name once the Micro III tool is added.</p>
+            <div class="tag-row">
+              <span class="tag">HTML</span>
+              <span class="tag">Course folder</span>
+            </div>
+          </div>
+          <span class="open">Open tool →</span>
+        </a>
+
+        <div class="card placeholder" aria-disabled="true">
+          <div>
+            <h3>Add another course</h3>
+            <p>Duplicate this card and change the folder path when you add a new course folder.</p>
+            <div class="tag-row">
+              <span class="tag">Template</span>
+            </div>
+          </div>
+          <span class="open">Edit index.html</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Main URL after publishing: <code>https://alekswithk.github.io/hsg-maxxing/</code>
+    </footer>
+  </main>
+</body>
+</html>
