@@ -158,6 +158,31 @@
       font-size: 0.9rem;
     }
 
+    .link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 1.1rem;
+    }
+
+    .link-list a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.92rem;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(240, 165, 0, 0.06);
+      transition: all 0.15s ease;
+    }
+
+    .link-list a:hover {
+      border-color: var(--gold);
+      background: rgba(240, 165, 0, 0.12);
+      transform: translateX(2px);
+    }
+
     .placeholder {
       opacity: 0.66;
       cursor: default;
@@ -221,17 +246,23 @@
           <span class="open">Open tool →</span>
         </a>
 
-        <a class="card" href="Micro_III/file_name.html">
+        <div class="card">
           <div>
             <h3>Microeconomics III</h3>
-            <p>Replace <code>file_name.html</code> with the actual HTML file name once the Micro III tool is added.</p>
+            <p>Exam-preparation tools for the course 4,202 Microeconomics III.</p>
             <div class="tag-row">
               <span class="tag">HTML</span>
               <span class="tag">Course folder</span>
+              <span class="tag">Microeconomics</span>
+            </div>
+
+            <div class="link-list" aria-label="Microeconomics III tools">
+              <a href="Micro_III/index.html">Course overview →</a>
+              <a href="Micro_III/bayes_hiv.html">Bayes HIV tool →</a>
+              <a href="Micro_III/simpsons_paradox.html">Simpson's paradox tool →</a>
             </div>
           </div>
-          <span class="open">Open tool →</span>
-        </a>
+        </div>
 
         <div class="card placeholder" aria-disabled="true">
           <div>
