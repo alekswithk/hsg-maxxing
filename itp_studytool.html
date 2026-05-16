@@ -44,7 +44,7 @@
   }
 
   /* LAYOUT */
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  .app { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
 
   header {
     background: var(--bg2);
@@ -79,6 +79,8 @@
     cursor: pointer;
     transition: all 0.15s;
     letter-spacing: 0.02em;
+    position: relative;
+    z-index: 10;
   }
   nav button:hover { background: var(--bg3); color: var(--text); }
   nav button.active { background: var(--bg3); color: var(--gold); }
@@ -93,10 +95,10 @@
     letter-spacing: 0.05em;
   }
 
-  main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+  main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; position: relative; z-index: 2; }
 
   /* VIEWS */
-  .view { display: none; }
+  .view { display: none; position: relative; z-index: 5; }
   .view.active { display: block; }
 
   /* ===== DASHBOARD ===== */
@@ -108,6 +110,7 @@
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    z-index: 5;
   }
   .dash-hero::before {
     content: '';
@@ -146,6 +149,8 @@
     border-radius: var(--radius);
     padding: 1.5rem;
     box-shadow: var(--card-shadow);
+    position: relative;
+    z-index: 10;
   }
   .card h3 {
     font-family: 'DM Serif Display', serif;
@@ -163,8 +168,6 @@
     margin-left: 8px;
     vertical-align: middle;
   }
-  .badge-today { background: rgba(240,165,0,0.15); color: var(--gold); border: 1px solid rgba(240,165,0,0.3); }
-  .badge-done { background: rgba(45,212,128,0.15); color: var(--green); border: 1px solid rgba(45,212,128,0.3); }
 
   /* Day plan cards */
   .day-plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
@@ -179,6 +182,7 @@
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    z-index: 10;
   }
   .day-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
   .day-card.is-today { border-color: var(--gold-dim); }
@@ -200,7 +204,7 @@
     margin-bottom: 0.15rem;
   }
   .day-date { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.75rem; }
-  .day-topics { list-style: none; }
+  .day-topics { list-style: none; pointer-events: none; }
   .day-topics li {
     font-size: 0.8rem;
     color: var(--text-dim);
@@ -221,8 +225,9 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
+    pointer-events: none; /* Let the card handle the click */
   }
-  .day-btn:hover { background: rgba(240,165,0,0.18); }
+  .day-card:hover .day-btn { background: rgba(240,165,0,0.18); }
 
   /* Topic grid */
   .section-label {
@@ -241,13 +246,15 @@
     padding: 1.1rem 1.25rem;
     cursor: pointer;
     transition: all 0.2s;
+    position: relative;
+    z-index: 10;
   }
   .topic-card:hover { border-color: var(--border-light); transform: translateY(-1px); }
-  .topic-card h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-bright); margin-bottom: 0.5rem; }
-  .topic-card .q-count { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.6rem; }
-  .prog-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .topic-card h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-bright); margin-bottom: 0.5rem; pointer-events: none; }
+  .topic-card .q-count { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.6rem; pointer-events: none; }
+  .prog-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; pointer-events: none; }
   .prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius: 2px; transition: width 0.4s; }
-  .prog-pct { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; }
+  .prog-pct { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; pointer-events: none; }
 
   /* Overall progress */
   .overall-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
@@ -273,6 +280,8 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
+    position: relative;
+    z-index: 10;
   }
   .btn:hover { border-color: var(--border-light); color: var(--text-bright); }
   .btn-gold { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
@@ -284,6 +293,7 @@
     background: var(--bg2); border: 1px solid var(--border);
     color: var(--text-dim); font-size: 0.78rem; font-weight: 500;
     padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all 0.15s;
+    position: relative; z-index: 10;
   }
   .filter-chip:hover { border-color: var(--border-light); color: var(--text); }
   .filter-chip.active { background: rgba(240,165,0,0.12); border-color: var(--gold-dim); color: var(--gold); }
@@ -303,6 +313,8 @@
     margin-bottom: 1.5rem;
     box-shadow: var(--card-shadow);
     animation: slideIn 0.25s ease;
+    position: relative;
+    z-index: 5;
   }
   @keyframes slideIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
   .q-meta { display: flex; gap: 10px; margin-bottom: 1.2rem; }
@@ -372,6 +384,7 @@
     cursor: pointer;
     transition: all 0.15s;
     user-select: none;
+    position: relative; z-index: 10;
   }
   .choice:hover:not(.disabled) { border-color: var(--border-light); background: #1a2540; }
   .choice.selected { border-color: var(--blue); background: rgba(74,158,255,0.07); }
@@ -405,7 +418,7 @@
     background: var(--bg3); border: 1px solid var(--border);
     border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
     font-family: 'DM Serif Display', serif; font-size: 1.1rem;
-    color: var(--text); text-align: center;
+    color: var(--text); text-align: center; position: relative; z-index: 10;
   }
   .tf-btn:hover:not(.disabled) { border-color: var(--border-light); }
   .tf-btn.selected { border-color: var(--blue); background: rgba(74,158,255,0.07); color: var(--blue); }
@@ -437,7 +450,7 @@
     background: rgba(45,212,128,0.08); border: 1px dashed rgba(45,212,128,0.3);
     border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
     cursor: pointer; color: var(--green); font-size: 0.85rem; font-weight: 500;
-    transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+    transition: all 0.15s; display: flex; align-items: center; gap: 8px; position: relative; z-index: 10;
   }
   .model-answer-toggle:hover { background: rgba(45,212,128,0.13); }
   .model-answer-toggle .arrow { transition: transform 0.2s; }
@@ -463,6 +476,7 @@
     background: var(--gold); border: none; color: #000;
     font-family: 'IBM Plex Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
     padding: 9px 20px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+    position: relative; z-index: 10;
   }
   .btn-confirm:hover { background: var(--gold-light); }
   .btn-confirm:disabled { background: var(--bg3); color: var(--text-dim); cursor: default; }
@@ -471,6 +485,7 @@
     color: var(--text-bright); font-family: 'IBM Plex Sans', sans-serif;
     font-size: 0.88rem; font-weight: 500; padding: 9px 20px; border-radius: 6px;
     cursor: pointer; transition: all 0.15s; display: none; align-items: center; gap: 6px;
+    position: relative; z-index: 10;
   }
   .btn-next:hover { background: var(--bg2); }
   .btn-next.show { display: flex; }
@@ -497,10 +512,11 @@
     background: var(--bg2); border: 1px solid var(--border);
     border-radius: var(--radius-sm); padding: 1.1rem 1.25rem;
     margin-bottom: 0.75rem; cursor: pointer; transition: all 0.15s;
+    position: relative; z-index: 10;
   }
   .review-q:hover { border-color: var(--border-light); }
   .review-q.open { border-color: var(--border-light); }
-  .review-q-header { display: flex; align-items: flex-start; gap: 10px; }
+  .review-q-header { display: flex; align-items: flex-start; gap: 10px; pointer-events: none; }
   .review-q-text { flex: 1; font-size: 0.88rem; color: var(--text); line-height: 1.5; }
   .review-q-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--gold-light); }
   .review-answer {
@@ -554,11 +570,10 @@
 
 <main>
 
-  <!-- DASHBOARD -->
   <div id="view-dashboard" class="view active">
     <div class="dash-hero">
       <h1>Your <em>Exam Prep</em> HQ</h1>
-      <p>4 days of structured practice · 60+ questions · All topics covered</p>
+      <p>4 days of structured practice · 100+ questions · All topics covered</p>
       <div class="countdown">
         <div class="countdown-num" id="days-left">7</div>
         <div class="countdown-label">days to exam</div>
@@ -567,7 +582,7 @@
 
     <div style="margin-bottom:1rem" class="section-label">4-Day Study Plan</div>
     <div class="day-plans">
-      <div class="day-card" id="day-card-1">
+      <div class="day-card" id="day-card-1" onclick="startDaySession(1)">
         <h4>Day 1</h4>
         <div class="day-date">Git, Terminal & Environments</div>
         <ul class="day-topics">
@@ -576,9 +591,9 @@
           <li>Pull requests</li>
           <li>Python environments (uv)</li>
         </ul>
-        <button class="day-btn" onclick="startDaySession(1)">Start Practice →</button>
+        <button class="day-btn">Start Practice →</button>
       </div>
-      <div class="day-card" id="day-card-2">
+      <div class="day-card" id="day-card-2" onclick="startDaySession(2)">
         <h4>Day 2</h4>
         <div class="day-date">Python Fundamentals</div>
         <ul class="day-topics">
@@ -587,9 +602,9 @@
           <li>Pandas DataFrames</li>
           <li>Matplotlib plots</li>
         </ul>
-        <button class="day-btn" onclick="startDaySession(2)">Start Practice →</button>
+        <button class="day-btn">Start Practice →</button>
       </div>
-      <div class="day-card" id="day-card-3">
+      <div class="day-card" id="day-card-3" onclick="startDaySession(3)">
         <h4>Day 3</h4>
         <div class="day-date">OOP & Error Handling</div>
         <ul class="day-topics">
@@ -598,9 +613,9 @@
           <li>Docstrings</li>
           <li>Error handling</li>
         </ul>
-        <button class="day-btn" onclick="startDaySession(3)">Start Practice →</button>
+        <button class="day-btn">Start Practice →</button>
       </div>
-      <div class="day-card" id="day-card-4">
+      <div class="day-card" id="day-card-4" onclick="startDaySession(4)">
         <h4>Day 4</h4>
         <div class="day-date">SQL & Databases</div>
         <ul class="day-topics">
@@ -609,7 +624,7 @@
           <li>GROUP BY & HAVING</li>
           <li>Star schema & CTEs</li>
         </ul>
-        <button class="day-btn" onclick="startDaySession(4)">Start Practice →</button>
+        <button class="day-btn">Start Practice →</button>
       </div>
     </div>
 
@@ -619,7 +634,7 @@
         <div class="overall-stats">
           <div class="stat-box"><div class="stat-num" id="stat-answered">0</div><div class="stat-label">Questions Answered</div></div>
           <div class="stat-box"><div class="stat-num" id="stat-correct">0%</div><div class="stat-label">Accuracy</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-total">60</div><div class="stat-label">Total Questions</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-total">115</div><div class="stat-label">Total Questions</div></div>
         </div>
       </div>
       <div class="card">
@@ -637,7 +652,6 @@
     <div class="topic-grid" id="topic-grid"></div>
   </div>
 
-  <!-- QUIZ VIEW -->
   <div id="view-quiz" class="view">
     <div class="quiz-header">
       <h2 id="quiz-title">Practice</h2>
@@ -655,7 +669,6 @@
     <div id="question-area"></div>
   </div>
 
-  <!-- REVIEW VIEW -->
   <div id="view-review" class="view">
     <div class="quiz-header">
       <h2>Question Bank Review</h2>
@@ -748,6 +761,29 @@ const questions = [
   correct:true,
   expl:`<strong>True.</strong> The diff view lets reviewers check exactly what changed line-by-line before approving the merge.`
 },
+{id:65, topic:'git', type:'tf',
+  q:`In Git, you can be in a "detached HEAD" state if you check out a specific older commit hash instead of a branch name.`,
+  correct:true,
+  expl:`<strong>True.</strong> Checking out a specific commit hash (like <code>git checkout a3f7b2c</code>) detaches HEAD from the main branch. Any new commits made here won't belong to a specific branch unless you explicitly create one.`
+},
+{id:66, topic:'git', type:'single',
+  q:`You have generated a secure SSH key pair for authenticating with GitHub. Which key is safe to upload and store in your GitHub account?`,
+  choices:['The private key','The public key','Both keys must be uploaded','Neither, SSH keys are only for local file encryption'],
+  correct:[1],
+  expl:`<strong>b)</strong> The public key is uploaded to GitHub to identify you. The private key must NEVER be shared or uploaded anywhere; it stays securely on your local machine.`
+},
+{id:67, topic:'git', type:'single',
+  q:`If you type <code>git commit</code> without providing the <code>-m</code> flag, what happens?`,
+  choices:['The commit is aborted immediately','Git generates a random placeholder message like "update code"','Git opens a text editor (like vim or nano) in the terminal asking you to write a commit message','Git commits the files silently with no message'],
+  correct:[2],
+  expl:`<strong>c)</strong> Git requires a commit message. Omitting the <code>-m</code> flag triggers the default terminal text editor to open so you can type the message manually.`
+},
+{id:68, topic:'git', type:'tf',
+  q:`If a file is already being tracked by Git, and you subsequently add its name to <code>.gitignore</code>, Git will automatically delete it from the repository history.`,
+  correct:false,
+  expl:`<strong>False.</strong> <code>.gitignore</code> only stops Git from tracking <em>untracked</em> files. If a file is already tracked, you must explicitly remove it from the repository using Git commands (e.g., <code>git rm --cached</code>) and commit the removal.`
+},
+
 // ---- TERMINAL ----
 {id:11, topic:'terminal', type:'tf',
   q:`On Mac/Linux, the <code>pwd</code> command displays the current working directory.`,
@@ -783,6 +819,18 @@ const questions = [
   correct:[1],
   expl:`<strong>b)</strong> <code>></code> redirects output to a file, <em>overwriting</em> it if it exists. To <em>append</em> without overwriting, use <code>>></code>.`
 },
+{id:69, topic:'terminal', type:'single',
+  q:`If you want to view a manual or help page for the <code>ls</code> command on Mac/Linux, which command would you run?`,
+  choices:['<code>help ls</code>','<code>man ls</code>','<code>info ls</code>','<code>read ls</code>'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>man ls</code> opens the manual pages for the specified command. On Windows/Git Bash, you often use <code>ls --help</code> instead.`
+},
+{id:70, topic:'terminal', type:'tf',
+  q:`An absolute path describes the location of a file starting from your current working directory.`,
+  correct:false,
+  expl:`<strong>False.</strong> An <em>absolute</em> path starts from the root of the file system (e.g., <code>C:/Users/...</code>). A <em>relative</em> path starts from the current working directory.`
+},
+
 // ---- ENVIRONMENTS ----
 {id:17, topic:'env', type:'tf',
   q:`You should always install Python packages globally rather than using a project-specific virtual environment.`,
@@ -807,6 +855,13 @@ const questions = [
   correct:[2],
   expl:`<strong>c) <code>uv add pandas</code></strong>. This updates both <code>pyproject.toml</code> and <code>uv.lock</code>. Never use <code>pip install</code> inside a <code>uv</code> project.`
 },
+{id:71, topic:'env', type:'single',
+  q:`In a standard Python project utilizing <code>uv</code> for environment management, which directory actually contains the isolated Python interpreter and the installed packages?`,
+  choices:['<code>__pycache__/</code>','<code>.venv/</code>','<code>src/</code>','<code>env/</code>'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>.venv/</code> is the directory automatically generated by <code>uv</code> containing the isolated environment. It is machine-specific and must be added to <code>.gitignore</code>.`
+},
+
 // ---- PYTHON BASICS ----
 {id:21, topic:'python', type:'tf',
   q:`In Python, the first element of a list is accessed at index 1 (1-based indexing).`,
@@ -848,6 +903,30 @@ const questions = [
   correct:[2],
   expl:`<strong>c) <code>dict.items()</code></strong> yields <code>(key, value)</code> pairs on each iteration. You unpack them: <code>for country, gdp in country_gdp.items()</code>.`
 },
+{id:72, topic:'python', type:'single',
+  q:`Which built-in Python data structure represents an unordered collection of <em>unique</em> elements?`,
+  choices:['<code>list</code>','<code>tuple</code>','<code>set</code>','<code>dictionary</code>'],
+  correct:[2],
+  expl:`<strong>c)</strong> A <code>set</code> automatically removes duplicate elements and is unordered (cannot be accessed via indexing).`
+},
+{id:73, topic:'python', type:'single',
+  q:`What does the <code>enumerate()</code> function do when used in a <code>for</code> loop?`,
+  choices:['It sorts the collection alphabetically','It hands you two variables on every pass: an automatic counter (index) and the item itself','It automatically converts strings into numbers','It executes the loop infinitely'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>enumerate()</code> yields an <code>(index, item)</code> tuple on every iteration. E.g., <code>for i, rate in enumerate(forecasts):</code>.`
+},
+{id:74, topic:'python', type:'single',
+  q:`Consider the Python function below. What is the output if called via <code>calculate_discount(100)</code>?<br><br><code>def calculate_discount(price, discount=0.10):<br>&nbsp;&nbsp;&nbsp;&nbsp;return price * (1 - discount)</code>`,
+  choices:['<code>10.0</code>','<code>90.0</code>','<code>0.0</code>','A TypeError is raised'],
+  correct:[1],
+  expl:`<strong>b)</strong> Since no discount argument is passed, it uses the default of 0.10. <code>100 * (1 - 0.10) = 90.0</code>.`
+},
+{id:75, topic:'python', type:'tf',
+  q:`A Tuple in Python is essentially a List, but it is <em>immutable</em> (you cannot change, add, or remove elements once created).`,
+  correct:true,
+  expl:`<strong>True.</strong> Tuples use parentheses <code>()</code> instead of square brackets <code>[]</code> and are designed to store fixed records that should not be altered during runtime.`
+},
+
 // ---- PANDAS & MATPLOTLIB ----
 {id:28, topic:'pandas', type:'tf',
   q:`<code>plt.savefig("chart.png")</code> must be called <em>before</em> <code>plt.show()</code> to avoid saving a blank image.`,
@@ -877,6 +956,36 @@ const questions = [
   correct:false,
   expl:`<strong>False.</strong> It's the other way around: <code>.max()</code> returns the maximum value; <code>.idxmax()</code> returns the index label (e.g., the date) where the maximum occurs.`
 },
+{id:76, topic:'pandas', type:'single',
+  q:`How do you create a new column named <code>gdp_bn</code> derived from dividing the <code>gdp</code> column by 1000 in Pandas?`,
+  choices:['<code>df["gdp_bn"] = df.gdp / 1000</code>','<code>df.insert("gdp_bn", "gdp" / 1000)</code>','<code>df["gdp_bn"] = df["gdp"] / 1000</code>','<code>df = df.mutate(gdp_bn = gdp / 1000)</code>'],
+  correct:[2],
+  expl:`<strong>c)</strong> Pandas supports vectorized operations. Defining <code>df["new_col"] = math_operation</code> creates the derived variable efficiently row-by-row.`
+},
+{id:77, topic:'pandas', type:'tf',
+  q:`When handling missing data in a time series (like unemployment rates), filling gaps with <code>.fillna(0)</code> is generally the most robust and preferred method.`,
+  correct:false,
+  expl:`<strong>False.</strong> Filling with 0 or the mean introduces severe bias in time series. Interpolation (<code>.interpolate()</code>) or forward-filling (<code>.ffill()</code>) are usually preferred for economic trends.`
+},
+{id:78, topic:'pandas', type:'single',
+  q:`What does the pandas <code>.resample('YS').mean()</code> method accomplish when applied to a monthly time series?`,
+  choices:['It filters the data to only show January values','It interpolates missing values up to the yearly scale','It downsamples the data from Monthly to Yearly, calculating the average for each year','It shifts the data backwards by 1 year'],
+  correct:[2],
+  expl:`<strong>c)</strong> Resampling changes the frequency of the DateTimeIndex. <code>YS</code> stands for Year Start, and <code>.mean()</code> dictates how the 12 monthly values are aggregated.`
+},
+{id:79, topic:'pandas', type:'single',
+  q:`To properly combine multiple filtering conditions in Pandas (e.g., year greater than 2015 AND country is France), what is the correct syntax?`,
+  choices:['<code>df[df["year"] > 2015 and df["iso3"] == "FRA"]</code>','<code>df[(df["year"] > 2015) & (df["iso3"] == "FRA")]</code>','<code>df[df["year"] > 2015 && df["iso3"] = "FRA"]</code>','<code>df.filter(year > 2015, iso3 == "FRA")</code>'],
+  correct:[1],
+  expl:`<strong>b)</strong> Pandas requires the bitwise operators <code>&</code> (AND) or <code>|</code> (OR) for combining boolean masks. Furthermore, each individual condition <em>must</em> be wrapped in parentheses.`
+},
+{id:80, topic:'pandas', type:'multi',
+  q:`Which of the following functions/methods are used to aggregate grouped data after calling <code>df.groupby()</code>?`,
+  choices:['<code>.agg()</code>','<code>.mean()</code>','<code>.head()</code>','<code>.sum()</code>'],
+  correct:[0,1,3],
+  expl:`<strong>a, b, d)</strong> <code>.mean()</code> and <code>.sum()</code> are single aggregations. <code>.agg()</code> is used for multiple or specific aggregations (e.g., <code>.agg(['min', 'max'])</code>). <code>.head()</code> only previews rows.`
+},
+
 // ---- OOP ----
 {id:33, topic:'oop', type:'single',
   q:`Given the BankAccount class below, what does <code>print(my_account.balance)</code> output after running the example?`,
@@ -958,6 +1067,18 @@ print(snb.policy)  # ???`,
   correct:[1],
   expl:`<strong>b) <code>CentralBank.__doc__</code></strong> returns the class docstring. The <code>help(CentralBank)</code> function also displays it but formats it more verbosely.`
 },
+{id:81, topic:'oop', type:'tf',
+  q:`In Object-Oriented Programming (OOP), "Class" and "Object" mean the exact same thing.`,
+  correct:false,
+  expl:`<strong>False.</strong> A <em>Class</em> is the blueprint or template containing the logic, while an <em>Object</em> (Instance) is the actual constructed entity containing its specific data.`
+},
+{id:82, topic:'oop', type:'single',
+  q:`When importing a custom Python class module you created (e.g., <code>monetary_policy.py</code>), which import statement allows you to use the class name directly without the module prefix?`,
+  choices:['<code>import monetary_policy</code>','<code>import monetary_policy.CentralBank</code>','<code>from monetary_policy import CentralBank</code>','<code>include CentralBank from monetary_policy.py</code>'],
+  correct:[2],
+  expl:`<strong>c)</strong> <code>from ... import ...</code> pulls the specific class directly into your active namespace, allowing you to type <code>CentralBank()</code> instead of <code>monetary_policy.CentralBank()</code>.`
+},
+
 // ---- ERROR HANDLING ----
 {id:42, topic:'errors', type:'single',
   q:`Which Python construct is used to catch and gracefully handle runtime errors?`,
@@ -982,6 +1103,12 @@ print(snb.policy)  # ???`,
   correct:[1],
   expl:`<strong>b)</strong> Robustness = anticipating failures. For example, checking that a column name exists before querying, that a numeric argument is actually a number, and printing clear messages when something goes wrong.`
 },
+{id:83, topic:'errors', type:'tf',
+  q:`The practice of checking user input logic—such as verifying a requested state actually exists in a dictionary map—before generating a plot is an example of "Defensive Programming".`,
+  correct:true,
+  expl:`<strong>True.</strong> Defensive programming anticipates incorrect user inputs and handles them gracefully (e.g., printing an error message and using a <code>return</code> statement to exit early) to prevent the program from crashing.`
+},
+
 // ---- SQL ----
 {id:46, topic:'sql', type:'single',
   q:`The statement: "It does not matter whether I do a <code>LEFT JOIN</code> or an <code>INNER JOIN</code> from my fact table to a dimension table in a star schema where relational integrity holds." — Which answer is correct?`,
@@ -1064,6 +1191,36 @@ print(snb.policy)  # ???`,
   correct:[1],
   expl:`<strong>b)</strong> Without normalization: if Switzerland changes region, you'd update millions of trade flow rows. With a separate <code>countries</code> table, you change one row. Normalization also prevents insertion/deletion anomalies.`
 },
+{id:84, topic:'sql', type:'single',
+  q:`In SQL, which class of commands covers <code>CREATE TABLE</code> and <code>ALTER TABLE</code>?`,
+  choices:['DML (Data Manipulation Language)','DDL (Data Definition Language)','DQL (Data Query Language)','TCL (Transaction Control Language)'],
+  correct:[1],
+  expl:`<strong>b)</strong> DDL defines the database structure. DML involves manipulating records (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>), and DQL is for querying (<code>SELECT</code>).`
+},
+{id:85, topic:'sql', type:'single',
+  q:`DuckDB is categorized primarily as which type of database architecture?`,
+  choices:['OLTP (Online Transaction Processing)','A document-based NoSQL database','OLAP (Online Analytical Processing)','A graph database'],
+  correct:[2],
+  expl:`<strong>c)</strong> DuckDB is an OLAP database built for analytics. It utilizes a column-oriented storage layout to rapidly scan large amounts of data for aggregations.`
+},
+{id:86, topic:'sql', type:'tf',
+  q:`Because DuckDB is an embedded database engine, it requires you to run and maintain an independent database server in the background.`,
+  correct:false,
+  expl:`<strong>False.</strong> DuckDB is serverless ("embedded"), meaning it runs entirely inside the host process (like your Python script) and requires no separate server setup.`
+},
+{id:87, topic:'sql', type:'single',
+  q:`When loading data into a SQL database, the "T" in an ETL pipeline stands for what?`,
+  choices:['Transaction','Transform','Table','Transfer'],
+  correct:[1],
+  expl:`<strong>b)</strong> ETL stands for Extract, Transform, Load. Data is heavily cleaned and reshaped (transformed) using tools like Pandas before it is formally loaded into the SQL schema.`
+},
+{id:88, topic:'sql', type:'single',
+  q:`How does a Window Function (e.g. using <code>OVER (PARTITION BY)</code>) differ structurally from a standard <code>GROUP BY</code> aggregation?`,
+  choices:['Window functions cannot use mathematical aggregations like SUM or AVG','Window functions collapse the rows into a single summary row, whereas GROUP BY retains them','Window functions perform calculations across related rows but preserve individual row details instead of collapsing them','Window functions execute before the WHERE clause'],
+  correct:[2],
+  expl:`<strong>c)</strong> Unlike <code>GROUP BY</code> which collapses records into a single summary output, Window Functions (e.g., <code>ROW_NUMBER()</code> or running totals) calculate values across an un-collapsed partition.`
+},
+
 // ---- ESSAY ----
 {id:60, topic:'essay', type:'essay',
   q:`In the group project, you were asked to use pull requests when working on GitHub. Explain (1) how pull requests work, and (2) what are the advantages of using them, and (3) an example from your group project. <em>Answer in max 70 words.</em>`,
@@ -1084,6 +1241,14 @@ print(snb.policy)  # ???`,
 {id:64, topic:'essay', type:'essay',
   q:`Your Python class was required to be reusable and user-friendly. Explain what that means in practice and give two concrete design decisions your group made to achieve this. <em>Answer in max 70 words.</em>`,
   answer:`A reusable class solves not just your specific question but related ones too. User-friendly means easy to instantiate and use without reading the source code. Concrete decisions: (1) all output methods accepted arguments (e.g., date range, country filter) so users could customise without editing source code; (2) we added docstrings to every method and error messages for invalid inputs, so users get clear guidance when something goes wrong.`
+},
+{id:89, topic:'essay', type:'essay',
+  q:`Explain the concept of an ETL pipeline (Extract, Transform, Load) as used in modern economic data workflows. Briefly define each step. <em>Answer in max 70 words.</em>`,
+  answer:`The ETL pipeline moves data into analytical databases. <strong>Extract:</strong> Pull raw, often messy data from its source (like APIs, CSVs, or web apps). <strong>Transform:</strong> Clean, reshape, assign IDs, and ensure data integrity—frequently utilizing tools like Pandas. <strong>Load:</strong> Insert the processed data efficiently into the relational database architecture using SQL <code>INSERT</code> commands.`
+},
+{id:90, topic:'essay', type:'essay',
+  q:`What is the fundamental difference between an OLTP (Online Transaction Processing) database and an OLAP (Online Analytical Processing) database like DuckDB? Focus on their primary optimization goals. <em>Answer in max 70 words.</em>`,
+  answer:`<strong>OLTP</strong> databases (e.g., PostgreSQL) are row-oriented and optimized for thousands of frequent, single-row read/write operations like app transactions, ensuring high availability. <strong>OLAP</strong> databases (e.g., DuckDB) are column-oriented and optimized for complex queries that rapidly scan millions of rows to aggregate data (analytics, research), making them vastly more efficient for analytical workflows.`
 }
 ];
 
@@ -1418,6 +1583,10 @@ function confirmAnswer() {
 function nextQuestion() {
   currentQIdx++;
   renderQuestion();
+}
+
+function attachQuestionEvents(q) {
+  // Utility hook for future logic
 }
 
 function toggleEssay() {
