@@ -10,8 +10,12 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 
 ### Intro to Programming
 
-[Link](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html)
+[Study Tool](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html)
 
 ### Microeconomics III
 
-[Link](https://alekswithk.github.io/hsg-maxxing/Micro_III/file_name.html)
+[Utility Index](https://alekswithk.github.io/hsg-maxxing/Micro_III/index.html)
+
+[Simpsons Paradox](https://alekswithk.github.io/hsg-maxxing/Micro_III/simpsons_paradox.html)
+
+[Bayesian HIV](https://alekswithk.github.io/hsg-maxxing/Micro_III/bayes_hiv.html)
