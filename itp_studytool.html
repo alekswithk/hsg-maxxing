@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4,222 Introduction to Programming — Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080d18;
+    --bg2: #0e1525;
+    --bg3: #141d30;
+    --border: #1e2d4a;
+    --border-light: #263850;
+    --text: #cdd9ed;
+    --text-dim: #6a85a8;
+    --text-bright: #eef2fa;
+    --gold: #f0a500;
+    --gold-dim: #b37a00;
+    --gold-light: #ffc94a;
+    --green: #2dd480;
+    --green-dim: #1a7a49;
+    --red: #ff5b5b;
+    --red-dim: #7a2020;
+    --blue: #4a9eff;
+    --purple: #9b7aff;
+    --code-bg: #0a1020;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--text-bright);
+    letter-spacing: 0.01em;
+  }
+  .logo span { color: var(--gold); }
+
+  nav { display: flex; gap: 4px; }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  nav button:hover { background: var(--bg3); color: var(--text); }
+  nav button.active { background: var(--bg3); color: var(--gold); }
+
+  .exam-badge {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ===== DASHBOARD ===== */
+  .dash-hero {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .dash-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -40px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .dash-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--text-bright);
+    margin-bottom: 0.3rem;
+  }
+  .dash-hero h1 em { color: var(--gold); font-style: normal; }
+  .dash-hero p { color: var(--text-dim); font-size: 0.9rem; }
+  .dash-hero .countdown {
+    position: absolute; top: 2rem; right: 2.5rem;
+    text-align: right;
+  }
+  .countdown-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .countdown-label { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  @media(max-width: 700px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+  }
+  .card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--text-bright);
+    margin-bottom: 1rem;
+  }
+  .card h3 .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge-today { background: rgba(240,165,0,0.15); color: var(--gold); border: 1px solid rgba(240,165,0,0.3); }
+  .badge-done { background: rgba(45,212,128,0.15); color: var(--green); border: 1px solid rgba(45,212,128,0.3); }
+
+  /* Day plan cards */
+  .day-plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  @media(max-width: 900px) { .day-plans { grid-template-columns: 1fr 1fr; } }
+  @media(max-width: 500px) { .day-plans { grid-template-columns: 1fr; } }
+
+  .day-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .day-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+  .day-card.is-today { border-color: var(--gold-dim); }
+  .day-card.is-today::before {
+    content: 'TODAY';
+    position: absolute; top: -10px; right: 12px;
+    background: var(--gold);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.08em;
+  }
+  .day-card h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--text-bright);
+    margin-bottom: 0.15rem;
+  }
+  .day-date { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.75rem; }
+  .day-topics { list-style: none; }
+  .day-topics li {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    padding: 3px 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .day-topics li::before { content: '·'; color: var(--gold); font-size: 1rem; }
+  .day-btn {
+    margin-top: 1rem;
+    width: 100%;
+    background: rgba(240,165,0,0.1);
+    border: 1px solid rgba(240,165,0,0.25);
+    color: var(--gold);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 7px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .day-btn:hover { background: rgba(240,165,0,0.18); }
+
+  /* Topic grid */
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .topic-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .topic-card:hover { border-color: var(--border-light); transform: translateY(-1px); }
+  .topic-card h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-bright); margin-bottom: 0.5rem; }
+  .topic-card .q-count { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.6rem; }
+  .prog-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius: 2px; transition: width 0.4s; }
+  .prog-pct { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; }
+
+  /* Overall progress */
+  .overall-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .stat-box { text-align: center; padding: 1rem; background: var(--bg3); border-radius: var(--radius-sm); }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+  .stat-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+
+  /* ===== QUIZ VIEW ===== */
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-header h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--text-bright); }
+  .quiz-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--border-light); color: var(--text-bright); }
+  .btn-gold { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
+  .btn-gold:hover { background: var(--gold-light); }
+  .btn-outline { border-color: var(--border-light); }
+
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-chip {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); font-size: 0.78rem; font-weight: 500;
+    padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--border-light); color: var(--text); }
+  .filter-chip.active { background: rgba(240,165,0,0.12); border-color: var(--gold-dim); color: var(--gold); }
+
+  /* Progress bar top */
+  .q-progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .q-progress-bar { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .q-progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.3s; }
+  .q-progress-label { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; }
+
+  /* Question card */
+  .q-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
+  .q-meta { display: flex; gap: 10px; margin-bottom: 1.2rem; }
+  .q-type-badge {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 12px;
+  }
+  .type-tf { background: rgba(74,158,255,0.12); color: var(--blue); border: 1px solid rgba(74,158,255,0.25); }
+  .type-single { background: rgba(155,122,255,0.12); color: var(--purple); border: 1px solid rgba(155,122,255,0.25); }
+  .type-multi { background: rgba(240,165,0,0.12); color: var(--gold); border: 1px solid rgba(240,165,0,0.25); }
+  .type-essay { background: rgba(45,212,128,0.12); color: var(--green); border: 1px solid rgba(45,212,128,0.25); }
+  .q-topic-badge {
+    font-size: 0.7rem; font-weight: 500;
+    padding: 3px 10px; border-radius: 12px;
+    background: var(--bg3); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    color: var(--text-bright);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+  .q-text code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    font-style: normal;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--gold-light);
+  }
+  .q-note { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem; font-style: normal; }
+  .q-note em { color: var(--gold); font-style: normal; }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.1rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+    line-height: 1.7;
+    color: #9db8e0;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .code-block .kw { color: #e06fff; }
+  .code-block .fn { color: #79c0ff; }
+  .code-block .st { color: #a5d6ff; }
+  .code-block .cm { color: #4a6380; font-style: italic; }
+  .code-block .nb { color: #f0a500; }
+  .code-block .op { color: #cdd9ed; }
+
+  /* Choices */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .choice:hover:not(.disabled) { border-color: var(--border-light); background: #1a2540; }
+  .choice.selected { border-color: var(--blue); background: rgba(74,158,255,0.07); }
+  .choice.correct { border-color: var(--green); background: rgba(45,212,128,0.07); }
+  .choice.incorrect { border-color: var(--red); background: rgba(255,91,91,0.07); }
+  .choice.missed { border-color: var(--gold-dim); background: rgba(240,165,0,0.06); }
+  .choice.disabled { cursor: default; }
+  .choice-key {
+    width: 24px; height: 24px; flex-shrink: 0;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 600; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.15s;
+  }
+  .choice.selected .choice-key { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .choice.correct .choice-key { background: var(--green); border-color: var(--green); color: #000; }
+  .choice.incorrect .choice-key { background: var(--red); border-color: var(--red); color: #fff; }
+  .choice.missed .choice-key { background: var(--gold); border-color: var(--gold); color: #000; }
+  .choice-text { flex: 1; font-size: 0.92rem; color: var(--text); line-height: 1.5; }
+  .choice-text code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.87em;
+    background: var(--code-bg); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 4px; color: var(--gold-light);
+  }
+
+  /* TF buttons */
+  .tf-choices { display: flex; gap: 12px; }
+  .tf-btn {
+    flex: 1; padding: 1rem;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+    font-family: 'DM Serif Display', serif; font-size: 1.1rem;
+    color: var(--text); text-align: center;
+  }
+  .tf-btn:hover:not(.disabled) { border-color: var(--border-light); }
+  .tf-btn.selected { border-color: var(--blue); background: rgba(74,158,255,0.07); color: var(--blue); }
+  .tf-btn.correct { border-color: var(--green); background: rgba(45,212,128,0.07); color: var(--green); }
+  .tf-btn.incorrect { border-color: var(--red); background: rgba(255,91,91,0.07); color: var(--red); }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 1.25rem;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .feedback.good { background: rgba(45,212,128,0.08); border: 1px solid rgba(45,212,128,0.2); color: #6ef0aa; }
+  .feedback.bad { background: rgba(255,91,91,0.08); border: 1px solid rgba(255,91,91,0.2); color: #ff9090; }
+  .feedback strong { color: var(--text-bright); display: block; margin-bottom: 4px; }
+  .feedback code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.87em;
+    background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 4px; color: var(--gold-light);
+  }
+
+  /* Essay */
+  .essay-prompt { font-style: italic; color: var(--text-bright); margin-bottom: 1.25rem; line-height: 1.7; font-size: 1.05rem; }
+  .model-answer-toggle {
+    background: rgba(45,212,128,0.08); border: 1px dashed rgba(45,212,128,0.3);
+    border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
+    cursor: pointer; color: var(--green); font-size: 0.85rem; font-weight: 500;
+    transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+  }
+  .model-answer-toggle:hover { background: rgba(45,212,128,0.13); }
+  .model-answer-toggle .arrow { transition: transform 0.2s; }
+  .model-answer-toggle.open .arrow { transform: rotate(90deg); }
+  .model-answer-body {
+    margin-top: 0.75rem;
+    background: rgba(45,212,128,0.05); border: 1px solid rgba(45,212,128,0.15);
+    border-radius: var(--radius-sm); padding: 1.1rem;
+    font-size: 0.88rem; color: #9de8c0; line-height: 1.7;
+    display: none;
+  }
+  .model-answer-body.show { display: block; }
+  .model-answer-body code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.87em;
+    background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 4px; color: var(--gold-light);
+  }
+
+  /* Action row */
+  .q-actions {
+    display: flex; gap: 10px; align-items: center; margin-top: 1.25rem;
+  }
+  .btn-confirm {
+    background: var(--gold); border: none; color: #000;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+    padding: 9px 20px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-confirm:hover { background: var(--gold-light); }
+  .btn-confirm:disabled { background: var(--bg3); color: var(--text-dim); cursor: default; }
+  .btn-next {
+    background: var(--bg3); border: 1px solid var(--border-light);
+    color: var(--text-bright); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.88rem; font-weight: 500; padding: 9px 20px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; display: none; align-items: center; gap: 6px;
+  }
+  .btn-next:hover { background: var(--bg2); }
+  .btn-next.show { display: flex; }
+  .kbd-hint { font-size: 0.72rem; color: var(--text-dim); margin-left: auto; }
+  kbd {
+    display: inline-block; background: var(--bg3); border: 1px solid var(--border-light);
+    padding: 1px 5px; border-radius: 4px; font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace; color: var(--text-dim);
+  }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+  .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--text); margin-bottom: 0.5rem; }
+
+  /* ===== REVIEW VIEW ===== */
+  .review-section { margin-bottom: 2rem; }
+  .review-section h3 {
+    font-family: 'DM Serif Display', serif; font-size: 1.2rem;
+    color: var(--text-bright); margin-bottom: 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .review-q {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 1.1rem 1.25rem;
+    margin-bottom: 0.75rem; cursor: pointer; transition: all 0.15s;
+  }
+  .review-q:hover { border-color: var(--border-light); }
+  .review-q.open { border-color: var(--border-light); }
+  .review-q-header { display: flex; align-items: flex-start; gap: 10px; }
+  .review-q-text { flex: 1; font-size: 0.88rem; color: var(--text); line-height: 1.5; }
+  .review-q-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--gold-light); }
+  .review-answer {
+    margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.85rem; color: var(--green); line-height: 1.6; display: none;
+  }
+  .review-answer.show { display: block; }
+  .review-answer code { font-family: 'JetBrains Mono', monospace; font-size: 0.87em; background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 4px; color: var(--gold-light); }
+  .answered-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+  }
+  .dot-correct { background: var(--green); }
+  .dot-incorrect { background: var(--red); }
+  .dot-unanswered { background: var(--border-light); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+  /* Tooltip */
+  .multi-hint { font-size: 0.78rem; color: var(--gold); margin-bottom: 0.75rem; }
+
+  /* Session complete screen */
+  .session-complete {
+    text-align: center; padding: 3rem 2rem;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .session-complete h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; }
+  .session-complete p { color: var(--text-dim); margin-bottom: 1.5rem; }
+  .score-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 4px solid var(--gold); margin: 0 auto 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--gold);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="logo">4,222 <span>·</span> Introduction to Programming</div>
+  <nav>
+    <button class="active" onclick="showView('dashboard', this)">Dashboard</button>
+    <button onclick="showView('quiz', this)">Practice</button>
+    <button onclick="showView('review', this)">Review</button>
+  </nav>
+  <div class="exam-badge">Exam: May 22</div>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div id="view-dashboard" class="view active">
+    <div class="dash-hero">
+      <h1>Your <em>Exam Prep</em> HQ</h1>
+      <p>4 days of structured practice · 60+ questions · All topics covered</p>
+      <div class="countdown">
+        <div class="countdown-num" id="days-left">7</div>
+        <div class="countdown-label">days to exam</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:1rem" class="section-label">4-Day Study Plan</div>
+    <div class="day-plans">
+      <div class="day-card" id="day-card-1">
+        <h4>Day 1</h4>
+        <div class="day-date">Git, Terminal & Environments</div>
+        <ul class="day-topics">
+          <li>Terminal commands</li>
+          <li>Git basics & branching</li>
+          <li>Pull requests</li>
+          <li>Python environments (uv)</li>
+        </ul>
+        <button class="day-btn" onclick="startDaySession(1)">Start Practice →</button>
+      </div>
+      <div class="day-card" id="day-card-2">
+        <h4>Day 2</h4>
+        <div class="day-date">Python Fundamentals</div>
+        <ul class="day-topics">
+          <li>Variables & data types</li>
+          <li>Loops & functions</li>
+          <li>Pandas DataFrames</li>
+          <li>Matplotlib plots</li>
+        </ul>
+        <button class="day-btn" onclick="startDaySession(2)">Start Practice →</button>
+      </div>
+      <div class="day-card" id="day-card-3">
+        <h4>Day 3</h4>
+        <div class="day-date">OOP & Error Handling</div>
+        <ul class="day-topics">
+          <li>Classes & __init__</li>
+          <li>Methods & self</li>
+          <li>Docstrings</li>
+          <li>Error handling</li>
+        </ul>
+        <button class="day-btn" onclick="startDaySession(3)">Start Practice →</button>
+      </div>
+      <div class="day-card" id="day-card-4">
+        <h4>Day 4</h4>
+        <div class="day-date">SQL & Databases</div>
+        <ul class="day-topics">
+          <li>Relational model & keys</li>
+          <li>SQL queries & JOINs</li>
+          <li>GROUP BY & HAVING</li>
+          <li>Star schema & CTEs</li>
+        </ul>
+        <button class="day-btn" onclick="startDaySession(4)">Start Practice →</button>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <h3>Overall Progress</h3>
+        <div class="overall-stats">
+          <div class="stat-box"><div class="stat-num" id="stat-answered">0</div><div class="stat-label">Questions Answered</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-correct">0%</div><div class="stat-label">Accuracy</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-total">60</div><div class="stat-label">Total Questions</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Quick Actions</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-gold" onclick="startAllRandom()" style="width:100%;padding:10px">🎲 Random Practice (All Topics)</button>
+          <button class="btn btn-outline" onclick="startWrong()" style="width:100%;padding:10px">⚠️ Review Wrong Answers</button>
+          <button class="btn btn-outline" onclick="startEssayOnly()" style="width:100%;padding:10px">📝 Essay Questions Only</button>
+          <button class="btn" onclick="if(confirm('Reset all progress?')){resetProgress()}" style="width:100%;padding:10px;color:var(--red)">↺ Reset Progress</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;margin-bottom:1rem" class="section-label">Practice by Topic</div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+
+  <!-- QUIZ VIEW -->
+  <div id="view-quiz" class="view">
+    <div class="quiz-header">
+      <h2 id="quiz-title">Practice</h2>
+      <div class="quiz-controls">
+        <button class="btn" onclick="showView('dashboard', document.querySelector('nav button'))">← Back</button>
+        <button class="btn btn-outline" onclick="shuffleAndRestart()">Shuffle</button>
+        <button class="btn btn-outline" onclick="skipQuestion()">Skip →</button>
+      </div>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+    <div class="q-progress-row">
+      <div class="q-progress-bar"><div class="q-progress-fill" id="q-prog-fill"></div></div>
+      <div class="q-progress-label" id="q-prog-label">0 / 0</div>
+    </div>
+    <div id="question-area"></div>
+  </div>
+
+  <!-- REVIEW VIEW -->
+  <div id="view-review" class="view">
+    <div class="quiz-header">
+      <h2>Question Bank Review</h2>
+    </div>
+    <div class="filter-row" id="review-filter-row"></div>
+    <div id="review-area"></div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ============================================================
+// QUESTION BANK
+// ============================================================
+const TOPICS = {
+  git: "Git & Version Control",
+  terminal: "Terminal & CLI",
+  env: "Python Environments",
+  python: "Python Basics",
+  pandas: "Pandas & Matplotlib",
+  oop: "OOP & Classes",
+  errors: "Error Handling",
+  sql: "SQL & Databases",
+  essay: "Essay (Group Project)"
+};
+
+const DAY_TOPICS = {
+  1: ['git', 'terminal', 'env'],
+  2: ['python', 'pandas'],
+  3: ['oop', 'errors'],
+  4: ['sql']
+};
+
+const questions = [
+// ---- GIT ----
+{id:1, topic:'git', type:'tf',
+  q:`After running <code>git commit</code>, your changes are immediately visible to your teammates on GitHub.`,
+  correct:false,
+  expl:`<strong>False.</strong> <code>git commit</code> only saves changes to your <em>local</em> repository. You must run <code>git push</code> to upload them to the remote repository on GitHub.`
+},
+{id:2, topic:'git', type:'single',
+  q:`Which command stages ALL modified and new files in the current directory for the next commit?`,
+  choices:['<code>git commit -a</code>','<code>git add .</code>','<code>git push origin main</code>','<code>git status</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>git add .</code></strong> stages all changes (new + modified) in the current directory. <code>git commit -a</code> only auto-stages <em>already tracked</em> files — it misses brand-new files.`
+},
+{id:3, topic:'git', type:'tf',
+  q:`<code>git pull</code> is equivalent to running <code>git fetch</code> followed by <code>git merge</code>.`,
+  correct:true,
+  expl:`<strong>True.</strong> <code>git pull</code> is a shortcut: it fetches updates from the remote and immediately merges them into your current branch.`
+},
+{id:4, topic:'git', type:'single',
+  q:`What is the purpose of a <code>.gitignore</code> file?`,
+  choices:['To store commit messages','To list files and folders that Git should not track','To configure the remote repository URL','To define branch protection rules on GitHub'],
+  correct:[1],
+  expl:`<strong>b)</strong> A <code>.gitignore</code> file tells Git which files or patterns to ignore — for example <code>.venv/</code>, <code>__pycache__/</code>, or generated CSV files that should not be committed.`
+},
+{id:5, topic:'git', type:'single',
+  q:`Which command creates a new branch called <code>add-population-data</code> AND immediately switches to it (using the modern Git syntax taught in this course)?`,
+  choices:['<code>git branch add-population-data</code>','<code>git merge add-population-data</code>','<code>git switch -c add-population-data</code>','<code>git clone add-population-data</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>git switch -c add-population-data</code></strong> creates and switches in one step. The older <code>git checkout -b</code> also works but the course uses the modern <code>git switch -c</code> syntax.`
+},
+{id:6, topic:'git', type:'multi',
+  q:`Which of the following are genuine advantages of using pull requests in a collaborative GitHub workflow?`,
+  choices:['They allow teammates to review code before it is merged into main','They replace the need for commits entirely','They create a visible discussion thread for the proposed changes','They enable catching bugs early through peer code review'],
+  correct:[0,2,3],
+  expl:`<strong>a, c, d)</strong> Pull requests are a code-review mechanism: they show the diff, allow comments, and require approval before merging. They do NOT replace commits — commits are still needed on the feature branch.`
+},
+{id:7, topic:'git', type:'tf',
+  q:`When you run <code>git add .</code> and then modify a file <em>again</em> before committing, the second modification is automatically included in the staged snapshot.`,
+  correct:false,
+  expl:`<strong>False.</strong> <code>git add .</code> creates a snapshot of changes at that exact moment. If you modify a file afterward, you must run <code>git add .</code> again to include those new changes in the next commit.`
+},
+{id:8, topic:'git', type:'single',
+  q:`What does <code>git push -u origin add-population-data</code> accomplish?`,
+  choices:['It deletes the remote branch <code>add-population-data</code>','It pushes the local branch to the remote AND sets upstream tracking so future <code>git push</code> / <code>git pull</code> work without specifying the branch','It creates a new local branch from remote','It merges the branch into main on GitHub'],
+  correct:[1],
+  expl:`<strong>b)</strong> The <code>-u</code> flag sets the upstream (tracking) reference. After this, you can just type <code>git push</code> or <code>git pull</code> without specifying the remote/branch name.`
+},
+{id:9, topic:'git', type:'single',
+  q:`In the collaborative group project workflow, the correct sequence for adding a new feature is:`,
+  choices:['Push all changes directly to main','Create a branch → commit changes → push → open a pull request → get reviewed → merge','Make a single large commit at the end of the project','Clone the repository for every new feature'],
+  correct:[1],
+  expl:`<strong>b)</strong> The course workflow: branch → commit → push → PR → review → merge into main. Direct pushes to main were explicitly discouraged in the project instructions.`
+},
+{id:10, topic:'git', type:'tf',
+  q:`The "Files changed" tab in a GitHub Pull Request shows a diff of only the files modified on the feature branch compared to the base branch.`,
+  correct:true,
+  expl:`<strong>True.</strong> The diff view lets reviewers check exactly what changed line-by-line before approving the merge.`
+},
+// ---- TERMINAL ----
+{id:11, topic:'terminal', type:'tf',
+  q:`On Mac/Linux, the <code>pwd</code> command displays the current working directory.`,
+  correct:true,
+  expl:`<strong>True.</strong> <code>pwd</code> stands for "print working directory". The Windows equivalent (without arguments) is <code>cd</code>.`
+},
+{id:12, topic:'terminal', type:'single',
+  q:`Which command lists the contents of the current directory on Mac/Linux?`,
+  choices:['<code>dir</code>','<code>ls</code>','<code>list</code>','<code>show</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>ls</code></strong>. On Windows Command Prompt, the equivalent is <code>dir</code>.`
+},
+{id:13, topic:'terminal', type:'single',
+  q:`What does <code>cd ..</code> do?`,
+  choices:['Creates a directory called <code>..</code>','Lists hidden files','Navigates to the parent directory','Deletes the current directory'],
+  correct:[2],
+  expl:`<strong>c)</strong> <code>..</code> refers to the parent directory. <code>cd ..</code> moves you one level up in the directory tree.`
+},
+{id:14, topic:'terminal', type:'single',
+  q:`Which command displays the full contents of a text file in the terminal?`,
+  choices:['<code>show file.txt</code>','<code>open file.txt</code>','<code>cat file.txt</code>','<code>read file.txt</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>cat</code></strong> (concatenate) prints file contents to the terminal. <code>open</code> opens the file in the default GUI application.`
+},
+{id:15, topic:'terminal', type:'tf',
+  q:`The command <code>rm -rf dirname</code> removes a directory and all its contents <em>without</em> asking for confirmation — making it one of the most dangerous terminal commands.`,
+  correct:true,
+  expl:`<strong>True.</strong> <code>-r</code> = recursive (go into subdirectories), <code>-f</code> = force (no confirmation). There is no trash bin — files are gone permanently.`
+},
+{id:16, topic:'terminal', type:'single',
+  q:`What does the <code>></code> operator do in bash? For example: <code>echo ".venv/" > .gitignore</code>`,
+  choices:['Appends text to an existing file','Creates/overwrites the file with the output on the left','Compares two files','Redirects input from a file'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>></code> redirects output to a file, <em>overwriting</em> it if it exists. To <em>append</em> without overwriting, use <code>>></code>.`
+},
+// ---- ENVIRONMENTS ----
+{id:17, topic:'env', type:'tf',
+  q:`You should always install Python packages globally rather than using a project-specific virtual environment.`,
+  correct:false,
+  expl:`<strong>False.</strong> Global installs cause version conflicts between projects. Virtual environments isolate each project's dependencies — the course mandates using <code>uv</code> environments.`
+},
+{id:18, topic:'env', type:'single',
+  q:`What does <code>uv sync</code> do?`,
+  choices:['Uploads your code to a remote server','Installs all dependencies listed in <code>uv.lock</code> into the virtual environment — reproducing the exact environment','Removes unused packages','Initialises a new project'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>uv sync</code> recreates the virtual environment from the lockfile, ensuring every team member gets identical package versions. You don't need <code>uv init</code> — just <code>uv sync</code>.`
+},
+{id:19, topic:'env', type:'single',
+  q:`Which file produced by <code>uv</code> guarantees that every team member installs the exact same package versions?`,
+  choices:['<code>pyproject.toml</code>','<code>.python-version</code>','<code>uv.lock</code>','<code>requirements.txt</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>uv.lock</code></strong> is the lockfile that pins exact versions. <code>pyproject.toml</code> declares dependencies but allows version ranges — only the lockfile pins exact versions.`
+},
+{id:20, topic:'env', type:'single',
+  q:`Which command adds the <code>pandas</code> package to a <code>uv</code>-managed project?`,
+  choices:['<code>pip install pandas</code>','<code>uv install pandas</code>','<code>uv add pandas</code>','<code>conda install pandas</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>uv add pandas</code></strong>. This updates both <code>pyproject.toml</code> and <code>uv.lock</code>. Never use <code>pip install</code> inside a <code>uv</code> project.`
+},
+// ---- PYTHON BASICS ----
+{id:21, topic:'python', type:'tf',
+  q:`In Python, the first element of a list is accessed at index 1 (1-based indexing).`,
+  correct:false,
+  expl:`<strong>False.</strong> Python uses 0-based indexing. The first element is at index <code>0</code>. This is a key difference from R, which is 1-based.`
+},
+{id:22, topic:'python', type:'single',
+  q:`What does <code>range(2020, 2024)</code> produce?`,
+  choices:['[2020, 2021, 2022, 2023, 2024]','[2020, 2021, 2022, 2023]','[2021, 2022, 2023]','[1, 2, 3, 4]'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>range(start, stop)</code> includes <code>start</code> but <em>excludes</em> <code>stop</code>. So <code>range(2020, 2024)</code> → 2020, 2021, 2022, 2023.`
+},
+{id:23, topic:'python', type:'single',
+  q:`What does the <code>break</code> statement do inside a loop?`,
+  choices:['Skips the current iteration and continues to the next','Stops the loop entirely and jumps to the code after it','Restarts the loop from the beginning','Raises a <code>StopIteration</code> error'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>break</code> is the "emergency exit" — it immediately terminates the loop. <code>continue</code> is the "skip" button that skips the current iteration only.`
+},
+{id:24, topic:'python', type:'single',
+  q:`What does the <code>continue</code> statement do inside a loop?`,
+  choices:['Stops the loop entirely','Skips the rest of the current iteration and immediately moves to the next iteration','Returns a value from the function','Raises an error'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>continue</code> skips the remaining code in the current iteration and jumps back to the loop condition. Useful for skipping invalid/None data.`
+},
+{id:25, topic:'python', type:'tf',
+  q:`A <code>while</code> loop is the best choice when you know <em>exactly</em> how many times you want to iterate.`,
+  correct:false,
+  expl:`<strong>False.</strong> Use a <code>for</code> loop when you know the count or are iterating over a collection. A <code>while</code> loop is for when you don't know how many iterations are needed — only when a condition changes.`
+},
+{id:26, topic:'python', type:'multi',
+  q:`Which of the following are valid Python built-in data types?`,
+  choices:['<code>int</code>','<code>float</code>','<code>varchar</code>','<code>str</code>','<code>dict</code>'],
+  correct:[0,1,3,4],
+  expl:`<strong>a, b, d, e)</strong> <code>varchar</code> is a SQL data type, not Python. Python's built-in types include <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>, <code>list</code>, <code>dict</code>, <code>tuple</code>, <code>set</code>.`
+},
+{id:27, topic:'python', type:'single',
+  q:`When looping through a dictionary's <em>keys and values simultaneously</em>, which method do you use?`,
+  choices:['<code>dict.keys()</code>','<code>dict.values()</code>','<code>dict.items()</code>','<code>enumerate(dict)</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>dict.items()</code></strong> yields <code>(key, value)</code> pairs on each iteration. You unpack them: <code>for country, gdp in country_gdp.items()</code>.`
+},
+// ---- PANDAS & MATPLOTLIB ----
+{id:28, topic:'pandas', type:'tf',
+  q:`<code>plt.savefig("chart.png")</code> must be called <em>before</em> <code>plt.show()</code> to avoid saving a blank image.`,
+  correct:true,
+  expl:`<strong>True.</strong> <code>plt.show()</code> clears the Matplotlib canvas. If you call <code>savefig()</code> after <code>show()</code>, you get a blank file.`
+},
+{id:29, topic:'pandas', type:'single',
+  q:`What does <code>df.loc["2020-01-01":"2021-12-01", "unrate"]</code> do?`,
+  choices:['Selects rows 2020 through 2021 by integer position','Selects rows between two dates AND the "unrate" column, using label-based indexing','Creates a new column called "unrate"','Drops rows outside the date range permanently'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>.loc[]</code> is label-based — it uses the DataFrame's index (here dates) and column names. <code>.iloc[]</code> would be position-based (integer positions).`
+},
+{id:30, topic:'pandas', type:'single',
+  q:`What does <code>df.rolling(window=12).mean()</code> compute?`,
+  choices:['The mean of all rows in the DataFrame','A 12-row moving average — for each row, the mean of that row and the 11 preceding rows','The standard deviation over a 12-month period','The cumulative sum of the last 12 rows'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>.rolling(window=12)</code> creates a sliding window of 12 observations. <code>.mean()</code> then computes the mean of each window — useful for smoothing noisy time series.`
+},
+{id:31, topic:'pandas', type:'single',
+  q:`In Matplotlib, which function adds a shaded vertical region to a plot (e.g., to highlight a recession period)?`,
+  choices:['<code>plt.fill_between()</code>','<code>plt.axvspan(xmin, xmax)</code>','<code>plt.shade(x1, x2)</code>','<code>plt.rect()</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>plt.axvspan(xmin, xmax)</code></strong> shades a vertical region between two x-axis values. <code>plt.axhspan</code> is the horizontal equivalent.`
+},
+{id:32, topic:'pandas', type:'tf',
+  q:`<code>idxmax()</code> returns the <em>value</em> of the maximum in a Series, while <code>.max()</code> returns the <em>index label</em> where the maximum occurs.`,
+  correct:false,
+  expl:`<strong>False.</strong> It's the other way around: <code>.max()</code> returns the maximum value; <code>.idxmax()</code> returns the index label (e.g., the date) where the maximum occurs.`
+},
+// ---- OOP ----
+{id:33, topic:'oop', type:'single',
+  q:`Given the BankAccount class below, what does <code>print(my_account.balance)</code> output after running the example?`,
+  code:`class BankAccount:
+    def __init__(self, owner_name):
+        self.owner_name = owner_name
+        self.balance = 0
+
+    def withdraw(self, amount):
+        if amount <= self.balance:
+            self.balance = self.balance - amount
+            print(f"New balance: \${self.balance}")
+        else:
+            print("Withdrawal denied.")
+
+    def deposit(self, amount):
+        self.balance = self.balance + amount
+
+# Example
+my_account = BankAccount(owner_name="Franziska")
+my_account.deposit(30)     # balance → 30
+my_account.withdraw(50)    # 50 > 30 → denied, balance stays 30
+my_account.deposit(100)    # balance → 130
+print(my_account.balance)`,
+  choices:['80','30','180','130'],
+  correct:[3],
+  expl:`<strong>d) 130.</strong> Start at 0 → deposit(30)=30 → withdraw(50): 50>30, denied, stays 30 → deposit(100)=130.`
+},
+{id:34, topic:'oop', type:'multi',
+  q:`Which of the following statements about the BankAccount class above are TRUE? (select all that apply)`,
+  choices:['Every instance will have a balance of 0 initially','If no value is provided for <code>owner_name</code> when creating an instance, it will be <code>None</code>','After running the example code, <code>my_account.balance</code> will be 80','To increase the balance, both <code>deposit()</code> and <code>withdraw()</code> can be used, because nothing prevents <code>amount</code> from being negative'],
+  correct:[0,3],
+  expl:`<strong>a, d)</strong> a: <code>self.balance = 0</code> is hardcoded in <code>__init__</code>, so always starts at 0. d: <code>deposit(amount)</code> just adds <code>amount</code> — no type check, so a negative amount decreases balance. b is False: no default → TypeError. c is False: answer is 130.`
+},
+{id:35, topic:'oop', type:'tf',
+  q:`The <code>self</code> parameter in a class method must always be the <em>first</em> parameter.`,
+  correct:true,
+  expl:`<strong>True.</strong> <code>self</code> is how the method refers to the specific object it's called on. Python passes it automatically — but you must declare it first.`
+},
+{id:36, topic:'oop', type:'single',
+  q:`What is the role of <code>__init__</code> in a Python class?`,
+  choices:['It is called when an object is destroyed (garbage collected)','It is a special method automatically called when an object is created, used to set the object\'s initial attributes','It defines class-level variables shared by all instances','It prevents the class from being subclassed'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>__init__</code> is the constructor. It runs automatically when you do <code>MyClass()</code> and sets up the object's initial state via <code>self.attribute = value</code>.`
+},
+{id:37, topic:'oop', type:'single',
+  q:`What is the bug in this class definition?`,
+  code:`class CentralBank:
+    def __init__(self, policy, interest_rate):
+        self.policy = 'passive'      # hard-coded!
+        self.interest_rate = 0.02    # hard-coded!
+
+snb = CentralBank(policy='active', interest_rate=0.05)
+print(snb.policy)  # ???`,
+  choices:['The class has no methods','The hard-coded assignments in <code>__init__</code> overwrite the user\'s inputs — so <code>snb.policy</code> is always \'passive\' regardless of what the user passes','<code>self</code> is used incorrectly here','<code>CentralBank</code> is a reserved Python keyword'],
+  correct:[1],
+  expl:`<strong>b)</strong> The parameters <code>policy</code> and <code>interest_rate</code> are received but immediately overwritten by hardcoded values. The fix: <code>self.policy = policy</code> (use the parameter, not a literal).`
+},
+{id:38, topic:'oop', type:'single',
+  q:`Why are <em>methods</em> generally preferred over direct attribute access for changing an object's state?`,
+  choices:['Methods are faster to execute','Methods can validate inputs, provide feedback, and keep the object in a valid state — direct access has no safety checks','Methods are required by Python syntax','Direct access only works for class-level variables'],
+  correct:[1],
+  expl:`<strong>b)</strong> A method like <code>set_rate()</code> can check that the input is a number, warn about negative rates, and only update if valid. Direct access (<code>snb.rate = "five"</code>) bypasses all checks.`
+},
+{id:39, topic:'oop', type:'single',
+  q:`What does <code>if __name__ == "__main__":</code> accomplish in a Python module?`,
+  choices:['It prevents the file from being imported by other modules','Code inside this block runs only when the file is executed directly, NOT when it is imported — so test code doesn\'t run on import','It defines the entry point for the entire Python interpreter','It checks if the class is named "main"'],
+  correct:[1],
+  expl:`<strong>b)</strong> When a file is <em>run directly</em>, <code>__name__</code> equals <code>"__main__"</code>. When <em>imported</em>, it equals the filename. This pattern protects test/demo code from running on import.`
+},
+{id:40, topic:'oop', type:'tf',
+  q:`A method can both change an object's attributes AND return a value at the same time.`,
+  correct:true,
+  expl:`<strong>True.</strong> There's no restriction. A method can update <code>self.attribute</code> and also have a <code>return</code> statement — though many setter-type methods don't return anything.`
+},
+{id:41, topic:'oop', type:'single',
+  q:`How do you access the docstring of a class called <code>CentralBank</code> programmatically?`,
+  choices:['<code>CentralBank.docstring</code>','<code>CentralBank.__doc__</code>','<code>CentralBank.help()</code>','<code>docstring(CentralBank)</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>CentralBank.__doc__</code></strong> returns the class docstring. The <code>help(CentralBank)</code> function also displays it but formats it more verbosely.`
+},
+// ---- ERROR HANDLING ----
+{id:42, topic:'errors', type:'single',
+  q:`Which Python construct is used to catch and gracefully handle runtime errors?`,
+  choices:['<code>if / else</code>','<code>try / except</code>','<code>raise / catch</code>','<code>assert / verify</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>try / except</code></strong>. Code in the <code>try</code> block runs normally. If it raises an exception, the <code>except</code> block catches it and handles it gracefully instead of crashing.`
+},
+{id:43, topic:'errors', type:'tf',
+  q:`Docstrings in Python are accessible at runtime via <code>help()</code> or <code>.__doc__</code>.`,
+  correct:true,
+  expl:`<strong>True.</strong> Unlike regular <code>#</code> comments (which Python ignores at runtime), docstrings are stored as an attribute of the object and can be read programmatically.`
+},
+{id:44, topic:'errors', type:'single',
+  q:`What does <code>isinstance(x, (int, float))</code> return?`,
+  choices:['<code>True</code> if x is exactly an integer','<code>True</code> if x is an integer OR a float','The type of x as a string','<code>True</code> if x can be converted to a number'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>isinstance(x, (int, float))</code> returns <code>True</code> if x is an instance of <em>either</em> <code>int</code> or <code>float</code>. Passing a tuple of types checks for any of them.`
+},
+{id:45, topic:'errors', type:'single',
+  q:`In the group project, your class methods were expected to be "robust". What does robustness mean in this context?`,
+  choices:['The class runs faster than comparable pandas code','The class anticipates likely user errors, validates inputs, and provides informative error messages rather than crashing','The class is shorter and has fewer lines of code','The class uses advanced Python features like decorators'],
+  correct:[1],
+  expl:`<strong>b)</strong> Robustness = anticipating failures. For example, checking that a column name exists before querying, that a numeric argument is actually a number, and printing clear messages when something goes wrong.`
+},
+// ---- SQL ----
+{id:46, topic:'sql', type:'single',
+  q:`The statement: "It does not matter whether I do a <code>LEFT JOIN</code> or an <code>INNER JOIN</code> from my fact table to a dimension table in a star schema where relational integrity holds." — Which answer is correct?`,
+  choices:['The statement is incorrect: a <code>LEFT JOIN</code> always returns more rows than an <code>INNER JOIN</code>','The statement is correct: relational integrity guarantees every row in the fact table has a matching row in the dimension table, so neither join drops rows','The statement is incorrect: an <code>INNER JOIN</code> could silently drop rows if a foreign key has no match — but this cannot happen when relational integrity holds','The statement is always incorrect regardless of relational integrity'],
+  correct:[1],
+  expl:`<strong>b)</strong> When referential integrity holds, every foreign key in the fact table matches a primary key in the dimension table. Both joins therefore return the same rows. Option c describes a general risk, but the question specifies that integrity holds.`
+},
+{id:47, topic:'sql', type:'single',
+  q:`Which SQL clause filters <em>rows</em> <strong>before</strong> grouping?`,
+  choices:['<code>HAVING</code>','<code>WHERE</code>','<code>GROUP BY</code>','<code>ORDER BY</code>'],
+  correct:[1],
+  expl:`<strong>b) <code>WHERE</code></strong> filters rows before any grouping occurs. <code>HAVING</code> filters <em>groups</em> after <code>GROUP BY</code> is applied.`
+},
+{id:48, topic:'sql', type:'single',
+  q:`Which SQL clause filters <em>groups</em> based on an aggregate condition?`,
+  choices:['<code>WHERE</code>','<code>SELECT</code>','<code>HAVING</code>','<code>FILTER</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>HAVING</code></strong>. Rule: if the condition uses an aggregate function (<code>COUNT</code>, <code>SUM</code>, etc.), use <code>HAVING</code>. For row-level conditions, use <code>WHERE</code>.`
+},
+{id:49, topic:'sql', type:'single',
+  q:`What is the correct <em>execution</em> order of SQL clauses (how the database actually processes them)?`,
+  choices:['SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY','FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT','FROM → SELECT → WHERE → GROUP BY → ORDER BY → HAVING','SELECT → GROUP BY → WHERE → FROM → ORDER BY'],
+  correct:[1],
+  expl:`<strong>b)</strong> The database executes: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. This is why you cannot reference a <code>SELECT</code> alias in a <code>WHERE</code> clause — SELECT hasn't been evaluated yet.`
+},
+{id:50, topic:'sql', type:'single',
+  q:`What is a <strong>primary key</strong> in a relational table?`,
+  choices:['The first column in a table by convention','A column (or set of columns) that uniquely identifies each row — it is <code>NOT NULL</code> and <code>UNIQUE</code> by definition','A column that references a primary key in another table','A column that holds the most important data in the row'],
+  correct:[1],
+  expl:`<strong>b)</strong> A primary key uniquely identifies each row and cannot be NULL. It allows other tables to reference this table via foreign keys.`
+},
+{id:51, topic:'sql', type:'single',
+  q:`What does a <strong>foreign key constraint</strong> (referential integrity) enforce?`,
+  choices:['All columns must have the same data type','Every value in the foreign key column must match an existing primary key in the referenced table','Each row must have a unique combination of values across all columns','NULL values are never allowed'],
+  correct:[1],
+  expl:`<strong>b)</strong> Referential integrity means you cannot insert a row with a foreign key value that doesn't exist in the referenced table. For example, you cannot add a trade flow for a country that doesn't exist in the countries table.`
+},
+{id:52, topic:'sql', type:'tf',
+  q:`In a star schema, the <em>fact table</em> holds foreign keys that point to all the dimension tables.`,
+  correct:true,
+  expl:`<strong>True.</strong> The fact table (e.g., <code>observations</code>) stores one row per event/measurement and references dimension tables (e.g., <code>countries</code>, <code>indicators</code>) via foreign keys.`
+},
+{id:53, topic:'sql', type:'single',
+  q:`What is the key difference between a <em>fact table</em> and a <em>dimension table</em> in a star schema?`,
+  choices:['Fact tables are always smaller than dimension tables','Fact tables store one row per measurement/event (long data); dimension tables store metadata (attributes like country name, region)','Fact tables use VARCHAR; dimension tables use INT only','There is no structural difference — the names are conventions only'],
+  correct:[1],
+  expl:`<strong>b)</strong> Fact table (e.g., <code>observations</code>): one row per country/indicator/year measurement. Dimension tables (e.g., <code>countries</code>): metadata rows like country name and region. Dimension tables are usually wider; fact tables are usually much taller.`
+},
+{id:54, topic:'sql', type:'single',
+  q:`What is the difference between <code>COUNT(*)</code> and <code>COUNT(col)</code>?`,
+  choices:['They are identical in all cases','<code>COUNT(col)</code> ignores NULL values; <code>COUNT(*)</code> counts every row including those with NULLs','<code>COUNT(*)</code> is faster','<code>COUNT(col)</code> counts all rows including NULLs; <code>COUNT(*)</code> ignores them'],
+  correct:[1],
+  expl:`<strong>b)</strong> <code>COUNT(*)</code> counts all rows. <code>COUNT(col)</code> counts only rows where <code>col</code> is NOT NULL. This matters when a column has missing values.`
+},
+{id:55, topic:'sql', type:'tf',
+  q:`In a <code>SELECT</code> query with <code>GROUP BY</code>, you can reference any column from the table in the <code>SELECT</code> clause.`,
+  correct:false,
+  expl:`<strong>False.</strong> After <code>GROUP BY</code>, you can only reference (1) columns in the <code>GROUP BY</code> list, or (2) columns wrapped in an aggregate function (<code>COUNT</code>, <code>SUM</code>, etc.). This is a very common source of errors.`
+},
+{id:56, topic:'sql', type:'single',
+  q:`What is a <strong>Common Table Expression (CTE)</strong>?`,
+  choices:['A type of index that speeds up JOIN operations','A named intermediate result defined with <code>WITH ... AS</code> that can be referenced like a table in the main query','A way to create permanent tables in the database','A syntax for defining foreign key constraints'],
+  correct:[1],
+  expl:`<strong>b)</strong> CTEs start with <code>WITH cte_name AS (subquery)</code>. They make complex queries more readable by breaking them into named steps. They are temporary — only exist for the duration of the query.`
+},
+{id:57, topic:'sql', type:'single',
+  q:`Which JOIN type returns <em>all rows from the left table</em>, even if there is no matching row in the right table?`,
+  choices:['<code>INNER JOIN</code>','<code>RIGHT JOIN</code>','<code>LEFT JOIN</code>','<code>CROSS JOIN</code>'],
+  correct:[2],
+  expl:`<strong>c) <code>LEFT JOIN</code></strong> keeps all rows from the left table. Unmatched rows from the right table get <code>NULL</code> for all right-side columns. <code>INNER JOIN</code> only returns rows that match on both sides.`
+},
+{id:58, topic:'sql', type:'tf',
+  q:`A <code>CROSS JOIN</code> returns every combination of rows from both tables and can be dangerous if the tables are large.`,
+  correct:true,
+  expl:`<strong>True.</strong> A CROSS JOIN produces the Cartesian product — if table A has 1,000 rows and table B has 1,000 rows, the result has 1,000,000 rows. The course labels it "dangerous 💣".`
+},
+{id:59, topic:'sql', type:'single',
+  q:`Why is normalisation (splitting data into multiple related tables) better than storing everything in one flat table?`,
+  choices:['It makes SQL queries simpler to write','It reduces data redundancy, prevents update anomalies, and maintains consistency — e.g., updating a country name only requires changing one row in the countries table','It increases the total number of rows stored','It allows NULL values in all columns'],
+  correct:[1],
+  expl:`<strong>b)</strong> Without normalization: if Switzerland changes region, you'd update millions of trade flow rows. With a separate <code>countries</code> table, you change one row. Normalization also prevents insertion/deletion anomalies.`
+},
+// ---- ESSAY ----
+{id:60, topic:'essay', type:'essay',
+  q:`In the group project, you were asked to use pull requests when working on GitHub. Explain (1) how pull requests work, and (2) what are the advantages of using them, and (3) an example from your group project. <em>Answer in max 70 words.</em>`,
+  answer:`A pull request (PR) proposes merging a feature branch into main. A teammate reviews the diff, leaves comments, and approves before the merge happens. Advantages: prevents untested code from entering main, creates a discussion record, and enables early bug detection. Example: when adding the <code>population_mn</code> column, we opened a PR; a teammate reviewed the diff and requested a <code>gdp_per_capita</code> column before approving the merge.`
+},
+{id:61, topic:'essay', type:'essay',
+  q:`In the group project, your Python class required docstrings and error handling. Explain (1) what docstrings are and why they matter, and (2) how error handling improves robustness. Give one concrete example from your project. <em>Answer in max 70 words.</em>`,
+  answer:`Docstrings are string literals at the top of a class or method that document its purpose, parameters, and return values. They're accessible via <code>help()</code> or <code>.__doc__</code> at runtime. Error handling (e.g., <code>isinstance</code> checks, <code>try/except</code>) prevents methods from crashing on bad inputs. Example: our <code>plot_indicator()</code> method checked whether the provided series name existed in the database and printed a clear message if not found.`
+},
+{id:62, topic:'essay', type:'essay',
+  q:`In the group project, you stored data in a DuckDB relational database. Explain (1) why a relational database was preferable to storing data in CSV files, and (2) what a star schema is and how it structured your data. <em>Answer in max 70 words.</em>`,
+  answer:`A relational database enforces data integrity through primary/foreign key constraints, allows efficient querying of large datasets without loading everything into RAM, and prevents update anomalies. A star schema has a central fact table (one row per observation, e.g., country/indicator/year) and dimension tables (metadata like country name, region). In our project the <code>observations</code> fact table referenced <code>countries</code> and <code>indicators</code> dimension tables, keeping repeated strings out of the fact table.`
+},
+{id:63, topic:'essay', type:'essay',
+  q:`Explain the collaborative Git workflow you followed in the group project. What is the role of (1) branches, (2) pull requests, and (3) the main branch? <em>Answer in max 70 words.</em>`,
+  answer:`Each new feature was developed on a separate <em>branch</em> so work is isolated and does not break the shared codebase. Once ready, we opened a <em>pull request</em> (PR) to propose merging into main. A teammate reviewed the diff and approved. The <em>main branch</em> was kept stable — no direct pushes were allowed. This workflow enabled parallel development, peer review, and a clean history of the project's evolution.`
+},
+{id:64, topic:'essay', type:'essay',
+  q:`Your Python class was required to be reusable and user-friendly. Explain what that means in practice and give two concrete design decisions your group made to achieve this. <em>Answer in max 70 words.</em>`,
+  answer:`A reusable class solves not just your specific question but related ones too. User-friendly means easy to instantiate and use without reading the source code. Concrete decisions: (1) all output methods accepted arguments (e.g., date range, country filter) so users could customise without editing source code; (2) we added docstrings to every method and error messages for invalid inputs, so users get clear guidance when something goes wrong.`
+}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = loadState();
+let quizQueue = [];
+let currentQIdx = 0;
+let currentAnswers = new Set();
+let confirmed = false;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('prog4222_state');
+    return s ? JSON.parse(s) : { results: {} };
+  } catch(e) { return { results: {} }; }
+}
+function saveState() {
+  try { localStorage.setItem('prog4222_state', JSON.stringify(state)); } catch(e) {}
+}
+function markResult(qid, correct) {
+  state.results[qid] = correct;
+  saveState();
+}
+function resetProgress() {
+  state = { results: {} };
+  saveState();
+  renderDashboard();
+  renderReview();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'review') renderReview();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  // Days left
+  const examDate = new Date('2026-05-22');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diff = Math.ceil((examDate - today) / (1000*60*60*24));
+  document.getElementById('days-left').textContent = Math.max(0, diff);
+
+  // Stats
+  const answered = Object.keys(state.results).length;
+  const correct = Object.values(state.results).filter(v=>v).length;
+  document.getElementById('stat-answered').textContent = answered;
+  document.getElementById('stat-correct').textContent = answered ? Math.round(correct/answered*100)+'%' : '—';
+  document.getElementById('stat-total').textContent = questions.length;
+
+  // Topic grid
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+  Object.entries(TOPICS).forEach(([key, label]) => {
+    const qs = questions.filter(q => q.topic === key);
+    const answered = qs.filter(q => state.results[q.id] !== undefined).length;
+    const pct = qs.length ? Math.round(answered/qs.length*100) : 0;
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML = `
+      <h4>${label}</h4>
+      <div class="q-count">${answered}/${qs.length} answered</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-pct">${pct}%</div>`;
+    card.onclick = () => startTopicSession(key);
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// QUIZ SESSIONS
+// ============================================================
+function startAllRandom() {
+  let q = [...questions].sort(() => Math.random()-0.5);
+  startSession('Random Practice — All Topics', q);
+}
+function startWrong() {
+  let q = questions.filter(q => state.results[q.id] === false);
+  if (!q.length) { alert('No wrong answers yet! Practice some questions first.'); return; }
+  startSession('Review: Wrong Answers', q.sort(() => Math.random()-0.5));
+}
+function startEssayOnly() {
+  let q = questions.filter(q => q.type === 'essay');
+  startSession('Essay Questions — Group Project', q);
+}
+function startTopicSession(topicKey) {
+  let q = questions.filter(q => q.topic === topicKey).sort(() => Math.random()-0.5);
+  startSession(TOPICS[topicKey], q);
+  showView('quiz', document.querySelectorAll('nav button')[1]);
+}
+function startDaySession(day) {
+  const topics = DAY_TOPICS[day];
+  let q = questions.filter(q => topics.includes(q.topic)).sort(() => Math.random()-0.5);
+  startSession(`Day ${day}: ${q.map(x=>TOPICS[x.topic]).filter((v,i,a)=>a.indexOf(v)===i).join(', ')}`, q);
+  showView('quiz', document.querySelectorAll('nav button')[1]);
+}
+function startSession(title, qs) {
+  quizQueue = qs;
+  currentQIdx = 0;
+  document.getElementById('quiz-title').textContent = title;
+  renderFilterRow();
+  renderQuestion();
+}
+function shuffleAndRestart() {
+  quizQueue = [...quizQueue].sort(() => Math.random()-0.5);
+  currentQIdx = 0;
+  renderQuestion();
+}
+function skipQuestion() {
+  if (currentQIdx < quizQueue.length - 1) { currentQIdx++; renderQuestion(); }
+}
+
+// ============================================================
+// FILTER ROW
+// ============================================================
+function renderFilterRow() {
+  const row = document.getElementById('filter-row');
+  row.innerHTML = '';
+  const chip = (label, active, fn) => {
+    const el = document.createElement('div');
+    el.className = 'filter-chip' + (active ? ' active' : '');
+    el.textContent = label;
+    el.onclick = fn;
+    return el;
+  };
+  row.appendChild(chip('All', true, startAllRandom));
+  Object.entries(TOPICS).forEach(([k,v]) => {
+    row.appendChild(chip(v, false, () => startTopicSession(k)));
+  });
+}
+
+// ============================================================
+// QUESTION RENDERER
+// ============================================================
+function renderQuestion() {
+  confirmed = false;
+  currentAnswers = new Set();
+
+  const area = document.getElementById('question-area');
+  const total = quizQueue.length;
+  const idx = currentQIdx;
+
+  // Progress bar
+  const pct = total ? Math.round(idx/total*100) : 0;
+  document.getElementById('q-prog-fill').style.width = pct + '%';
+  document.getElementById('q-prog-label').textContent = `${idx+1} / ${total}`;
+
+  if (idx >= total || !quizQueue.length) {
+    area.innerHTML = `
+      <div class="session-complete">
+        <div class="score-ring" id="score-ring-disp">—</div>
+        <h2>Session Complete!</h2>
+        <p>Great work. Check the Review tab to go through all answers.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="startAllRandom();renderQuestion()">Practice Again</button>
+          <button class="btn" onclick="showView('review', document.querySelectorAll('nav button')[2])">Review All →</button>
+        </div>
+      </div>`;
+    // compute score for this session
+    const sessionIds = quizQueue.map(q=>q.id);
+    const done = sessionIds.filter(id => state.results[id] !== undefined);
+    const correct = sessionIds.filter(id => state.results[id] === true);
+    const pct2 = done.length ? Math.round(correct.length/done.length*100) : 0;
+    const ring = document.getElementById('score-ring-disp');
+    if (ring) ring.textContent = pct2 + '%';
+    return;
+  }
+
+  const q = quizQueue[idx];
+  area.innerHTML = buildQuestionHTML(q);
+  attachQuestionEvents(q);
+}
+
+function typeLabel(type) {
+  if (type==='tf') return ['True / False','type-tf'];
+  if (type==='single') return ['Single Correct','type-single'];
+  if (type==='multi') return ['Multiple Correct','type-multi'];
+  return ['Essay','type-essay'];
+}
+
+function buildQuestionHTML(q) {
+  const [tl, tc] = typeLabel(q.type);
+  let html = `
+    <div class="q-card">
+      <div class="q-meta">
+        <span class="q-type-badge ${tc}">${tl}</span>
+        <span class="q-topic-badge">${TOPICS[q.topic]}</span>
+      </div>
+      <div class="q-text">${q.q}</div>`;
+
+  if (q.code) {
+    html += `<div class="code-block">${syntaxHighlight(q.code)}</div>`;
+  }
+
+  if (q.type === 'tf') {
+    html += `<div class="tf-choices">
+      <div class="tf-btn" data-val="true" onclick="selectTF(this)">✓ True</div>
+      <div class="tf-btn" data-val="false" onclick="selectTF(this)">✗ False</div>
+    </div>`;
+  } else if (q.type === 'single') {
+    html += `<div class="choices">`;
+    const keys = ['a','b','c','d','e'];
+    q.choices.forEach((c,i) => {
+      html += `<div class="choice" data-idx="${i}" onclick="selectChoice(this, false)">
+        <div class="choice-key">${keys[i]}</div>
+        <div class="choice-text">${c}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  } else if (q.type === 'multi') {
+    html += `<div class="multi-hint">Select all correct answers, then click Confirm.</div>`;
+    html += `<div class="choices">`;
+    const keys = ['a','b','c','d','e'];
+    q.choices.forEach((c,i) => {
+      html += `<div class="choice" data-idx="${i}" onclick="selectChoice(this, true)">
+        <div class="choice-key">${keys[i]}</div>
+        <div class="choice-text">${c}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  } else if (q.type === 'essay') {
+    html += `<div class="q-note">Think through your answer, then reveal the model answer below.</div>
+    <div class="model-answer-toggle" id="essay-toggle" onclick="toggleEssay()">
+      <span class="arrow">▶</span> Reveal Model Answer
+    </div>
+    <div class="model-answer-body" id="essay-body">${q.answer}</div>`;
+  }
+
+  html += `<div class="feedback" id="feedback"></div>`;
+
+  if (q.type !== 'essay') {
+    html += `<div class="q-actions">
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmAnswer()" disabled>Confirm</button>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next question →</button>
+      <div class="kbd-hint"><kbd>Enter</kbd> confirm · <kbd>→</kbd> next</div>
+    </div>`;
+  } else {
+    html += `<div class="q-actions">
+      <button class="btn-next show" id="btn-next" onclick="nextQuestion()">Next question →</button>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function syntaxHighlight(code) {
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(#.*)/g, '<span class="cm">$1</span>')
+    .replace(/\b(class|def|self|if|else|elif|for|while|return|import|from|in|not|and|or|True|False|None|with|as|pass|break|continue|raise|try|except|print)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(int|float|str|list|dict|bool|type|isinstance|range|len|enumerate)\b/g, '<span class="fn">$1</span>')
+    .replace(/(f?"[^"]*")/g, '<span class="st">$1</span>')
+    .replace(/(f?'[^']*')/g, '<span class="st">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g, '<span class="nb">$1</span>');
+}
+
+function selectTF(el) {
+  if (confirmed) return;
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  currentAnswers = new Set([el.dataset.val]);
+  document.getElementById('btn-confirm').disabled = false;
+}
+
+function selectChoice(el, multi) {
+  if (confirmed) return;
+  const idx = parseInt(el.dataset.idx);
+  if (multi) {
+    if (currentAnswers.has(idx)) { currentAnswers.delete(idx); el.classList.remove('selected'); }
+    else { currentAnswers.add(idx); el.classList.add('selected'); }
+  } else {
+    document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+    currentAnswers = new Set([idx]);
+    el.classList.add('selected');
+  }
+  document.getElementById('btn-confirm').disabled = currentAnswers.size === 0;
+}
+
+function confirmAnswer() {
+  if (confirmed) return;
+  confirmed = true;
+  const q = quizQueue[currentQIdx];
+  let isCorrect = false;
+
+  if (q.type === 'tf') {
+    const selected = [...currentAnswers][0];
+    const correctStr = q.correct ? 'true' : 'false';
+    isCorrect = selected === correctStr;
+    document.querySelectorAll('.tf-btn').forEach(b => {
+      const v = b.dataset.val;
+      b.classList.add('disabled');
+      if (v === correctStr) b.classList.add('correct');
+      else if (currentAnswers.has(v)) b.classList.add('incorrect');
+    });
+  } else {
+    const correctSet = new Set(q.correct);
+    const selectedSet = currentAnswers;
+    isCorrect = setsEqual(correctSet, selectedSet);
+    document.querySelectorAll('.choice').forEach(c => {
+      const i = parseInt(c.dataset.idx);
+      c.classList.add('disabled');
+      if (correctSet.has(i) && selectedSet.has(i)) c.classList.add('correct');
+      else if (!correctSet.has(i) && selectedSet.has(i)) c.classList.add('incorrect');
+      else if (correctSet.has(i) && !selectedSet.has(i)) c.classList.add('missed');
+    });
+  }
+
+  markResult(q.id, isCorrect);
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
+  fb.innerHTML = `<strong>${isCorrect ? '✓ Correct!' : '✗ Not quite.'}</strong>${q.expl || ''}`;
+
+  document.getElementById('btn-confirm').disabled = true;
+  const nxt = document.getElementById('btn-next');
+  if (nxt) nxt.classList.add('show');
+}
+
+function nextQuestion() {
+  currentQIdx++;
+  renderQuestion();
+}
+
+function toggleEssay() {
+  const toggle = document.getElementById('essay-toggle');
+  const body = document.getElementById('essay-body');
+  toggle.classList.toggle('open');
+  body.classList.toggle('show');
+}
+
+function setsEqual(a, b) {
+  if (a.size !== b.size) return false;
+  for (let v of a) if (!b.has(v)) return false;
+  return true;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const view = document.getElementById('view-quiz');
+  if (!view.classList.contains('active')) return;
+  if (e.key === 'Enter' && !confirmed) {
+    const btn = document.getElementById('btn-confirm');
+    if (btn && !btn.disabled) confirmAnswer();
+  }
+  if (e.key === 'ArrowRight') {
+    const btn = document.getElementById('btn-next');
+    if (btn && btn.classList.contains('show')) nextQuestion();
+    else if (quizQueue[currentQIdx]?.type === 'essay') nextQuestion();
+  }
+  // number keys for single/multi choice
+  const q = quizQueue[currentQIdx];
+  if (q && (q.type==='single'||q.type==='multi') && !confirmed) {
+    const map = {'1':0,'2':1,'3':2,'4':3,'5':4};
+    if (map[e.key] !== undefined) {
+      const choices = document.querySelectorAll('.choice');
+      if (choices[map[e.key]]) selectChoice(choices[map[e.key]], q.type==='multi');
+    }
+  }
+  if (q && q.type==='tf' && !confirmed) {
+    if (e.key==='t'||e.key==='T') { const btn=document.querySelector('.tf-btn[data-val="true"]'); if(btn)selectTF(btn); }
+    if (e.key==='f'||e.key==='F') { const btn=document.querySelector('.tf-btn[data-val="false"]'); if(btn)selectTF(btn); }
+  }
+});
+
+// ============================================================
+// REVIEW VIEW
+// ============================================================
+function renderReview() {
+  const area = document.getElementById('review-area');
+  const filterRow = document.getElementById('review-filter-row');
+  
+  // Build filter chips
+  filterRow.innerHTML = '';
+  let activeFilter = 'all';
+  
+  function buildChip(label, key) {
+    const el = document.createElement('div');
+    el.className = 'filter-chip' + (key===activeFilter?' active':'');
+    el.textContent = label;
+    el.onclick = () => { activeFilter = key; renderSections(); filterRow.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); };
+    return el;
+  }
+  filterRow.appendChild(buildChip('All Topics', 'all'));
+  Object.entries(TOPICS).forEach(([k,v]) => filterRow.appendChild(buildChip(v, k)));
+
+  function renderSections() {
+    area.innerHTML = '';
+    const topics = activeFilter === 'all' ? Object.keys(TOPICS) : [activeFilter];
+    topics.forEach(topicKey => {
+      const qs = questions.filter(q => q.topic === topicKey);
+      if (!qs.length) return;
+      const sec = document.createElement('div');
+      sec.className = 'review-section';
+      sec.innerHTML = `<h3>${TOPICS[topicKey]} <span style="font-size:0.75rem;font-family:'IBM Plex Sans',sans-serif;color:var(--text-dim);font-weight:400">${qs.length} questions</span></h3>`;
+      qs.forEach(q => {
+        const res = state.results[q.id];
+        const dot = res === true ? 'dot-correct' : res === false ? 'dot-incorrect' : 'dot-unanswered';
+        const card = document.createElement('div');
+        card.className = 'review-q';
+        const answerHTML = buildReviewAnswer(q);
+        card.innerHTML = `
+          <div class="review-q-header">
+            <div class="answered-dot ${dot}"></div>
+            <div class="review-q-text">${q.q}</div>
+          </div>
+          <div class="review-answer" id="ra-${q.id}">${answerHTML}</div>`;
+        card.onclick = () => {
+          const body = document.getElementById('ra-'+q.id);
+          body.classList.toggle('show');
+          card.classList.toggle('open');
+        };
+        sec.appendChild(card);
+      });
+      area.appendChild(sec);
+    });
+  }
+  renderSections();
+}
+
+function buildReviewAnswer(q) {
+  if (q.type === 'essay') return `<strong>Model Answer:</strong><br>${q.answer}`;
+  if (q.type === 'tf') {
+    return `<strong>Answer:</strong> ${q.correct ? 'True ✓' : 'False ✗'}<br><br>${q.expl || ''}`;
+  }
+  const keys = ['a','b','c','d','e'];
+  const correctLabels = q.correct.map(i => `${keys[i]}) ${q.choices[i]}`).join(', ');
+  return `<strong>Correct answer${q.correct.length>1?'s':''}:</strong> ${correctLabels}<br><br>${q.expl || ''}`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderDashboard();
+renderReview();
+
+// Highlight today's day card
+(function() {
+  const today = new Date();
+  const d = today.getDay(); // 0=Sun
+  // Map to study days: exam May 22 (Fri). Study days May 16-19 (Sat-Tue)
+  const examDate = new Date('2026-05-22');
+  const dayStart = new Date('2026-05-16'); // Day 1
+  const dayMs = 24*60*60*1000;
+  const dayNum = Math.floor((today - dayStart) / dayMs) + 1;
+  if (dayNum >= 1 && dayNum <= 4) {
+    const card = document.getElementById('day-card-' + dayNum);
+    if (card) card.classList.add('is-today');
+  }
+})();
+
+</script>
+</body>
+</html>
