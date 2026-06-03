@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4,222 Intro to Programming — Study Tool</title>
+<style>
+  :root {
+    --hsg-red: #C8102E;
+    --hsg-red-dark: #a00d24;
+    --hsg-red-light: #f9e6e9;
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --correct: #16a34a;
+    --correct-bg: #f0fdf4;
+    --wrong: #dc2626;
+    --wrong-bg: #fef2f2;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  /* ── Header ─────────────────────────────────────── */
+  header {
+    background: var(--hsg-red);
+    color: #fff;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  header .logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; }
+  header .subtitle { font-size: 0.8rem; opacity: 0.85; }
+  header nav { margin-left: auto; display: flex; gap: 0.5rem; }
+  header nav button {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: none;
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  header nav button:hover { background: rgba(255,255,255,0.28); }
+  header nav button.active { background: rgba(255,255,255,0.35); }
+
+  /* ── Layout ──────────────────────────────────────── */
+  main { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* ── Views ───────────────────────────────────────── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── Dashboard ───────────────────────────────────── */
+  .dash-header { margin-bottom: 1.5rem; }
+  .dash-header h1 { font-size: 1.5rem; font-weight: 700; }
+  .dash-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--hsg-red); }
+  .stat-card .lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .topic-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, transform 0.12s, box-shadow 0.12s;
+    position: relative;
+    overflow: hidden;
+  }
+  .topic-card:hover {
+    border-color: var(--hsg-red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+  .topic-card .topic-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+  .topic-card .topic-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .topic-card .topic-meta { font-size: 0.78rem; color: var(--text-muted); }
+  .topic-card .topic-progress {
+    margin-top: 0.75rem;
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .topic-card .topic-progress-bar {
+    height: 100%;
+    background: var(--hsg-red);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .topic-card .topic-score {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+  }
+  .topic-card.all-topics { border-style: dashed; border-color: var(--border); }
+  .topic-card.all-topics:hover { border-color: var(--hsg-red); border-style: solid; }
+
+  /* ── Quiz ────────────────────────────────────────── */
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-header button {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .quiz-header button:hover { border-color: var(--hsg-red); color: var(--hsg-red); }
+  .quiz-header .quiz-title { font-weight: 600; font-size: 1rem; }
+  .quiz-header .quiz-progress { margin-left: auto; font-size: 0.85rem; color: var(--text-muted); }
+
+  .progress-bar-container {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--hsg-red);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  .question-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+  }
+  .question-tag {
+    display: inline-block;
+    background: var(--hsg-red-light);
+    color: var(--hsg-red);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+  }
+  .question-text code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.12em 0.4em;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.9em;
+  }
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .options { display: grid; gap: 0.6rem; }
+  .option-btn {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    transition: border-color 0.12s, background 0.12s;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .option-btn .opt-letter {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: background 0.12s, color 0.12s;
+    margin-top: 1px;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--hsg-red);
+    background: var(--hsg-red-light);
+  }
+  .option-btn:hover:not(:disabled) .opt-letter { background: var(--hsg-red); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option-btn.correct .opt-letter { background: var(--correct); color: #fff; }
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option-btn.wrong .opt-letter { background: var(--wrong); color: #fff; }
+  .option-btn code {
+    background: rgba(0,0,0,0.08);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.88em;
+  }
+
+  .explanation-box {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    background: #f8fafc;
+    border-left: 4px solid var(--hsg-red);
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .explanation-box.show { display: block; }
+  .explanation-box code {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.12em 0.4em;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.88em;
+  }
+  .explanation-label { font-weight: 600; color: var(--hsg-red); margin-bottom: 0.3rem; font-size: 0.8rem; text-transform: uppercase; }
+
+  .quiz-actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
+  .btn-next {
+    background: var(--hsg-red);
+    color: #fff;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: none;
+  }
+  .btn-next:hover { background: var(--hsg-red-dark); }
+  .btn-next.show { display: block; }
+
+  /* ── Results ─────────────────────────────────────── */
+  .results-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .results-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+  .results-score { font-size: 3rem; font-weight: 800; color: var(--hsg-red); }
+  .results-label { font-size: 1rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .results-breakdown { margin-top: 1.5rem; display: flex; justify-content: center; gap: 2rem; }
+  .rb-item { text-align: center; }
+  .rb-item .num { font-size: 1.5rem; font-weight: 700; }
+  .rb-item .lbl { font-size: 0.78rem; color: var(--text-muted); }
+  .rb-correct .num { color: var(--correct); }
+  .rb-wrong .num { color: var(--wrong); }
+  .results-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--hsg-red);
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--hsg-red-dark); }
+  .btn-secondary {
+    background: var(--card-bg);
+    color: var(--text);
+    border: 2px solid var(--border);
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--hsg-red); }
+
+  .review-list { display: grid; gap: 0.75rem; }
+  .review-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid;
+    font-size: 0.88rem;
+  }
+  .review-item.correct { border-color: var(--correct); }
+  .review-item.wrong { border-color: var(--wrong); }
+  .review-item .ri-q { font-weight: 500; margin-bottom: 0.35rem; }
+  .review-item .ri-a { color: var(--text-muted); }
+  .review-item .ri-correct { color: var(--correct); font-weight: 600; }
+  .review-item .ri-wrong { color: var(--wrong); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .stat-card .num { font-size: 1.5rem; }
+    .results-breakdown { gap: 1.25rem; }
+    header { gap: 0.5rem; }
+    header .subtitle { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">4,222 ITP</div>
+    <div class="subtitle">Introduction to Programming</div>
+  </div>
+  <nav>
+    <button onclick="showDash()" id="nav-dash" class="active">Dashboard</button>
+    <button onclick="startQuiz('all')" id="nav-all">All Topics</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dash">
+    <div class="dash-header">
+      <h1>Study Dashboard</h1>
+      <p>Select a topic to practice, or start a mixed quiz across all topics.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="num" id="stat-answered">0</div>
+        <div class="lbl">Questions Answered</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-correct">0</div>
+        <div class="lbl">Correct</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-pct">—</div>
+        <div class="lbl">Accuracy</div>
+      </div>
+    </div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="view" id="view-quiz">
+    <div class="quiz-header">
+      <button onclick="showDash()">← Back</button>
+      <span class="quiz-title" id="quiz-title"></span>
+      <span class="quiz-progress" id="quiz-progress"></span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="quiz-bar"></div>
+    </div>
+    <div class="question-card">
+      <div class="question-tag" id="q-tag"></div>
+      <div class="question-text" id="q-text"></div>
+      <div class="code-block" id="q-code" style="display:none"></div>
+      <div class="options" id="q-options"></div>
+      <div class="explanation-box" id="q-explanation">
+        <div class="explanation-label">Explanation</div>
+        <div id="q-explanation-text"></div>
+      </div>
+    </div>
+    <div class="quiz-actions">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="view" id="view-results">
+    <div class="results-card">
+      <div class="results-emoji" id="res-emoji"></div>
+      <div class="results-score" id="res-score"></div>
+      <div class="results-label" id="res-label"></div>
+      <div class="results-breakdown">
+        <div class="rb-item rb-correct">
+          <div class="num" id="res-correct"></div>
+          <div class="lbl">Correct</div>
+        </div>
+        <div class="rb-item rb-wrong">
+          <div class="num" id="res-wrong"></div>
+          <div class="lbl">Incorrect</div>
+        </div>
+        <div class="rb-item">
+          <div class="num" id="res-total"></div>
+          <div class="lbl">Total</div>
+        </div>
+      </div>
+      <div class="results-actions">
+        <button class="btn-primary" id="btn-retry" onclick="retryQuiz()">Retry This Set</button>
+        <button class="btn-secondary" onclick="showDash()">Back to Dashboard</button>
+      </div>
+    </div>
+    <div id="review-section">
+      <h3 style="margin-bottom:1rem; font-size:0.95rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Review</h3>
+      <div class="review-list" id="review-list"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// QUESTION BANK
+// ═══════════════════════════════════════════════════════
+const TOPICS = [
+  { id: 'terminal',  name: 'Terminal & Environment', icon: '💻', lectures: 'Weeks 1–2' },
+  { id: 'git',       name: 'Git Basics',              icon: '🌿', lectures: 'Weeks 2–3' },
+  { id: 'github',    name: 'Git Collaboration',       icon: '🤝', lectures: 'Week 3' },
+  { id: 'python',    name: 'Python Basics',            icon: '🐍', lectures: 'Week 4' },
+  { id: 'pandas',    name: 'Pandas & Visualization',  icon: '📊', lectures: 'Weeks 5–6' },
+  { id: 'oop',       name: 'Object-Oriented Programming', icon: '🧱', lectures: 'Week 7' },
+  { id: 'sql',       name: 'Databases & SQL',          icon: '🗄️', lectures: 'Weeks 9–10' },
+];
+
+const Q = [
+  // ═══ TERMINAL & ENVIRONMENT ═══════════════════════════
+  {
+    topic: 'terminal',
+    q: 'Which command shows your current working directory in bash/macOS?',
+    opts: ['<code>ls</code>', '<code>pwd</code>', '<code>cd</code>', '<code>dir</code>'],
+    a: 1,
+    exp: '<code>pwd</code> stands for <em>print working directory</em>. On Windows (cmd), <code>cd</code> without arguments shows the current directory. <code>dir</code> lists files. <code>ls</code> also lists files.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What does the path shortcut <code>..</code> refer to?',
+    opts: ['The current directory', 'The root directory', 'The parent directory', 'The home directory'],
+    a: 2,
+    exp: '<code>..</code> refers to the parent directory (one level up). <code>.</code> is the current directory, <code>~</code> is the home directory.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What is the difference between an absolute path and a relative path?',
+    opts: [
+      'Absolute paths use forward slashes, relative paths use backslashes',
+      'Absolute paths start from the root of the file system; relative paths start from the current directory',
+      'Absolute paths are shorter; relative paths are longer',
+      'There is no meaningful difference'
+    ],
+    a: 1,
+    exp: 'An absolute path starts from the root (e.g. <code>C:/Users/Bilbo/doc.txt</code>). A relative path starts from wherever your shell currently is (e.g. <code>../doc.txt</code>).'
+  },
+  {
+    topic: 'terminal',
+    q: 'Which naming convention is recommended for Python files and variables?',
+    opts: ['camelCase', 'PascalCase', 'kebab-case', 'snake_case'],
+    a: 3,
+    exp: 'Python convention (PEP 8) uses <code>snake_case</code> for files, variables, and functions (e.g. <code>my_file.py</code>). PascalCase is used for class names.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What is a shell?',
+    opts: [
+      'A graphical application for editing code',
+      'The program that interprets your terminal commands (e.g. bash, zsh)',
+      'A Python environment manager',
+      'The hard drive partition that stores the OS'
+    ],
+    a: 1,
+    exp: 'The <em>terminal</em> is the window where you type. The <em>shell</em> (e.g. bash, zsh, PowerShell) is the program running inside it that interprets your commands.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What does <code>uv init my_project</code> do?',
+    opts: [
+      'Installs the uv package manager globally',
+      'Creates a new Python project with its own virtual environment',
+      'Updates all packages in the current environment',
+      'Links the project to a GitHub repository'
+    ],
+    a: 1,
+    exp: '<code>uv init my_project</code> creates a new project directory with the key files: <code>.python-version</code>, <code>pyproject.toml</code>, and sets up a <code>.venv/</code> folder.'
+  },
+  {
+    topic: 'terminal',
+    q: 'Which three files are created/managed by <code>uv</code> to define a Python project\'s environment?',
+    opts: [
+      '<code>requirements.txt</code>, <code>setup.py</code>, <code>venv.cfg</code>',
+      '<code>.python-version</code>, <code>pyproject.toml</code>, <code>uv.lock</code>',
+      '<code>Pipfile</code>, <code>Pipfile.lock</code>, <code>.env</code>',
+      '<code>conda.yaml</code>, <code>environment.yml</code>, <code>setup.cfg</code>'
+    ],
+    a: 1,
+    exp: 'uv uses <code>.python-version</code> (Python version), <code>pyproject.toml</code> (dependencies), and <code>uv.lock</code> (exact locked versions). The <code>.venv/</code> folder is the realized environment — never commit it.'
+  },
+  {
+    topic: 'terminal',
+    q: 'Why should you use virtual environments instead of installing Python packages globally?',
+    opts: [
+      'Global installs are slower than virtual environments',
+      'Different projects may need different (possibly conflicting) package versions',
+      'Virtual environments reduce file size on disk',
+      'Global installs require administrator permissions'
+    ],
+    a: 1,
+    exp: 'If Project A needs pandas 1.5 and Project B needs pandas 2.0, a global install of one version breaks the other. Virtual environments isolate each project\'s dependencies.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What does <code>uv run main.py</code> do differently from <code>python main.py</code>?',
+    opts: [
+      'It runs the script faster using compiled code',
+      'It automatically uses the project\'s virtual environment',
+      'It lints the code before running',
+      'It runs the script in debug mode'
+    ],
+    a: 1,
+    exp: '<code>uv run</code> automatically activates the project\'s virtual environment before executing the script, ensuring the correct Python version and packages are used.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What command creates a new directory called <code>data</code>?',
+    opts: ['<code>touch data</code>', '<code>mkdir data</code>', '<code>new data</code>', '<code>create data</code>'],
+    a: 1,
+    exp: '<code>mkdir</code> (make directory) works the same on bash/macOS and Windows cmd. <code>touch</code> creates an empty file on macOS/Linux.'
+  },
+  {
+    topic: 'terminal',
+    q: 'Which keyboard shortcut auto-completes file and directory names in the terminal?',
+    opts: ['Ctrl+Enter', 'Tab', 'Ctrl+Space', 'Shift+Tab'],
+    a: 1,
+    exp: 'Pressing <code>Tab</code> auto-completes file and directory names. If there are multiple matches, press Tab twice to see them all.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What is the home directory shortcut in bash?',
+    opts: ['<code>/</code>', '<code>.</code>', '<code>~</code>', '<code>@</code>'],
+    a: 2,
+    exp: '<code>~</code> is a shortcut for the home directory (e.g. <code>/Users/username</code> on macOS). Running <code>cd</code> without arguments also takes you to <code>~</code>.'
+  },
+  {
+    topic: 'terminal',
+    q: 'What is an IDE (Integrated Development Environment)?',
+    opts: [
+      'A tool for writing, running, and managing code with features like syntax highlighting, error detection, and debugging',
+      'A type of Python virtual environment',
+      'A version control system like Git',
+      'A command-line package manager'
+    ],
+    a: 0,
+    exp: 'An IDE provides syntax highlighting, code completion, error detection, an integrated terminal, and debugging tools. Examples: VS Code, PyCharm, RStudio.'
+  },
+  {
+    topic: 'terminal',
+    q: 'Which command adds a package to a uv project?',
+    opts: ['<code>uv install pandas</code>', '<code>pip install pandas</code>', '<code>uv add pandas</code>', '<code>uv sync pandas</code>'],
+    a: 2,
+    exp: '<code>uv add pandas</code> installs the package and records it in <code>pyproject.toml</code>. <code>uv sync</code> installs all packages from the lock file (used when joining an existing project).'
+  },
+
+  // ═══ GIT BASICS ════════════════════════════════════
+  {
+    topic: 'git',
+    q: 'What does <code>git init</code> do?',
+    opts: [
+      'Downloads a remote repository to your machine',
+      'Turns the current directory into a Git repository',
+      'Creates the first commit',
+      'Connects the repository to GitHub'
+    ],
+    a: 1,
+    exp: '<code>git init</code> initializes an empty Git repository in the current directory, creating a hidden <code>.git/</code> folder that stores all version history.'
+  },
+  {
+    topic: 'git',
+    q: 'What is the staging area in Git?',
+    opts: [
+      'A backup copy of your files on GitHub',
+      'A list of changes you have selected to include in the next commit',
+      'The folder where Git stores your commit history',
+      'A temporary branch where you test changes'
+    ],
+    a: 1,
+    exp: 'The staging area (also called the index) is a list of changes you\'ve added with <code>git add</code> that are ready to be recorded with <code>git commit</code>. It is not a folder.'
+  },
+  {
+    topic: 'git',
+    q: 'Which command adds a file called <code>analysis.py</code> to the staging area?',
+    opts: ['<code>git stage analysis.py</code>', '<code>git add analysis.py</code>', '<code>git commit analysis.py</code>', '<code>git track analysis.py</code>'],
+    a: 1,
+    exp: '<code>git add &lt;filename&gt;</code> adds a file to the staging area. You can also use <code>git add .</code> to stage all changes in the current directory (use with caution — may include sensitive files).'
+  },
+  {
+    topic: 'git',
+    q: 'What does a Git commit do?',
+    opts: [
+      'Saves changes to the staging area',
+      'Pushes changes to GitHub',
+      'Records staged changes as a permanent snapshot in the project history',
+      'Creates a new branch'
+    ],
+    a: 2,
+    exp: 'A commit records all staged changes as a permanent, ordered snapshot with a timestamp, author, and message. Commits are the core building blocks of Git history.'
+  },
+  {
+    topic: 'git',
+    q: 'Which of these is a good commit message?',
+    opts: [
+      '"small changes"',
+      '"Fix missing values in clean_gdp_data()"',
+      '"final final push to main"',
+      '"update code"'
+    ],
+    a: 1,
+    exp: 'A good commit message is short (<50 chars), specific, and uses the imperative mood ("Fix", "Add", "Update"). Vague messages like "small changes" make it impossible to understand the history.'
+  },
+  {
+    topic: 'git',
+    q: 'What command shows the current state of your working directory and staging area?',
+    opts: ['<code>git log</code>', '<code>git diff</code>', '<code>git status</code>', '<code>git show</code>'],
+    a: 2,
+    exp: '<code>git status</code> shows which files are untracked, modified, or staged. It also tells you which branch you\'re on and whether your branch is ahead/behind the remote.'
+  },
+  {
+    topic: 'git',
+    q: 'What is a <code>.gitignore</code> file used for?',
+    opts: [
+      'Listing collaborators who cannot push to the repository',
+      'Specifying files and patterns that Git should not track',
+      'Storing the repository\'s commit history',
+      'Configuring the remote URL of the repository'
+    ],
+    a: 1,
+    exp: '<code>.gitignore</code> lists files/patterns Git should ignore (e.g. <code>*.csv</code>, <code>.venv/</code>, <code>.DS_Store</code>). The file itself is tracked. Track <code>pyproject.toml</code> and <code>uv.lock</code>, but ignore <code>.venv/</code>.'
+  },
+  {
+    topic: 'git',
+    q: 'What are Git branches?',
+    opts: [
+      'Copies of your repository stored on GitHub',
+      'Alternate timelines of your project that allow you to work on different versions simultaneously',
+      'Named bookmarks that point to specific commits',
+      'Separate users who can edit the same repository'
+    ],
+    a: 1,
+    exp: 'Branches are alternate realities of your codebase. You can switch between them, work in isolation, and merge them back. The default branch is usually called <code>main</code>.'
+  },
+  {
+    topic: 'git',
+    q: 'Since Git 2.23, what is the recommended command to create and switch to a new branch called <code>feature-x</code>?',
+    opts: [
+      '<code>git branch feature-x && git checkout feature-x</code>',
+      '<code>git new feature-x</code>',
+      '<code>git switch -c feature-x</code>',
+      '<code>git create feature-x</code>'
+    ],
+    a: 2,
+    exp: '<code>git switch -c feature-x</code> creates a branch and immediately switches to it. <code>-c</code> stands for "create". <code>git checkout -b</code> is the older equivalent still widely used.'
+  },
+  {
+    topic: 'git',
+    q: 'What does <code>git merge my-branch</code> do when run from <code>main</code>?',
+    opts: [
+      'Deletes <code>my-branch</code>',
+      'Renames <code>my-branch</code> to <code>main</code>',
+      'Combines the changes from <code>my-branch</code> into <code>main</code>, creating a merge commit',
+      'Pushes <code>my-branch</code> to the remote'
+    ],
+    a: 2,
+    exp: '<code>git merge &lt;branch&gt;</code> merges the named branch into your current branch. It creates a new "merge commit" that joins the two histories.'
+  },
+  {
+    topic: 'git',
+    q: 'When does a merge conflict occur?',
+    opts: [
+      'When you try to commit without a message',
+      'When two branches have edited the same part of the same file and Git cannot automatically choose a version',
+      'When your local repository is ahead of the remote',
+      'When a file is larger than 100MB'
+    ],
+    a: 1,
+    exp: 'Merge conflicts happen when two branches modified the same location in a file. Git marks the conflict with <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers. You must manually resolve them.'
+  },
+  {
+    topic: 'git',
+    q: 'What does <code>git checkout a3f7b2c</code> do?',
+    opts: [
+      'Creates a new branch named <code>a3f7b2c</code>',
+      'Deletes the commit with that hash',
+      'Takes you to the commit with that hash (detached HEAD state)',
+      'Merges the commit into the current branch'
+    ],
+    a: 2,
+    exp: '<code>git checkout &lt;hash&gt;</code> puts you in a "detached HEAD" state at that commit — you can look around but should not make new commits without first creating a branch. Use <code>git switch main</code> to go back.'
+  },
+  {
+    topic: 'git',
+    q: 'What three states can a file be in within Git?',
+    opts: [
+      'Created, Modified, Deleted',
+      'Unstaged, Staged, Committed',
+      'Tracked, Ignored, Deleted',
+      'Local, Remote, Synced'
+    ],
+    a: 1,
+    exp: 'Changes move through three states: <strong>unstaged</strong> (modified but not yet added), <strong>staged</strong> (added to the index with <code>git add</code>), and <strong>committed</strong> (recorded in history).'
+  },
+  {
+    topic: 'git',
+    q: 'What does <code>git merge --abort</code> do?',
+    opts: [
+      'Removes all commits made during the merge',
+      'Cancels the in-progress merge and returns to the state before <code>git merge</code> was run',
+      'Deletes the branch being merged',
+      'Forces the merge to complete ignoring conflicts'
+    ],
+    a: 1,
+    exp: 'If you get confused during a merge conflict, <code>git merge --abort</code> safely cancels the merge and restores the pre-merge state. Then you can try again more carefully.'
+  },
+  {
+    topic: 'git',
+    q: 'In a merge conflict file, what does the block between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> represent?',
+    opts: [
+      'The changes from the branch being merged in',
+      'The common ancestor of both branches',
+      'The changes from your current branch (where HEAD points)',
+      'The automatically chosen resolution'
+    ],
+    a: 2,
+    exp: 'The section between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> shows your current branch\'s version. The section between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch</code> shows the incoming branch\'s version.'
+  },
+
+  // ═══ GIT COLLABORATION ════════════════════════════
+  {
+    topic: 'github',
+    q: 'What is a Git remote?',
+    opts: [
+      'A backup branch for emergency recovery',
+      'A reference to a version of your repository hosted on another computer (e.g. GitHub)',
+      'A read-only copy of the repository',
+      'A mirror of your staging area'
+    ],
+    a: 1,
+    exp: 'A remote is a connection to a repository hosted elsewhere. The default remote is usually called <code>origin</code>. GitHub hosts the remote; your machine holds the local clone.'
+  },
+  {
+    topic: 'github',
+    q: 'What does <code>git push</code> do?',
+    opts: [
+      'Downloads changes from the remote to your local machine',
+      'Uploads your local commits to the remote repository',
+      'Merges a remote branch into your local branch',
+      'Creates a new remote repository'
+    ],
+    a: 1,
+    exp: '<code>git push</code> sends your local commits to the corresponding branch on the remote. If the branch doesn\'t have an upstream yet, use <code>git push -u origin &lt;branch&gt;</code>.'
+  },
+  {
+    topic: 'github',
+    q: 'What does <code>git pull</code> do?',
+    opts: [
+      'Uploads your commits to the remote',
+      'Downloads remote changes AND merges them into your current branch',
+      'Downloads remote changes without merging',
+      'Copies the remote repository to your machine for the first time'
+    ],
+    a: 1,
+    exp: '<code>git pull</code> is effectively <code>git fetch</code> + <code>git merge</code>. It downloads new commits from the remote and integrates them into your current branch. Use before starting new work.'
+  },
+  {
+    topic: 'github',
+    q: 'What does <code>git clone &lt;url&gt;</code> do?',
+    opts: [
+      'Creates a new empty repository at the given URL',
+      'Downloads a full copy of a remote repository to your local machine',
+      'Copies a local repository to a new directory',
+      'Links your local repo to a remote without downloading anything'
+    ],
+    a: 1,
+    exp: '<code>git clone</code> creates a full local copy of a remote repository, including all history and branches. It automatically sets up <code>origin</code> as the remote.'
+  },
+  {
+    topic: 'github',
+    q: 'What is a Pull Request (PR) on GitHub?',
+    opts: [
+      'A request to pull changes from the remote to your local machine',
+      'A proposal to merge changes from one branch into another, with a review process',
+      'A notification that someone pushed to your repository',
+      'A way to download files without using the terminal'
+    ],
+    a: 1,
+    exp: 'A Pull Request is a GitHub feature that lets you propose merging one branch into another. Team members can review the code, leave comments, and approve or request changes before the merge happens.'
+  },
+  {
+    topic: 'github',
+    q: 'What is SSH key authentication used for with GitHub?',
+    opts: [
+      'Encrypting the commit history',
+      'Proving your identity to GitHub without typing a password each time',
+      'Compressing large repositories before upload',
+      'Setting repository permissions for collaborators'
+    ],
+    a: 1,
+    exp: 'SSH keys let you authenticate with GitHub securely without a password. You generate a key pair (public + private), add the public key to GitHub, and Git uses it automatically.'
+  },
+  {
+    topic: 'github',
+    q: 'You have a local repo and want to connect it to a new empty GitHub repository. Which command adds the remote?',
+    opts: [
+      '<code>git clone &lt;url&gt;</code>',
+      '<code>git push origin main</code>',
+      '<code>git remote add origin &lt;url&gt;</code>',
+      '<code>git fetch origin</code>'
+    ],
+    a: 2,
+    exp: '<code>git remote add origin &lt;url&gt;</code> adds a named remote connection. After that, <code>git push -u origin main</code> pushes your commits and sets the tracking branch.'
+  },
+  {
+    topic: 'github',
+    q: 'In the course workflow, what should you do instead of pushing directly to <code>main</code>?',
+    opts: [
+      'Commit to <code>main</code> locally then push',
+      'Create a feature branch, push it, and open a Pull Request',
+      'Merge the branch locally and then push the merge commit',
+      'Delete and recreate main for each feature'
+    ],
+    a: 1,
+    exp: 'Best practice: work on a feature branch, push that branch to the remote, and open a PR to merge into <code>main</code>. This enables code review and keeps <code>main</code> stable.'
+  },
+  {
+    topic: 'github',
+    q: 'What should you add to a <code>.gitignore</code> to never accidentally commit the virtual environment?',
+    opts: ['<code>pyproject.toml</code>', '<code>uv.lock</code>', '<code>.venv/</code>', '<code>main.py</code>'],
+    a: 2,
+    exp: '<code>.venv/</code> contains machine-specific package installations and should never be committed. Track <code>pyproject.toml</code> and <code>uv.lock</code> instead — they let anyone recreate the environment with <code>uv sync</code>.'
+  },
+  {
+    topic: 'github',
+    q: 'What is a README.md typically used for in a GitHub repository?',
+    opts: [
+      'Storing configuration secrets',
+      'Explaining what the project does, how to install it, and how to run it',
+      'Listing all commits in the project',
+      'Defining the Python environment'
+    ],
+    a: 1,
+    exp: 'The README is the front page of a GitHub repository. It typically describes the project, setup instructions, and usage examples. It\'s written in Markdown and rendered automatically by GitHub.'
+  },
+
+  // ═══ PYTHON BASICS ════════════════════════════════
+  {
+    topic: 'python',
+    q: 'What does <code>type(3.14)</code> return?',
+    opts: ['<code>int</code>', '<code>float</code>', '<code>str</code>', '<code>number</code>'],
+    a: 1,
+    exp: '<code>3.14</code> is a floating-point number, so <code>type(3.14)</code> returns <code>&lt;class \'float\'&gt;</code>. Use <code>int()</code>, <code>float()</code>, <code>str()</code> to convert between types.'
+  },
+  {
+    topic: 'python',
+    q: 'What is the key difference between a list and a tuple in Python?',
+    opts: [
+      'Lists use parentheses; tuples use square brackets',
+      'Lists are mutable (changeable); tuples are immutable (cannot be changed after creation)',
+      'Tuples can hold more elements than lists',
+      'Lists are ordered; tuples are unordered'
+    ],
+    a: 1,
+    exp: 'Lists <code>[]</code> are mutable: you can append, remove, or modify elements. Tuples <code>()</code> are immutable: once created, their contents cannot change. Use tuples for fixed data (e.g. coordinates).'
+  },
+  {
+    topic: 'python',
+    q: 'What does Python return for <code>["a", "b", "c"][0]</code>?',
+    opts: ['"b"', '"a"', '"c"', 'An IndexError'],
+    a: 1,
+    exp: 'Python uses zero-based indexing. Index <code>0</code> is the first element. So <code>["a","b","c"][0]</code> returns <code>"a"</code>. Use <code>[-1]</code> to get the last element.'
+  },
+  {
+    topic: 'python',
+    q: 'Given <code>x = [10, 20, 30, 40, 50]</code>, what does <code>x[1:3]</code> return?',
+    opts: ['<code>[10, 20, 30]</code>', '<code>[20, 30]</code>', '<code>[20, 30, 40]</code>', '<code>[10, 20]</code>'],
+    a: 1,
+    exp: 'Slicing <code>[start:stop]</code> includes the start index but excludes the stop. <code>x[1:3]</code> gives elements at index 1 and 2: <code>[20, 30]</code>.'
+  },
+  {
+    topic: 'python',
+    q: 'What is a Python dictionary?',
+    opts: [
+      'An ordered collection of unique elements',
+      'An immutable sequence of items',
+      'A mapping of key-value pairs accessed by key',
+      'A sorted list of strings'
+    ],
+    a: 2,
+    exp: 'A dictionary <code>{}</code> stores key-value pairs: <code>{"name": "Japan", "gdp": 4.2}</code>. Access values with <code>d["name"]</code>. Keys must be unique and immutable.'
+  },
+  {
+    topic: 'python',
+    q: 'What is special about a Python set?',
+    opts: [
+      'It is ordered and allows duplicates',
+      'It maps keys to values',
+      'It is unordered and only contains unique elements',
+      'It is immutable and ordered'
+    ],
+    a: 2,
+    exp: 'Sets <code>set()</code> are unordered collections of unique elements. Duplicates are automatically removed. Useful for set operations: <code>&amp;</code> (intersection), <code>|</code> (union), <code>-</code> (difference).'
+  },
+  {
+    topic: 'python',
+    q: 'Which of the following is the correct syntax for an f-string?',
+    opts: [
+      '<code>"Hello {name}"</code>',
+      '<code>f"Hello {name}"</code>',
+      '<code>format("Hello {name}")</code>',
+      '<code>"Hello" + {name}</code>'
+    ],
+    a: 1,
+    exp: 'F-strings start with <code>f</code> before the quote. Variables in <code>{}</code> are automatically inserted: <code>f"The rate is {rate}%"</code>. This is the modern, recommended way to format strings.'
+  },
+  {
+    topic: 'python',
+    q: 'What happens when you run <code>1 + "12"</code> in Python?',
+    opts: [
+      'It returns <code>13</code>',
+      'It returns <code>"112"</code>',
+      'It raises a <code>TypeError</code>',
+      'It returns <code>None</code>'
+    ],
+    a: 2,
+    exp: 'Python cannot add an integer and a string. It raises a <code>TypeError</code>. You must convert first: <code>1 + int("12")</code> gives <code>13</code>, or <code>str(1) + "12"</code> gives <code>"112"</code>.'
+  },
+  {
+    topic: 'python',
+    q: 'What is the output of this code?\n<code>countries = ["USA", "CAN", "MEX"]\ncountries.append("BRA")\nprint(len(countries))</code>',
+    code: 'countries = ["USA", "CAN", "MEX"]\ncountries.append("BRA")\nprint(len(countries))',
+    opts: ['3', '4', 'Error', '"BRA"'],
+    a: 1,
+    exp: '<code>append()</code> adds one element to the end of the list in-place. The list becomes <code>["USA","CAN","MEX","BRA"]</code>, which has length 4.'
+  },
+  {
+    topic: 'python',
+    q: 'What is the correct way to define a function that returns the square of a number?',
+    opts: [
+      '<code>function square(x): return x**2</code>',
+      '<code>def square(x): return x**2</code>',
+      '<code>def square(x) => x**2</code>',
+      '<code>square = function(x) { return x**2 }</code>'
+    ],
+    a: 1,
+    exp: 'Python uses <code>def</code> followed by the function name, parameters in parentheses, a colon, and an indented body. <code>**</code> is the exponentiation operator.'
+  },
+  {
+    topic: 'python',
+    q: 'What are default arguments in a Python function?',
+    opts: [
+      'Arguments that must always be provided',
+      'Arguments with a fallback value used when the caller does not supply one',
+      'Arguments that are passed by reference',
+      'The first argument of every function, which is <code>self</code>'
+    ],
+    a: 1,
+    exp: 'Default arguments have a pre-set value: <code>def greet(name, greeting="Hello"):</code>. If <code>greeting</code> is not provided, it uses <code>"Hello"</code>. Required arguments must come before defaults.'
+  },
+  {
+    topic: 'python',
+    q: 'What is a docstring?',
+    opts: [
+      'A comment starting with <code>#</code> that explains a single line',
+      'A string literal placed at the start of a function/class that documents what it does',
+      'A way to store configuration settings for a module',
+      'A log file generated when a Python script runs'
+    ],
+    a: 1,
+    exp: 'A docstring is a triple-quoted string <code>"""..."""</code> placed right after a function or class definition. It documents parameters, return values, and behavior. Accessible via <code>help()</code>.'
+  },
+  {
+    topic: 'python',
+    q: 'What is a list comprehension?',
+    opts: [
+      'A method for sorting a list',
+      'A compact syntax to create a new list by applying an expression to each item of an iterable',
+      'A way to convert a tuple to a list',
+      'A built-in function that counts list elements'
+    ],
+    a: 1,
+    exp: 'List comprehension: <code>[x**2 for x in range(5)]</code> produces <code>[0,1,4,9,16]</code>. It\'s equivalent to a for loop that builds a list, but more concise and Pythonic.'
+  },
+  {
+    topic: 'python',
+    q: 'What does the <code>break</code> statement do inside a for loop?',
+    opts: [
+      'Skips the current iteration and continues with the next',
+      'Exits the loop immediately, even if there are remaining iterations',
+      'Raises an error and stops the program',
+      'Restarts the loop from the beginning'
+    ],
+    a: 1,
+    exp: '<code>break</code> exits the loop immediately. <code>continue</code> skips to the next iteration. Use <code>break</code> when you\'ve found what you\'re looking for and don\'t need to keep searching.'
+  },
+  {
+    topic: 'python',
+    q: 'What is a lambda function?',
+    opts: [
+      'A function defined in a separate file (module)',
+      'A short anonymous function written in a single expression',
+      'A recursive function that calls itself',
+      'A function that takes no arguments'
+    ],
+    a: 1,
+    exp: 'Lambda syntax: <code>lambda x: x**2</code>. Equivalent to <code>def f(x): return x**2</code> but written inline. Useful as a quick argument to functions like <code>sorted()</code> or <code>filter()</code>.'
+  },
+  {
+    topic: 'python',
+    q: 'What does this code print?\n<code>x = 10\ndef change():\n    x = 5\n    print("Inside:", x)\nchange()\nprint("Outside:", x)</code>',
+    code: 'x = 10\ndef change():\n    x = 5\n    print("Inside:", x)\nchange()\nprint("Outside:", x)',
+    opts: [
+      '"Inside: 5" then "Outside: 5"',
+      '"Inside: 5" then "Outside: 10"',
+      '"Inside: 10" then "Outside: 10"',
+      'NameError'
+    ],
+    a: 1,
+    exp: 'Inside the function, <code>x = 5</code> creates a new local variable. The global <code>x</code> is unchanged. This demonstrates local scope: variables created inside a function don\'t affect the outside.'
+  },
+  {
+    topic: 'python',
+    q: 'Which loop is best for iterating over every item in a list?',
+    opts: ['<code>while</code> loop', '<code>for</code> loop', '<code>do-while</code> loop', '<code>repeat</code> loop'],
+    a: 1,
+    exp: 'A <code>for</code> loop iterates over each item in an iterable (list, tuple, dict, etc.): <code>for country in countries:</code>. A <code>while</code> loop repeats as long as a condition is true — better for unknown iteration counts.'
+  },
+  {
+    topic: 'python',
+    q: 'What does <code>enumerate(countries)</code> give you in a for loop?',
+    opts: [
+      'Only the values of the list',
+      'Both the index and the value for each item',
+      'Only the indices',
+      'A reversed version of the list'
+    ],
+    a: 1,
+    exp: '<code>for i, country in enumerate(countries):</code> gives you both the index <code>i</code> and the value <code>country</code> at each iteration. Very useful when you need the position of each element.'
+  },
+  {
+    topic: 'python',
+    q: 'How do you check if <code>"CHF"</code> is in the list <code>currencies</code>?',
+    opts: [
+      '<code>currencies.contains("CHF")</code>',
+      '<code>"CHF" in currencies</code>',
+      '<code>currencies.find("CHF")</code>',
+      '<code>has(currencies, "CHF")</code>'
+    ],
+    a: 1,
+    exp: 'The <code>in</code> operator checks membership: <code>"CHF" in currencies</code> returns <code>True</code> or <code>False</code>. Works on lists, tuples, sets, and dictionaries (checks keys).'
+  },
+  {
+    topic: 'python',
+    q: 'What is the correct way to call a method on a dictionary to get all values?',
+    opts: ['<code>dict.get_values()</code>', '<code>dict.values()</code>', '<code>values(dict)</code>', '<code>dict[values]</code>'],
+    a: 1,
+    exp: '<code>dict.values()</code> returns all values. <code>dict.keys()</code> returns all keys. <code>dict.items()</code> returns (key, value) pairs — perfect for <code>for k, v in dict.items():</code>.'
+  },
+
+  // ═══ PANDAS & VISUALIZATION ═══════════════════════
+  {
+    topic: 'pandas',
+    q: 'What does <code>import pandas as pd</code> accomplish, and why use <code>pd</code>?',
+    opts: [
+      'Installs pandas; <code>pd</code> is chosen randomly',
+      'Imports the pandas library under the alias <code>pd</code>, which is an industry-wide convention',
+      'Imports only the <code>pd</code> module from pandas',
+      'Activates pandas in the virtual environment'
+    ],
+    a: 1,
+    exp: '<code>import pandas as pd</code> gives pandas the alias <code>pd</code>, so you can write <code>pd.read_csv()</code> instead of <code>pandas.read_csv()</code>. <code>pd</code> is the universal standard — use it so your code is readable to everyone.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.head()</code> return?',
+    opts: [
+      'Summary statistics for all numeric columns',
+      'The first 5 rows of the DataFrame (by default)',
+      'The column names and data types',
+      'The total number of rows and columns'
+    ],
+    a: 1,
+    exp: '<code>df.head(n)</code> returns the first <code>n</code> rows (default 5). Use it after loading data to verify columns look correct. <code>df.tail()</code> shows the last rows.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What information does <code>df.info()</code> provide?',
+    opts: [
+      'Mean, median, and standard deviation for each column',
+      'Number of rows/columns, column names, non-null counts, and data types',
+      'The first and last few rows of the data',
+      'A correlation matrix of numeric columns'
+    ],
+    a: 1,
+    exp: '<code>df.info()</code> gives a structural overview: number of entries, column names, how many non-null values each column has, and the dtype of each column. Great for spotting missing data and type issues.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.shape</code> return?',
+    opts: [
+      'A list of column names',
+      'A tuple <code>(num_rows, num_columns)</code>',
+      'The total number of cells',
+      'The DataFrame\'s data types'
+    ],
+    a: 1,
+    exp: '<code>df.shape</code> is an attribute (no parentheses needed) that returns <code>(rows, cols)</code>. It\'s the fastest way to confirm your dataset has the expected size after loading or filtering.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What is the difference between <code>df.loc[]</code> and <code>df.iloc[]</code>?',
+    opts: [
+      '<code>loc</code> selects columns; <code>iloc</code> selects rows',
+      '<code>loc</code> selects by label/index name; <code>iloc</code> selects by integer position',
+      '<code>iloc</code> is faster than <code>loc</code> for all operations',
+      '<code>loc</code> only works for numeric indexes'
+    ],
+    a: 1,
+    exp: '<code>df.loc[rows, cols]</code> uses label-based indexing (row labels and column names). <code>df.iloc[rows, cols]</code> uses integer position (0, 1, 2...). Both can take slices.'
+  },
+  {
+    topic: 'pandas',
+    q: 'How do you select only rows where the column <code>year</code> equals 2023?',
+    opts: [
+      '<code>df.filter(year=2023)</code>',
+      '<code>df[df["year"] == 2023]</code>',
+      '<code>df.where("year", 2023)</code>',
+      '<code>df.select(year=2023)</code>'
+    ],
+    a: 1,
+    exp: 'Boolean filtering: <code>df["year"] == 2023</code> creates a True/False mask, then <code>df[mask]</code> returns only the rows where it\'s True. Combine conditions with <code>&amp;</code> (and) and <code>|</code> (or), not <code>and</code>/<code>or</code>.'
+  },
+  {
+    topic: 'pandas',
+    q: 'When combining two boolean filters in pandas, which operator is correct?',
+    opts: [
+      '<code>df[df["year"] > 2000 and df["pop"] > 10]</code>',
+      '<code>df[(df["year"] > 2000) & (df["pop"] > 10)]</code>',
+      '<code>df[df["year"] > 2000 && df["pop"] > 10]</code>',
+      '<code>df[df["year"] > 2000, df["pop"] > 10]</code>'
+    ],
+    a: 1,
+    exp: 'Use <code>&amp;</code> for AND and <code>|</code> for OR in pandas boolean indexing. Each condition must be in parentheses. Never use Python\'s <code>and</code>/<code>or</code> keywords — they don\'t work element-wise on Series.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.groupby("Country")["gdp"].mean()</code> compute?',
+    opts: [
+      'The total GDP across all countries',
+      'The average GDP for each country across all years in the DataFrame',
+      'The number of rows per country',
+      'The country with the highest mean GDP'
+    ],
+    a: 1,
+    exp: '<code>groupby()</code> splits the data into groups, then <code>.mean()</code> computes the mean of the <code>gdp</code> column within each group. Result: one row per country with its average GDP.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.dropna()</code> do?',
+    opts: [
+      'Replaces NaN values with 0',
+      'Removes all rows that contain at least one missing value',
+      'Fills missing values using the previous valid value',
+      'Shows which cells are missing'
+    ],
+    a: 1,
+    exp: '<code>df.dropna()</code> removes any row with at least one NaN. To drop only if all values are missing, use <code>dropna(how="all")</code>. To check missing values, use <code>df.isnull().sum()</code>.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does forward fill (<code>ffill</code>) do for missing data?',
+    opts: [
+      'Fills gaps with the column mean',
+      'Carries the last known value forward to fill subsequent NaNs',
+      'Fills gaps with the next known value (looks backward)',
+      'Removes rows with missing values'
+    ],
+    a: 1,
+    exp: 'Forward fill propagates the last valid observation forward. Useful for time series where you assume a value persists until the next observation. Backward fill (<code>bfill</code>) does the opposite — fills with the next known value.'
+  },
+  {
+    topic: 'pandas',
+    q: 'Why do you need to convert a date column to <code>datetime</code> in pandas?',
+    opts: [
+      'To reduce memory usage',
+      'So you can perform date arithmetic, extract components (year, month), and use time-series operations',
+      'Because pandas cannot read string columns',
+      'To allow sorting by date'
+    ],
+    a: 1,
+    exp: 'A date stored as a string is just text. Converting with <code>pd.to_datetime()</code> enables extracting <code>.dt.year</code>, <code>.dt.month</code>, resampling, time-based slicing, and proper sorting.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.resample("YS").mean()</code> do on a time-indexed DataFrame?',
+    opts: [
+      'Sorts the DataFrame chronologically',
+      'Groups the data into yearly buckets and computes the mean for each year',
+      'Resets the index to integers',
+      'Selects only rows from the current year'
+    ],
+    a: 1,
+    exp: 'Resampling changes the frequency of time series data. <code>"YS"</code> means Year Start. <code>.mean()</code> computes the average within each year. The DataFrame must have a <code>DatetimeIndex</code>.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What is a rolling window in pandas?',
+    opts: [
+      'A way to loop through rows one at a time',
+      'A moving calculation (e.g. mean) computed over a fixed-size window of consecutive observations',
+      'A method for reordering columns',
+      'A type of join between two DataFrames'
+    ],
+    a: 1,
+    exp: '<code>df["col"].rolling(12).mean()</code> computes a 12-period moving average. Each value is the mean of the current and previous 11 observations. Useful for smoothing noisy time series.'
+  },
+  {
+    topic: 'pandas',
+    q: 'How do you create a basic line plot in matplotlib?',
+    opts: [
+      '<code>df.plot.line()</code>',
+      '<code>plt.plot(x, y)</code>',
+      '<code>matplotlib.draw(x, y)</code>',
+      '<code>fig.add_line(x, y)</code>'
+    ],
+    a: 1,
+    exp: 'After <code>import matplotlib.pyplot as plt</code>, use <code>plt.plot(x, y)</code> to draw a line. Add labels with <code>plt.xlabel()</code>, <code>plt.ylabel()</code>, and <code>plt.title()</code>, then show with <code>plt.show()</code>.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.describe()</code> provide?',
+    opts: [
+      'The first 5 rows of the DataFrame',
+      'Summary statistics (count, mean, std, min, quartiles, max) for numeric columns',
+      'The number of null values in each column',
+      'A list of all unique values in each column'
+    ],
+    a: 1,
+    exp: '<code>df.describe()</code> gives a statistical summary: count, mean, std, min, 25th percentile, median (50%), 75th percentile, and max for each numeric column. Good sanity check after loading data.'
+  },
+  {
+    topic: 'pandas',
+    q: 'What does <code>df.sort_values("rgdpe", ascending=False)</code> do?',
+    opts: [
+      'Sorts rows alphabetically by country name',
+      'Sorts rows by the <code>rgdpe</code> column from largest to smallest',
+      'Ranks the values within the <code>rgdpe</code> column',
+      'Filters rows where <code>rgdpe</code> is not null'
+    ],
+    a: 1,
+    exp: '<code>sort_values()</code> sorts the DataFrame by the specified column. <code>ascending=False</code> sorts from largest to smallest. Pass a list of columns to sort by multiple criteria.'
+  },
+
+  // ═══ OOP / CLASSES ════════════════════════════════
+  {
+    topic: 'oop',
+    q: 'In Object-Oriented Programming, what is a class?',
+    opts: [
+      'A specific instance of data created in memory',
+      'A blueprint or template that defines the structure and behavior of objects',
+      'A function that creates multiple variables at once',
+      'A type of Python module'
+    ],
+    a: 1,
+    exp: 'A class is a blueprint. The <code>CentralBank</code> class defines what every central bank object looks like. An object is the actual "thing" created from that blueprint — called an <em>instance</em>.'
+  },
+  {
+    topic: 'oop',
+    q: 'What is the purpose of the <code>__init__</code> method?',
+    opts: [
+      'It imports the class from a module',
+      'It is automatically called when a new instance is created, setting up initial attributes',
+      'It defines what happens when an instance is deleted',
+      'It converts the class to a string representation'
+    ],
+    a: 1,
+    exp: '<code>__init__</code> is the constructor. It runs automatically when you do <code>snb = CentralBank()</code>. Inside it you assign the initial attributes using <code>self.attribute = value</code>.'
+  },
+  {
+    topic: 'oop',
+    q: 'What does <code>self</code> represent in a class method?',
+    opts: [
+      'A reference to the class definition itself',
+      'A reference to the specific instance of the class that is calling the method',
+      'The first argument that must be passed when calling a method from outside',
+      'A keyword that makes attributes public'
+    ],
+    a: 1,
+    exp: '<code>self</code> refers to the instance being created or used. When you write <code>self.interest_rate = 0.02</code> inside <code>__init__</code>, you are attaching the <code>interest_rate</code> attribute to that specific object.'
+  },
+  {
+    topic: 'oop',
+    q: 'What is the difference between an attribute and a method of a class?',
+    opts: [
+      'Attributes use parentheses; methods do not',
+      'Attributes store data (state); methods are functions that perform actions',
+      'Attributes are defined with <code>def</code>; methods are assigned with <code>=</code>',
+      'There is no meaningful difference'
+    ],
+    a: 1,
+    exp: 'Attributes hold data about the object\'s state (e.g. <code>snb.interest_rate</code> — no parentheses). Methods are functions that belong to the object and perform actions (e.g. <code>snb.set_rate(0.05)</code> — requires parentheses).'
+  },
+  {
+    topic: 'oop',
+    q: 'What naming convention is used for class names in Python?',
+    opts: ['snake_case', 'kebab-case', 'PascalCase', 'UPPER_CASE'],
+    a: 2,
+    exp: 'Python classes use PascalCase: each word starts with a capital letter, no underscores. Examples: <code>CentralBank</code>, <code>DataFrame</code>, <code>CountryAnalyzer</code>. Functions and variables use <code>snake_case</code>.'
+  },
+  {
+    topic: 'oop',
+    q: 'Given this class, what does <code>snb.interest_rate</code> return?\n<code>class CentralBank:\n    def __init__(self, interest_rate=0.02):\n        self.interest_rate = interest_rate\nsnb = CentralBank()</code>',
+    code: 'class CentralBank:\n    def __init__(self, interest_rate=0.02):\n        self.interest_rate = interest_rate\nsnb = CentralBank()',
+    opts: ['<code>None</code>', '<code>0.02</code>', '<code>interest_rate</code>', 'An AttributeError'],
+    a: 1,
+    exp: 'Since no argument is given, the default value <code>0.02</code> is used. <code>self.interest_rate = 0.02</code> is set inside <code>__init__</code>. Accessing <code>snb.interest_rate</code> returns <code>0.02</code>.'
+  },
+  {
+    topic: 'oop',
+    q: 'What happens if you try to create an instance of a class that requires arguments without providing them?',
+    opts: [
+      'Python uses <code>None</code> as the default for all missing arguments',
+      'Python raises a <code>TypeError</code>',
+      'The instance is created with empty attributes',
+      'Python uses 0 for numeric arguments and "" for string arguments'
+    ],
+    a: 1,
+    exp: 'If <code>__init__</code> requires arguments and you don\'t provide them, Python raises a <code>TypeError</code>: "missing required positional argument". Only parameters with default values are optional.'
+  },
+  {
+    topic: 'oop',
+    q: 'Every time you called <code>df.describe()</code> in pandas, you were already using OOP. What is <code>df</code> in OOP terms?',
+    opts: [
+      'A class',
+      'An instance (object) of the <code>DataFrame</code> class',
+      'A method',
+      'A module'
+    ],
+    a: 1,
+    exp: '<code>df</code> is an instance (object) of the <code>pandas.DataFrame</code> class. <code>df.shape</code> is an attribute (data), and <code>df.describe()</code> is a method (action). Python is inherently object-oriented.'
+  },
+  {
+    topic: 'oop',
+    q: 'What is a Python module in the context of OOP?',
+    opts: [
+      'A built-in Python function',
+      'A Python file (<code>.py</code>) that contains classes or functions you can import into other scripts',
+      'A folder containing multiple packages',
+      'A special type of class with no instances'
+    ],
+    a: 1,
+    exp: 'A module is a <code>.py</code> file. If you define <code>CentralBank</code> in <code>monetary_policy.py</code>, you import it with <code>from monetary_policy import CentralBank</code> or <code>import monetary_policy as mp</code>.'
+  },
+  {
+    topic: 'oop',
+    q: 'What is the correct syntax to call a method <code>adjust_rate</code> on an object <code>snb</code>?',
+    opts: [
+      '<code>snb::adjust_rate()</code>',
+      '<code>adjust_rate(snb)</code>',
+      '<code>snb.adjust_rate()</code>',
+      '<code>CentralBank.adjust_rate(snb)</code>'
+    ],
+    a: 2,
+    exp: 'Methods are called with dot notation: <code>object.method(arguments)</code>. The <code>self</code> parameter is passed automatically — you don\'t include it when calling from outside the class.'
+  },
+  {
+    topic: 'oop',
+    q: 'What is the purpose of writing defensive checks inside a class method?',
+    opts: [
+      'To improve performance by avoiding unnecessary computations',
+      'To catch invalid inputs early and give the user a clear, helpful error message',
+      'To prevent the method from being called more than once',
+      'To hide the implementation details from other programmers'
+    ],
+    a: 1,
+    exp: 'Defensive programming: validate inputs inside methods and raise informative errors (e.g. <code>raise ValueError("Rate must be positive")</code>). This makes your class robust and user-friendly — a graded requirement in the group project.'
+  },
+  {
+    topic: 'oop',
+    q: 'In Python, which statement is true about objects?',
+    opts: [
+      'Only user-defined classes create objects; built-in types like strings and lists are not objects',
+      'Everything in Python is an object — strings, lists, integers, and DataFrames are all instances of classes',
+      'Objects can only have attributes, not methods',
+      'Objects are only used in large programs, not small scripts'
+    ],
+    a: 1,
+    exp: 'Python is fully object-oriented. <code>"Hello"</code> is a <code>str</code> object. <code>[1,2,3]</code> is a <code>list</code> object. Even functions are objects. This is why you can call <code>"hello".upper()</code> — it\'s a method on a <code>str</code> instance.'
+  },
+
+  // ═══ DATABASES & SQL ══════════════════════════════
+  {
+    topic: 'sql',
+    q: 'What is a key advantage of using a database over loading a CSV with pandas?',
+    opts: [
+      'Databases have prettier output formatting',
+      'Databases allow you to query only the data you need, without loading the entire dataset into RAM',
+      'Databases are faster for all operations compared to pandas',
+      'Databases automatically clean missing values'
+    ],
+    a: 1,
+    exp: 'With pandas, <code>pd.read_csv()</code> loads the entire file into RAM. A database lets you send a query and receive only the matching rows/columns. Essential for datasets larger than your available memory.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is a primary key in a relational database?',
+    opts: [
+      'The first column in any table',
+      'A unique identifier for each row in a table',
+      'The column that links two tables together',
+      'The column with the most entries'
+    ],
+    a: 1,
+    exp: 'A primary key (PK) uniquely identifies each row. No two rows can have the same PK, and it cannot be NULL. Example: <code>country_id</code> in a countries table.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is a foreign key?',
+    opts: [
+      'A key from a different database',
+      'A column in one table that references the primary key of another table, creating a relationship',
+      'A duplicate of the primary key stored in a different column',
+      'A key that automatically generates a unique value'
+    ],
+    a: 1,
+    exp: 'A foreign key (FK) links two tables. For example, <code>observations.country_id</code> is a FK referencing <code>countries.country_id</code>. This enforces referential integrity — you can\'t have an observation for a non-existent country.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is the basic structure of a SQL SELECT query?',
+    opts: [
+      '<code>GET columns FROM table WHERE condition</code>',
+      '<code>SELECT columns FROM table WHERE condition</code>',
+      '<code>FETCH columns FROM table IF condition</code>',
+      '<code>READ columns IN table WITH condition</code>'
+    ],
+    a: 1,
+    exp: 'The basic SQL structure: <code>SELECT col1, col2 FROM table_name WHERE condition;</code>. Use <code>SELECT *</code> to get all columns. The <code>WHERE</code> clause is optional — it filters rows.'
+  },
+  {
+    topic: 'sql',
+    q: 'What does <code>SELECT DISTINCT country FROM trade_flows;</code> do?',
+    opts: [
+      'Returns all rows from the <code>country</code> column',
+      'Returns each unique country name exactly once',
+      'Selects the most common country name',
+      'Returns rows where country is not null'
+    ],
+    a: 1,
+    exp: '<code>DISTINCT</code> removes duplicate values from the result. <code>SELECT DISTINCT country</code> gives you a list of unique countries without repetition.'
+  },
+  {
+    topic: 'sql',
+    q: 'What type of JOIN returns only the rows where there is a match in BOTH tables?',
+    opts: ['LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'FULL OUTER JOIN'],
+    a: 2,
+    exp: 'An <code>INNER JOIN</code> returns rows that have a matching value in both tables. If a row in one table has no match in the other, it is excluded. <code>LEFT JOIN</code> keeps all rows from the left table, even without a match.'
+  },
+  {
+    topic: 'sql',
+    q: 'What does a LEFT JOIN do?',
+    opts: [
+      'Returns only rows present in the left table that have no match in the right table',
+      'Returns all rows from the left table and the matching rows from the right; unmatched right-table values appear as NULL',
+      'Returns all rows from both tables',
+      'Returns only rows present in both tables'
+    ],
+    a: 1,
+    exp: 'A <code>LEFT JOIN</code> returns all rows from the left (first) table. For rows with no match in the right table, the right table\'s columns appear as NULL. Use it when you want to keep all records from one table.'
+  },
+  {
+    topic: 'sql',
+    q: 'What does <code>GROUP BY country</code> do in a SQL query?',
+    opts: [
+      'Sorts results alphabetically by country',
+      'Filters out rows without a country value',
+      'Groups all rows with the same country value together so aggregate functions operate per country',
+      'Joins a separate countries table'
+    ],
+    a: 2,
+    exp: '<code>GROUP BY</code> splits rows into groups by the specified column. Aggregate functions (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>, <code>MIN</code>) then operate within each group. Every column in SELECT must either be in GROUP BY or be aggregated.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is the difference between <code>WHERE</code> and <code>HAVING</code>?',
+    opts: [
+      '<code>WHERE</code> filters columns; <code>HAVING</code> filters rows',
+      '<code>WHERE</code> filters individual rows before grouping; <code>HAVING</code> filters groups after aggregation',
+      '<code>HAVING</code> is just an alias for <code>WHERE</code> used inside joins',
+      '<code>WHERE</code> works with strings; <code>HAVING</code> works with numbers'
+    ],
+    a: 1,
+    exp: '<code>WHERE</code> filters rows before <code>GROUP BY</code> runs. <code>HAVING</code> filters the resulting groups after aggregation. Example: <code>HAVING COUNT(*) > 5</code> keeps only groups with more than 5 rows.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is a CTE (Common Table Expression) in SQL?',
+    opts: [
+      'A permanent table stored in the database',
+      'A named temporary result set defined with <code>WITH ... AS (...)</code> that can be referenced in the main query',
+      'A type of index for faster queries',
+      'A backup mechanism for query results'
+    ],
+    a: 1,
+    exp: 'CTEs use <code>WITH name AS (SELECT ...)</code>. They give a subquery a name, making complex queries readable. CTEs only exist for the duration of the query and can build on each other.'
+  },
+  {
+    topic: 'sql',
+    q: 'Which SQL aggregate function counts the number of rows?',
+    opts: ['<code>SUM()</code>', '<code>AVG()</code>', '<code>COUNT()</code>', '<code>NUM()</code>'],
+    a: 2,
+    exp: '<code>COUNT(*)</code> counts all rows in a group. <code>COUNT(column)</code> counts non-NULL values in that column. Other aggregates: <code>SUM()</code>, <code>AVG()</code>, <code>MIN()</code>, <code>MAX()</code>.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is DuckDB and why is it used in this course?',
+    opts: [
+      'A cloud database service requiring a subscription',
+      'An embedded, analytics-focused SQL database that runs inside Python without a separate server',
+      'A graphical interface for managing SQL databases',
+      'A Python library for cleaning DataFrames'
+    ],
+    a: 1,
+    exp: 'DuckDB is embedded (no server needed), built for analytics, can read CSV/Parquet directly, and integrates smoothly with Python. You use it as a single <code>.db</code> file and run SQL queries from Python with <code>conn.execute("SQL").df()</code>.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is the correct order of clauses in a full SQL query?',
+    opts: [
+      'WHERE → SELECT → FROM → GROUP BY → HAVING → ORDER BY',
+      'SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY',
+      'FROM → SELECT → WHERE → ORDER BY → GROUP BY → HAVING',
+      'SELECT → WHERE → FROM → HAVING → GROUP BY → ORDER BY'
+    ],
+    a: 1,
+    exp: 'The canonical order: <code>SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT</code>. The WHERE clause filters rows before grouping; HAVING filters after grouping. Memorize this — it\'s exam-relevant.'
+  },
+  {
+    topic: 'sql',
+    q: 'What is the relational model in databases?',
+    opts: [
+      'A database that stores data as a graph of nodes and edges',
+      'A way to store data as JSON documents',
+      'Data organized in tables with rows (records) and columns (attributes), linked through keys',
+      'A method for encrypting sensitive database fields'
+    ],
+    a: 2,
+    exp: 'The relational model stores data in tables. Each table has a primary key. Tables link to each other through foreign keys. This structure avoids data redundancy and maintains integrity. Used by SQL databases (SQLite, PostgreSQL, DuckDB).'
+  },
+  {
+    topic: 'sql',
+    q: 'In the ETL process, what do the letters stand for?',
+    opts: [
+      'Execute, Test, Launch',
+      'Extract, Transform, Load',
+      'Evaluate, Transfer, Link',
+      'Export, Translate, Load'
+    ],
+    a: 1,
+    exp: 'ETL: <strong>Extract</strong> data from source (e.g. API, CSV), <strong>Transform</strong> it (clean, reshape, compute), <strong>Load</strong> it into the database. This is the standard data pipeline pattern used in the group project.'
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════════════
+const STORAGE_KEY = 'itp_studytool_v3';
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+let state = loadState();
+// state structure: { topicId: { answered: N, correct: N } }
+
+function getTopicStats(topicId) {
+  return state[topicId] || { answered: 0, correct: 0 };
+}
+function recordAnswer(topicId, wasCorrect) {
+  if (!state[topicId]) state[topicId] = { answered: 0, correct: 0 };
+  state[topicId].answered++;
+  if (wasCorrect) state[topicId].correct++;
+  saveState(state);
+}
+
+// ═══════════════════════════════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════════════════════════════
+let currentQuiz = { topicId: null, questions: [], idx: 0, answers: [] };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(topicId) {
+  const pool = topicId === 'all' ? Q : Q.filter(q => q.topic === topicId);
+  const questions = shuffle(pool).slice(0, topicId === 'all' ? 20 : Math.min(pool.length, 15));
+  currentQuiz = { topicId, questions, idx: 0, answers: [] };
+
+  const topicObj = TOPICS.find(t => t.id === topicId);
+  document.getElementById('quiz-title').textContent = topicId === 'all'
+    ? 'All Topics — Mixed Quiz' : topicObj.name;
+
+  showView('quiz');
+  renderQuestion();
+  updateNav('');
+}
+
+function renderQuestion() {
+  const { questions, idx } = currentQuiz;
+  const q = questions[idx];
+  const total = questions.length;
+
+  document.getElementById('quiz-progress').textContent = `${idx + 1} / ${total}`;
+  document.getElementById('quiz-bar').style.width = `${(idx / total) * 100}%`;
+
+  const topic = TOPICS.find(t => t.id === q.topic);
+  document.getElementById('q-tag').textContent = topic ? topic.name : q.topic;
+
+  // question text — handle HTML in options but plain text in question
+  document.getElementById('q-text').innerHTML = q.q;
+
+  const codeEl = document.getElementById('q-code');
+  if (q.code) {
+    codeEl.textContent = q.code;
+    codeEl.style.display = 'block';
+  } else {
+    codeEl.style.display = 'none';
+  }
+
+  const optContainer = document.getElementById('q-options');
+  optContainer.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optContainer.appendChild(btn);
+  });
+
+  document.getElementById('q-explanation').classList.remove('show');
+  document.getElementById('btn-next').classList.remove('show');
+}
+
+function selectAnswer(selectedIdx) {
+  const { questions, idx } = currentQuiz;
+  const q = questions[idx];
+  const correct = q.a;
+  const wasCorrect = selectedIdx === correct;
+
+  currentQuiz.answers.push({ q, selected: selectedIdx, correct, wasCorrect });
+  recordAnswer(q.topic, wasCorrect);
+
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    if (i === selectedIdx && !wasCorrect) btn.classList.add('wrong');
+  });
+
+  document.getElementById('q-explanation-text').innerHTML = q.exp;
+  document.getElementById('q-explanation').classList.add('show');
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = idx + 1 < questions.length ? 'Next Question →' : 'See Results';
+  nextBtn.classList.add('show');
+
+  updateDashStats();
+}
+
+function nextQuestion() {
+  currentQuiz.idx++;
+  if (currentQuiz.idx < currentQuiz.questions.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function retryQuiz() {
+  startQuiz(currentQuiz.topicId);
+}
+
+// ═══════════════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════════════
+function showResults() {
+  const answers = currentQuiz.answers;
+  const total = answers.length;
+  const correct = answers.filter(a => a.wasCorrect).length;
+  const wrong = total - correct;
+  const pct = Math.round((correct / total) * 100);
+
+  const emojis = pct >= 90 ? '🏆' : pct >= 75 ? '🎉' : pct >= 60 ? '📚' : '💪';
+  document.getElementById('res-emoji').textContent = emojis;
+  document.getElementById('res-score').textContent = `${pct}%`;
+  document.getElementById('res-label').textContent = `${correct} of ${total} correct`;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-total').textContent = total;
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  answers.forEach((a, i) => {
+    const item = document.createElement('div');
+    item.className = `review-item ${a.wasCorrect ? 'correct' : 'wrong'}`;
+    const topicObj = TOPICS.find(t => t.id === a.q.topic);
+    item.innerHTML = `
+      <div class="ri-q">${i + 1}. ${a.q.q.replace(/<code>/g,'`').replace(/<\/code>/g,'`').replace(/<[^>]+>/g,'')}</div>
+      <div class="ri-a">
+        Your answer: <span class="${a.wasCorrect ? 'ri-correct' : 'ri-wrong'}">${a.q.opts[a.selected].replace(/<[^>]+>/g,'')}</span>
+        ${!a.wasCorrect ? ` &nbsp;·&nbsp; Correct: <span class="ri-correct">${a.q.opts[a.correct].replace(/<[^>]+>/g,'')}</span>` : ''}
+      </div>
+    `;
+    reviewList.appendChild(item);
+  });
+
+  showView('results');
+  updateNav('');
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function buildDashboard() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+
+  TOPICS.forEach(topic => {
+    const stats = getTopicStats(topic.id);
+    const pct = stats.answered > 0 ? Math.round((stats.correct / stats.answered) * 100) : 0;
+    const topicQCount = Q.filter(q => q.topic === topic.id).length;
+
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.onclick = () => startQuiz(topic.id);
+    card.innerHTML = `
+      <div class="topic-icon">${topic.icon}</div>
+      <div class="topic-name">${topic.name}</div>
+      <div class="topic-meta">${topic.lectures} · ${topicQCount} questions</div>
+      <div class="topic-progress">
+        <div class="topic-progress-bar" style="width:${stats.answered > 0 ? pct : 0}%"></div>
+      </div>
+      <div class="topic-score">${stats.answered > 0 ? `${pct}% accuracy (${stats.answered} answered)` : 'Not started yet'}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // All topics card
+  const allCard = document.createElement('div');
+  allCard.className = 'topic-card all-topics';
+  allCard.onclick = () => startQuiz('all');
+  allCard.innerHTML = `
+    <div class="topic-icon">🎲</div>
+    <div class="topic-name">All Topics — Mixed Quiz</div>
+    <div class="topic-meta">20 random questions · all lectures</div>
+    <div class="topic-progress"><div class="topic-progress-bar" style="width:0"></div></div>
+    <div class="topic-score">Start a mixed practice session</div>
+  `;
+  grid.appendChild(allCard);
+
+  updateDashStats();
+}
+
+function updateDashStats() {
+  let totalAnswered = 0, totalCorrect = 0;
+  TOPICS.forEach(t => {
+    const s = getTopicStats(t.id);
+    totalAnswered += s.answered;
+    totalCorrect += s.correct;
+  });
+  document.getElementById('stat-answered').textContent = totalAnswered;
+  document.getElementById('stat-correct').textContent = totalCorrect;
+  document.getElementById('stat-pct').textContent = totalAnswered > 0
+    ? `${Math.round((totalCorrect / totalAnswered) * 100)}%` : '—';
+}
+
+// ═══════════════════════════════════════════════════════
+// VIEW MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${name}`).classList.add('active');
+}
+
+function showDash() {
+  showView('dash');
+  buildDashboard();
+  updateNav('dash');
+}
+
+function updateNav(active) {
+  document.getElementById('nav-dash').classList.toggle('active', active === 'dash');
+  document.getElementById('nav-all').classList.toggle('active', false);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+showDash();
+</script>
+</body>
+</html>
