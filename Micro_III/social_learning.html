@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lecture 7 · Social Learning</title>
+<style>
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #22263a;
+    --border:    #2e3250;
+    --accent:    #7c6af7;
+    --accent2:   #4ecdc4;
+    --accent3:   #f7c86a;
+    --red:       #f46e6e;
+    --green:     #6ef496;
+    --text:      #e8eaf6;
+    --muted:     #7880a4;
+    --card-r:    12px;
+    --font:      'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    padding: 28px 20px 60px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+    color: #fff;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: .85rem;
+    margin-bottom: 32px;
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 8px 18px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    transition: all .15s;
+    position: relative;
+    bottom: -1px;
+  }
+  .tab.active {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: .78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .slider-label {
+    width: 150px;
+    font-size: .82rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 4px;
+  }
+  .slider-val {
+    width: 52px;
+    text-align: right;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* buttons */
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  button.action {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all .15s;
+  }
+  button.action:hover { border-color: var(--accent); color: #fff; }
+  button.action.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.action.primary:hover { filter: brightness(1.1); }
+  button.action.sigA { border-color: var(--accent2); color: var(--accent2); }
+  button.action.sigB { border-color: var(--accent3); color: var(--accent3); }
+  button.action:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* agent timeline */
+  .timeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+    min-height: 90px;
+  }
+  .agent {
+    width: 64px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    padding: 7px 4px 6px;
+    text-align: center;
+    position: relative;
+  }
+  .agent .idx { font-size: .62rem; color: var(--muted); }
+  .agent .sig {
+    font-size: .72rem; font-weight: 700; margin: 2px 0;
+  }
+  .agent .sig.a { color: var(--accent2); }
+  .agent .sig.b { color: var(--accent3); }
+  .agent .act {
+    font-size: 1.15rem; font-weight: 800; line-height: 1;
+    margin: 3px 0 2px;
+  }
+  .agent .act.alpha { color: var(--accent); }
+  .agent .act.beta  { color: var(--red); }
+  .agent .tag {
+    font-size: .56rem; letter-spacing: .03em;
+    border-radius: 4px; padding: 1px 3px; margin-top: 2px; display: inline-block;
+  }
+  .agent.reveal .tag { background: rgba(110,244,150,.16); color: var(--green); }
+  .agent.copy   .tag { background: rgba(244,110,110,.16); color: var(--red); }
+  .agent.copy { opacity: .82; }
+  .agent.cascade-start { box-shadow: 0 0 0 2px var(--red); }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .stat-box .label {
+    font-size: .72rem; color: var(--muted); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: .07em;
+  }
+  .stat-box .value {
+    font-size: 1.18rem; font-weight: 700; color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-box .value.green { color: var(--green); }
+  .stat-box .value.yellow { color: var(--accent3); }
+  .stat-box .value.purple { color: var(--accent); }
+  .stat-box .value.red { color: var(--red); }
+
+  .callout {
+    background: rgba(124,106,247,.10);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: .84rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin-top: 14px;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: rgba(244,110,110,.10); border-left-color: var(--red); }
+  .callout.warn strong { color: var(--red); }
+
+  table { border-collapse: collapse; width: 100%; font-size: .83rem; }
+  th, td { padding: 7px 10px; text-align: center; border: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--muted); font-weight: 600; }
+  td.row-name { color: var(--accent3); font-weight: 600; text-align: left; }
+
+  canvas {
+    display: block; width: 100%;
+    background: var(--surface2);
+    border-radius: 8px; border: 1px solid var(--border);
+  }
+  .legend-row {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    font-size: .8rem; color: var(--muted); margin-top: 10px;
+  }
+  .legend-item { display: flex; align-items: center; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; }
+  .section-intro {
+    font-size: .84rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px;
+  }
+  .truth-toggle { display:flex; gap:8px; }
+  .truth-toggle button {
+    flex:1; padding:8px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--muted); cursor:pointer; font-weight:600;
+    font-family:var(--font); font-size:.82rem;
+  }
+  .truth-toggle button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>Lecture 7 · Social Learning</h1>
+<p class="subtitle">Microeconomics III · Müller-Itten &nbsp;|&nbsp; Interactive study tool</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(0)">🔗 Cascade Simulator</button>
+  <button class="tab" onclick="switchTab(1)">⚖️ Intervention Comparator</button>
+</div>
+
+<!-- ════════════ PANEL 0 — Cascade Simulator ════════════ -->
+<div class="panel active" id="panel0">
+  <p class="section-intro">
+    Agents arrive one at a time. Each sees their own private signal (accuracy q) and the public
+    <strong>actions</strong> of everyone before them — never their signals. Watch how rational agents
+    decode early actions, then stop using their own signal once the public lead reaches
+    <strong>|N<sub>a</sub> − N<sub>b</sub>| = 2</strong>. From that point a cascade locks in and every later
+    private signal is wasted. Add agents randomly, or hand-feed signals to force a wrong cascade.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <div class="card-title">Setup</div>
+        <div class="slider-row">
+          <span class="slider-label">Signal accuracy q</span>
+          <input type="range" id="qSlider" min="51" max="99" value="57" oninput="resetSim()">
+          <span class="slider-val" id="qVal">0.57</span>
+        </div>
+        <p style="font-size:.76rem;color:var(--muted);margin:-4px 0 12px">
+          Slide labelled value ≈ 4/7 = 0.571 by default (the lecture's q).
+        </p>
+        <div class="slider-row">
+          <span class="slider-label">True state</span>
+          <div class="truth-toggle" style="flex:1">
+            <button id="trueA" class="on" onclick="setTruth('A')">A &nbsp;(α correct)</button>
+            <button id="trueB" onclick="setTruth('B')">B &nbsp;(β correct)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Add agents</div>
+        <div class="btn-row" style="margin-bottom:10px">
+          <button class="action primary" onclick="addRandom(1)">+1 random</button>
+          <button class="action primary" onclick="addRandom(5)">+5 random</button>
+          <button class="action" onclick="resetSim()">↺ Reset</button>
+        </div>
+        <div class="btn-row">
+          <button class="action sigA" onclick="addManual('a')">Add agent w/ signal a</button>
+          <button class="action sigB" onclick="addManual('b')">Add agent w/ signal b</button>
+        </div>
+        <div class="callout" style="font-size:.78rem;margin-top:12px">
+          <strong>Try this:</strong> click “signal a”, “signal a” → a cascade on α starts at agent 3.
+          Now keep adding “signal b” agents — watch every one of them get ignored, then reveal one
+          publicly (use random draws) to see the lead shrink and the cascade reset.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Live state of the world</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="label">Public lead Nₐ − N_b</div>
+            <div class="value purple" id="leadVal">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Cascade?</div>
+            <div class="value" id="cascadeVal">No</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Herd choice</div>
+            <div class="value yellow" id="herdVal">—</div>
+          </div>
+        </div>
+        <div class="stats-grid" style="margin-top:12px">
+          <div class="stat-box">
+            <div class="label"># agents</div>
+            <div class="value" id="nAgents">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Signals wasted</div>
+            <div class="value red" id="wasted">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Cascade correct?</div>
+            <div class="value" id="correctVal">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Agent timeline</div>
+        <div class="legend-row" style="margin-top:0;margin-bottom:10px">
+          <span class="legend-item"><span class="dot" style="background:var(--accent2)"></span>signal a</span>
+          <span class="legend-item"><span class="dot" style="background:var(--accent3)"></span>signal b</span>
+          <span class="legend-item"><span class="dot" style="background:var(--accent)"></span>chose α</span>
+          <span class="legend-item"><span class="dot" style="background:var(--red)"></span>chose β</span>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">What the latest agent is thinking</div>
+        <div id="reasoning" style="font-size:.84rem;line-height:1.7;color:var(--muted)">
+          Add an agent to begin.
+        </div>
+      </div>
+
+      <div class="callout warn" id="cascadeNote" style="display:none">
+        <strong>Cascade active.</strong> Every new agent now copies the herd regardless of their own
+        signal, so their private information never enters the public record. Aggregation has stopped —
+        the herd will stay here forever unless a contrarian signal is publicly revealed.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PANEL 1 — Intervention Comparator ════════════ -->
+<div class="panel" id="panel1">
+  <p class="section-intro">
+    A planner can change what information is public. Compare three regimes on two welfare metrics.
+    Note the two counter-intuitive results from the lecture: a <em>more accurate</em> public signal
+    (q′ &gt; q) can <strong>raise</strong> the error rate by crowding out social learning, and removing
+    cascades (short recall) lowers average correctness even as it removes disaster.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <div class="card-title">Parameters</div>
+        <div class="slider-row">
+          <span class="slider-label">Private accuracy q</span>
+          <input type="range" id="qP" min="51" max="95" value="57" oninput="calcInterv()">
+          <span class="slider-val" id="qPv">0.57</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">Public signal accuracy q′</span>
+          <input type="range" id="qPub" min="50" max="95" value="60" oninput="calcInterv()">
+          <span class="slider-val" id="qPubv">0.60</span>
+        </div>
+        <div class="callout" style="font-size:.78rem">
+          Default q = 0.571 (≈4/7), q′ = 0.60 reproduces the lecture: error rises
+          <strong>0.36 → 0.40</strong> under public disclosure.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">P(wrong cascade / wrong choice)</div>
+        <table id="errTable">
+          <thead><tr><th>Regime</th><th>P(wrong)</th><th>Note</th></tr></thead>
+          <tbody id="errBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Long-run average correctness</div>
+        <table id="avgTable">
+          <thead><tr><th>Regime</th><th>Avg correct</th></tr></thead>
+          <tbody id="avgBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Error rate by regime</div>
+        <canvas id="errCanvas" height="190"></canvas>
+        <div class="legend-row">
+          <span class="legend-item"><span class="dot" style="background:var(--accent)"></span>No intervention</span>
+          <span class="legend-item"><span class="dot" style="background:var(--accent3)"></span>Public disclosure</span>
+          <span class="legend-item"><span class="dot" style="background:var(--accent2)"></span>Short recall</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Average correctness by regime</div>
+        <canvas id="avgCanvas" height="190"></canvas>
+      </div>
+
+      <div class="callout" id="intervNote"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ───────── shared ───────── */
+function fmt(x,d=3){ return x.toFixed(d); }
+function switchTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  if(n===1) calcInterv();
+}
+
+/* ───────── PANEL 0 : Cascade simulator ───────── */
+let truth='A';
+let agents=[];          // {sig, act, revealed}
+let revealedA=0, revealedB=0;   // counts of signals that entered the public record
+
+function q(){ return +document.getElementById('qSlider').value/100; }
+
+function setTruth(s){
+  truth=s;
+  document.getElementById('trueA').classList.toggle('on',s==='A');
+  document.getElementById('trueB').classList.toggle('on',s==='B');
+  resetSim();
+}
+
+function resetSim(){
+  document.getElementById('qVal').textContent=fmt(q(),3);
+  agents=[]; revealedA=0; revealedB=0;
+  render();
+}
+
+/* draw a private signal consistent with the true state and accuracy q */
+function drawSignal(){
+  const acc=q();
+  const matches=Math.random()<acc;
+  if(truth==='A') return matches?'a':'b';
+  else            return matches?'b':'a';
+}
+
+/* core inference: given current revealed counts and an agent's own signal,
+   decide the action and whether the signal gets revealed.
+   Cascade condition: |revealedA - revealedB| >= 2 (own signal can't overturn). */
+function decide(sig){
+  const lead = revealedA - revealedB;           // + favours a/α
+  let act, revealed, reason;
+  if(lead>=2){
+    act='alpha'; revealed=false;
+    reason=`Public lead is N<sub>a</sub>−N<sub>b</sub> = ${lead} (≥2). One private signal can't overturn a 2-lead, so this agent <strong>ignores their own ${sigSpan(sig)} signal and copies the herd → α</strong>. Their action reveals nothing.`;
+  } else if(lead<=-2){
+    act='beta'; revealed=false;
+    reason=`Public lead is N<sub>a</sub>−N<sub>b</sub> = ${lead} (≤−2). One private signal can't overturn it, so this agent <strong>ignores their own ${sigSpan(sig)} signal and copies the herd → β</strong>. Their action reveals nothing.`;
+  } else {
+    // own signal is decisive (tie or 1-lead): follow own signal, and it becomes public
+    if(sig==='a'){ act='alpha'; } else { act='beta'; }
+    revealed=true;
+    if(sig==='a') revealedA++; else revealedB++;
+    reason=`Public lead was ${lead} (|lead|<2), so the own signal is decisive. Agent <strong>follows their ${sigSpan(sig)} signal → ${sig==='a'?'α':'β'}</strong> and the signal enters the public record.`;
+  }
+  return {act, revealed, reason};
+}
+
+function sigSpan(s){
+  const c=s==='a'?'var(--accent2)':'var(--accent3)';
+  return `<strong style="color:${c}">${s}</strong>`;
+}
+
+function addOne(sig){
+  const before = revealedA - revealedB;
+  const wasCascade = Math.abs(before)>=2;
+  const d=decide(sig);
+  const after = revealedA - revealedB;
+  const justStarted = (!wasCascade) && Math.abs(after)>=2;
+  agents.push({sig, act:d.act, revealed:d.revealed, reason:d.reason, cascadeStart:justStarted});
+  render();
+}
+
+function addRandom(k){ for(let i=0;i<k;i++) addOne(drawSignal()); }
+function addManual(sig){ addOne(sig); }
+
+function render(){
+  const tl=document.getElementById('timeline');
+  tl.innerHTML='';
+  agents.forEach((ag,i)=>{
+    const div=document.createElement('div');
+    div.className='agent '+(ag.revealed?'reveal':'copy')+(ag.cascadeStart?' cascade-start':'');
+    const actSym = ag.act==='alpha'?'α':'β';
+    div.innerHTML=
+      `<div class="idx">#${i+1}</div>`+
+      `<div class="sig ${ag.sig}">sig ${ag.sig}</div>`+
+      `<div class="act ${ag.act}">${actSym}</div>`+
+      `<div class="tag">${ag.revealed?'reveals':'copies'}</div>`;
+    tl.appendChild(div);
+  });
+
+  const lead=revealedA-revealedB;
+  const inCascade=Math.abs(lead)>=2;
+  document.getElementById('leadVal').textContent=(lead>0?'+':'')+lead;
+  document.getElementById('cascadeVal').textContent=inCascade?'YES':'No';
+  document.getElementById('cascadeVal').style.color=inCascade?'var(--red)':'var(--text)';
+  document.getElementById('nAgents').textContent=agents.length;
+  const wasted=agents.filter(a=>!a.revealed).length;
+  document.getElementById('wasted').textContent=wasted;
+
+  let herd='—', correct='—', correctColor='var(--text)';
+  if(inCascade){
+    herd=lead>0?'α':'β';
+    const herdState=lead>0?'A':'B';
+    const isCorrect=herdState===truth;
+    correct=isCorrect?'Yes ✓':'No ✗ (wrong!)';
+    correctColor=isCorrect?'var(--green)':'var(--red)';
+  }
+  document.getElementById('herdVal').textContent=herd;
+  document.getElementById('correctVal').textContent=correct;
+  document.getElementById('correctVal').style.color=correctColor;
+
+  document.getElementById('cascadeNote').style.display=inCascade?'block':'none';
+
+  const r=document.getElementById('reasoning');
+  if(agents.length===0){ r.innerHTML='Add an agent to begin.'; }
+  else { r.innerHTML=`<strong style="color:var(--text)">Agent #${agents.length}:</strong> `+agents[agents.length-1].reason; }
+}
+
+/* ───────── PANEL 1 : Intervention comparator ───────── */
+/* No intervention: cascade forms; conditional on forming,
+   P(correct)=q^2/(q^2+(1-q)^2), P(wrong)=(1-q)^2/(q^2+(1-q)^2). */
+function calcInterv(){
+  const q  = +document.getElementById('qP').value/100;
+  const qp = +document.getElementById('qPub').value/100;
+  document.getElementById('qPv').textContent=fmt(q,3);
+  document.getElementById('qPubv').textContent=fmt(qp,3);
+
+  // No intervention
+  const pCorr = q*q/(q*q+(1-q)*(1-q));
+  const pWrong = 1-pCorr;
+  // avg correctness: 0 in wrong cascade, 1 in correct cascade => = pCorr
+  const avgNone = pCorr;
+
+  // Public disclosure: does the public signal q' dominate one private signal?
+  // Agent1 with public 'a' and private 'b' chooses alpha iff  qp*(1-q) >= (1-qp)*q
+  // i.e. public signal overrides one private signal.
+  const overrides = qp*(1-q) >= (1-qp)*q;
+  let pWrongPub, avgPub, pubNote;
+  if(overrides){
+    // immediate cascade in the public-signal direction; wrong iff state opposes the (WLOG 'a') signal
+    pWrongPub = (1-qp); // = P(state B | public said a) since prior symmetric: (1-qp)/(qp+1-qp)
+    avgPub = qp;        // everyone matches the public signal; correct w.p. qp
+    pubNote = 'q′ overrides a private signal ⇒ instant cascade on the public signal; learning is fully crowded out.';
+  } else {
+    // public signal does NOT override: it just adds to the tally like an extra revealed signal.
+    // Falls back toward the no-intervention dynamics (approx: same cascade structure, public seeds +1).
+    pWrongPub = pWrong;
+    avgPub = avgNone;
+    pubNote = 'q′ is weak enough that private signals still get used ⇒ disclosure does not crowd out learning here.';
+  }
+
+  // Short recall: no cascade, everyone follows own signal => avg correct = q, P(everyone wrong)=0
+  const pWrongShort = 0;   // no contingency where all err
+  const avgShort = q;
+
+  // tables
+  document.getElementById('errBody').innerHTML =
+    `<tr><td class="row-name">No intervention</td><td>${fmt(pWrong,3)}</td><td style="color:var(--muted)">cascade error</td></tr>`+
+    `<tr><td class="row-name">Public disclosure</td><td style="color:${pWrongPub>pWrong?'var(--red)':'var(--green)'}">${fmt(pWrongPub,3)}</td><td style="color:var(--muted)">${overrides?'crowds out':'no effect'}</td></tr>`+
+    `<tr><td class="row-name">Short recall</td><td style="color:var(--green)">0.000</td><td style="color:var(--muted)">no disaster</td></tr>`;
+
+  document.getElementById('avgBody').innerHTML =
+    `<tr><td class="row-name">No intervention</td><td>${fmt(avgNone,3)}</td></tr>`+
+    `<tr><td class="row-name">Public disclosure</td><td>${fmt(avgPub,3)}</td></tr>`+
+    `<tr><td class="row-name">Short recall</td><td>${fmt(avgShort,3)}</td></tr>`;
+
+  drawBars('errCanvas',[
+    {label:'None', val:pWrong, color:'#7c6af7'},
+    {label:'Disclosure', val:pWrongPub, color:'#f7c86a'},
+    {label:'Short recall', val:pWrongShort, color:'#4ecdc4'},
+  ], 'P(wrong)');
+
+  drawBars('avgCanvas',[
+    {label:'None', val:avgNone, color:'#7c6af7'},
+    {label:'Disclosure', val:avgPub, color:'#f7c86a'},
+    {label:'Short recall', val:avgShort, color:'#4ecdc4'},
+  ], 'Avg correct');
+
+  const note=document.getElementById('intervNote');
+  const worse = pWrongPub>pWrong+1e-9;
+  note.innerHTML = `<strong>Reading:</strong> ${pubNote} `+
+    (worse
+      ? `Disclosure <strong style="color:var(--red)">raises</strong> the error rate from ${fmt(pWrong,3)} to ${fmt(pWrongPub,3)} — the counter-intuitive crowding-out result. `
+      : `Disclosure does not worsen errors at these settings. `)+
+    `Short recall removes disaster (error 0) but its average correctness (${fmt(avgShort,3)}) is `+
+    (avgShort<avgNone?`<strong style="color:var(--red)">below</strong>`:`above`)+
+    ` no-intervention (${fmt(avgNone,3)}) — the disaster-vs-average trade-off.`;
+}
+
+function drawBars(id, bars, ylabel){
+  const canvas=document.getElementById(id);
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr; canvas.height=190*dpr; ctx.scale(dpr,dpr);
+  const W=rect.width, H=190;
+  ctx.fillStyle='#22263a'; ctx.fillRect(0,0,W,H);
+  const pad={left:46,right:18,top:18,bottom:34};
+  const ph=H-pad.top-pad.bottom;
+  const maxV=1.0;
+  // gridlines
+  ctx.strokeStyle='#2e3250'; ctx.lineWidth=1;
+  ctx.font='10px Inter, sans-serif'; ctx.textAlign='right';
+  for(let v=0; v<=1.0001; v+=0.25){
+    const y=pad.top+ph-(v/maxV)*ph;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(W-pad.right,y); ctx.stroke();
+    ctx.fillStyle='#7880a4'; ctx.fillText(v.toFixed(2), pad.left-5, y+3);
+  }
+  const slot=(W-pad.left-pad.right)/bars.length;
+  const bw=slot*0.5;
+  bars.forEach((b,i)=>{
+    const x=pad.left+slot*i+(slot-bw)/2;
+    const bh=Math.max(0,(b.val/maxV)*ph);
+    const y=pad.top+ph-bh;
+    ctx.fillStyle=b.color+'cc';
+    ctx.beginPath(); ctx.roundRect(x,y,bw,bh,[5,5,0,0]); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 11px Inter, sans-serif'; ctx.textAlign='center';
+    ctx.fillText(b.val.toFixed(3), x+bw/2, y-5);
+    ctx.fillStyle='#7880a4'; ctx.font='10px Inter, sans-serif';
+    ctx.fillText(b.label, x+bw/2, pad.top+ph+16);
+  });
+}
+
+window.addEventListener('resize', ()=>{ if(document.getElementById('panel1').classList.contains('active')) calcInterv(); });
+
+resetSim();
+calcInterv();
+</script>
+</body>
+</html>
