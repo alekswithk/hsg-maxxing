@@ -19,3 +19,9 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 [Simpsons Paradox](https://alekswithk.github.io/hsg-maxxing/Micro_III/simpsons_paradox.html)
 
 [Bayesian HIV](https://alekswithk.github.io/hsg-maxxing/Micro_III/bayes_hiv.html)
+
+[Value of Information](https://alekswithk.github.io/hsg-maxxing/Micro_III/info_value.html)
+
+[Social Learning](https://alekswithk.github.io/hsg-maxxing/Micro_III/social_learning.html)
+
+
