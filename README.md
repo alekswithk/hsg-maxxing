@@ -24,4 +24,6 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 
 [Social Learning](https://alekswithk.github.io/hsg-maxxing/Micro_III/social_learning.html)
 
+[Insurance](https://alekswithk.github.io/hsg-maxxing/Micro_III/insurance.html)
+
 
