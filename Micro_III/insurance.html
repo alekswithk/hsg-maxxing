@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lecture 8 · Insurance</title>
+<style>
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #22263a;
+    --border:    #2e3250;
+    --accent:    #7c6af7;
+    --accent2:   #4ecdc4;
+    --accent3:   #f7c86a;
+    --red:       #f46e6e;
+    --green:     #6ef496;
+    --text:      #e8eaf6;
+    --muted:     #7880a4;
+    --card-r:    12px;
+    --font:      'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font); padding: 28px 20px 60px; min-height: 100vh;
+  }
+  h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; color: #fff; }
+  .subtitle { color: var(--muted); font-size: .85rem; margin-bottom: 32px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .tab {
+    padding: 8px 18px; border-radius: 8px 8px 0 0; border: 1px solid transparent;
+    border-bottom: none; cursor: pointer; font-size: .88rem; font-weight: 500;
+    color: var(--muted); background: transparent; transition: all .15s;
+    position: relative; bottom: -1px; font-family: var(--font);
+  }
+  .tab.active { background: var(--surface); border-color: var(--border); color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .panel { display: none; } .panel.active { display: block; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--card-r); padding: 20px 22px; margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: .78rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); margin-bottom: 14px;
+  }
+  .two-col { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
+  @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; } }
+
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .slider-label { width: 160px; font-size: .82rem; color: var(--muted); flex-shrink: 0; }
+  input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; height: 4px; }
+  .slider-val { width: 60px; text-align: right; font-size: .85rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  button.action {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 14px; font-size: .82rem; font-weight: 600;
+    cursor: pointer; font-family: var(--font); transition: all .15s;
+  }
+  button.action:hover { border-color: var(--accent); color: #fff; }
+  button.action.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+  .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .stat-box .label { font-size: .68rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .07em; }
+  .stat-box .value { font-size: 1.12rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .stat-box .value.green { color: var(--green); } .stat-box .value.yellow { color: var(--accent3); }
+  .stat-box .value.purple { color: var(--accent); } .stat-box .value.red { color: var(--red); }
+  .stat-box .value.teal { color: var(--accent2); }
+
+  .callout {
+    background: rgba(124,106,247,.10); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: .82rem;
+    line-height: 1.6; color: var(--text); margin-top: 14px;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: rgba(244,110,110,.10); border-left-color: var(--red); }
+  .callout.warn strong { color: var(--red); }
+  .callout.good { background: rgba(110,244,150,.10); border-left-color: var(--green); }
+  .callout.good strong { color: var(--green); }
+
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; margin-top: 4px; }
+  th, td { padding: 7px 10px; text-align: center; border: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--muted); font-weight: 600; }
+  td.row-name { color: var(--accent3); font-weight: 600; text-align: left; }
+  tr.hl td { background: rgba(124,106,247,.12); }
+
+  canvas { display: block; width: 100%; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: .76rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .seg { display:flex; gap:0; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:12px; }
+  .seg button { flex:1; background:var(--surface2); border:none; color:var(--muted); padding:8px 6px; font-size:.78rem; font-weight:600; cursor:pointer; font-family:var(--font); transition:all .15s; }
+  .seg button.active { background:var(--accent); color:#fff; }
+  .note { font-size:.78rem; color:var(--muted); line-height:1.55; margin-top:10px; }
+</style>
+</head>
+<body>
+  <h1>Lecture 8 · Insurance</h1>
+  <div class="subtitle">Interactive wealth diagram and contract-menu optimizer · Microeconomics III, Müller-Itten</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="diagram">Wealth Diagram</button>
+    <button class="tab" data-tab="menu">Deductible Optimizer</button>
+  </div>
+
+  <!-- ============ TAB 1: WEALTH DIAGRAM ============ -->
+  <div class="panel active" id="panel-diagram">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">The Wealth Diagram</div>
+        <canvas id="cv" width="640" height="560"></canvas>
+        <div class="legend">
+          <span><span class="swatch" style="background:#5b6080"></span>45° (no-risk) line</span>
+          <span><span class="swatch" style="background:var(--accent2)"></span>zero-profit line</span>
+          <span><span class="swatch" style="background:var(--accent)"></span>indifference curve</span>
+          <span><span class="dot" style="background:var(--red)"></span>no insurance</span>
+          <span><span class="dot" style="background:var(--green)"></span>full (fair)</span>
+          <span><span class="dot" style="background:var(--accent3)"></span>your contract</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Parameters</div>
+        <div class="slider-row"><span class="slider-label">Initial wealth W₀</span><input type="range" id="sW" min="60" max="120" step="1" value="100"><span class="slider-val" id="vW">100</span></div>
+        <div class="slider-row"><span class="slider-label">Potential loss ℓ</span><input type="range" id="sL" min="10" max="80" step="1" value="60"><span class="slider-val" id="vL">60</span></div>
+        <div class="slider-row"><span class="slider-label">Loss probability p</span><input type="range" id="sP" min="0.05" max="0.6" step="0.01" value="0.30"><span class="slider-val" id="vP">0.30</span></div>
+        <div class="slider-row"><span class="slider-label">Risk aversion (CRRA γ)</span><input type="range" id="sG" min="0.2" max="4" step="0.1" value="1.0"><span class="slider-val" id="vG">1.0</span></div>
+        <div class="slider-row"><span class="slider-label">Your deductible d</span><input type="range" id="sD" min="0" max="80" step="1" value="30"><span class="slider-val" id="vD">30</span></div>
+        <div class="slider-row"><span class="slider-label">Premium loading λ</span><input type="range" id="sLam" min="1.0" max="2.0" step="0.05" value="1.0"><span class="slider-val" id="vLam">1.00×</span></div>
+
+        <div class="note" id="contractDesc"></div>
+
+        <div class="stats-grid">
+          <div class="stat-box"><div class="label">your w₁ (bad)</div><div class="value yellow" id="oW1">–</div></div>
+          <div class="stat-box"><div class="label">your w₂ (good)</div><div class="value yellow" id="oW2">–</div></div>
+          <div class="stat-box"><div class="label">premium h</div><div class="value" id="oH">–</div></div>
+          <div class="stat-box"><div class="label">insurer profit Π</div><div class="value" id="oPi">–</div></div>
+          <div class="stat-box"><div class="label">your EU</div><div class="value purple" id="oEU">–</div></div>
+          <div class="stat-box"><div class="label">cert. equivalent</div><div class="value teal" id="oCE">–</div></div>
+        </div>
+
+        <div class="card-title" style="margin-top:18px;">Snap your contract to…</div>
+        <div class="btn-row">
+          <button class="action" id="bNo">No insurance (d=ℓ)</button>
+          <button class="action" id="bFull">Full insurance (d=0)</button>
+          <button class="action" id="bFair">Fair full insurance</button>
+        </div>
+        <div class="callout" id="diagCallout"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: MENU OPTIMIZER ============ -->
+  <div class="panel" id="panel-menu">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Expected utility along the menu  h = c₀ − c₁·d</div>
+        <canvas id="cv2" width="640" height="420"></canvas>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--accent)"></span>EU(d)</span>
+          <span><span class="dot" style="background:var(--green)"></span>optimal d*</span>
+          <span><span class="dot" style="background:var(--accent3)"></span>your d</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Menu parameters</div>
+        <div class="slider-row"><span class="slider-label">Fixed cost c₀</span><input type="range" id="mC0" min="0" max="20" step="0.5" value="3"><span class="slider-val" id="mvC0">3.0</span></div>
+        <div class="slider-row"><span class="slider-label">Price slope c₁</span><input type="range" id="mC1" min="0.05" max="0.8" step="0.01" value="0.40"><span class="slider-val" id="mvC1">0.40</span></div>
+        <div class="slider-row"><span class="slider-label">Loss probability p</span><input type="range" id="mP" min="0.05" max="0.6" step="0.01" value="0.30"><span class="slider-val" id="mvP">0.30</span></div>
+        <div class="slider-row"><span class="slider-label">Risk aversion (CRRA γ)</span><input type="range" id="mG" min="0.2" max="4" step="0.1" value="1.0"><span class="slider-val" id="mvG">1.0</span></div>
+        <div class="slider-row"><span class="slider-label">Your deductible d</span><input type="range" id="mD" min="0" max="60" step="1" value="20"><span class="slider-val" id="mvD">20</span></div>
+
+        <div class="stats-grid">
+          <div class="stat-box"><div class="label">optimal d*</div><div class="value green" id="mOpt">–</div></div>
+          <div class="stat-box"><div class="label">regime</div><div class="value" id="mReg">–</div></div>
+          <div class="stat-box"><div class="label">c₁ vs fair p</div><div class="value" id="mCmp">–</div></div>
+        </div>
+        <div class="callout" id="menuCallout"></div>
+        <div class="note">Fixed at W₀ = 100, ℓ = 60. Wealth on the menu: w₁ = W₀ − c₀ − (1−c₁)d, w₂ = W₀ − c₀ + c₁d. With no fixed cost the optimum is a corner (full if c₁&lt;p, none if c₁&gt;p); a fixed cost can create an interior partial-insurance optimum.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ---------- utility helpers ----------
+function u(x, g){ if(x<=0) return -1e9; return g===1 ? Math.log(x) : (Math.pow(x,1-g)-1)/(1-g); }
+function uInv(val, g){ return g===1 ? Math.exp(val) : Math.pow(val*(1-g)+1, 1/(1-g)); }
+function fmt(x,d=1){ return (Math.round(x*Math.pow(10,d))/Math.pow(10,d)).toFixed(d); }
+
+// ============ TAB SWITCHING ============
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='menu') drawMenu();
+  };
+});
+
+// ============ TAB 1: WEALTH DIAGRAM ============
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const S={W:100,L:60,p:0.30,g:1.0,d:30,lam:1.0};
+const ids=[['sW','vW','W',0],['sL','vL','L',0],['sP','vP','p',2],['sG','vG','g',1],['sD','vD','d',0],['sLam','vLam','lam',2]];
+ids.forEach(([s,v,k,dec])=>{
+  const el=document.getElementById(s);
+  el.oninput=()=>{ S[k]=parseFloat(el.value);
+    document.getElementById(v).textContent = k==='lam'? fmt(S[k],2)+'×' : fmt(S[k],dec);
+    document.getElementById('sD').max=S.L;
+    if(S.d>S.L){S.d=S.L; document.getElementById('sD').value=S.L; document.getElementById('vD').textContent=S.L;}
+    drawDiagram(); };
+});
+document.getElementById('bNo').onclick =()=>{S.d=S.L; syncD(); drawDiagram();};
+document.getElementById('bFull').onclick=()=>{S.d=0; syncD(); drawDiagram();};
+document.getElementById('bFair').onclick=()=>{S.d=0; S.lam=1.0; document.getElementById('sLam').value=1.0; document.getElementById('vLam').textContent='1.00×'; syncD(); drawDiagram();};
+function syncD(){ document.getElementById('sD').value=S.d; document.getElementById('vD').textContent=S.d; }
+
+function drawDiagram(){
+  const W=S.W,L=S.L,p=S.p,g=S.g,d=S.d,lam=S.lam;
+  // premium: fair part p*(l-d) scaled by loading lambda
+  const h = lam*p*(L-d);
+  const w1 = W - d - h;     // bad
+  const w2 = W - h;         // good
+  const fairH = p*L;        // fair full premium
+  const fairW = W - p*L;    // fair full insurance wealth (45-line)
+  const EU = p*u(w1,g)+(1-p)*u(w2,g);
+  const CE = uInv(EU,g);
+  const profit = h - p*(L-d);
+
+  // ---- scaling: domain 0..W on both axes ----
+  const pad=46, Wc=cv.width, Hc=cv.height, plot=Math.min(Wc-pad*1.4, Hc-pad*1.4);
+  const ox=pad, oy=Hc-pad, maxV=W*1.02;
+  const X=v=>ox+(v/maxV)*(Wc-pad-ox);
+  const Y=v=>oy-(v/maxV)*(oy-pad);
+
+  ctx.clearRect(0,0,Wc,Hc);
+  // grid
+  ctx.strokeStyle='#262a40'; ctx.lineWidth=1; ctx.fillStyle='#5a608a'; ctx.font='10px Inter';
+  for(let i=0;i<=5;i++){ const val=maxV*i/5;
+    ctx.beginPath(); ctx.moveTo(X(val),oy); ctx.lineTo(X(val),pad); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,Y(val)); ctx.lineTo(Wc-pad,Y(val)); ctx.stroke();
+    ctx.fillText(fmt(val,0),X(val)-8,oy+14); ctx.fillText(fmt(val,0),ox-30,Y(val)+3);
+  }
+  // axes
+  ctx.strokeStyle='#3a3f63'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(Wc-pad,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,pad); ctx.stroke();
+  ctx.fillStyle='#8890b8'; ctx.font='11px Inter';
+  ctx.fillText('w₁ : wealth in BAD state', Wc/2-60, Hc-8);
+  ctx.save(); ctx.translate(14,Hc/2+60); ctx.rotate(-Math.PI/2); ctx.fillText('w₂ : wealth in GOOD state',0,0); ctx.restore();
+
+  // 45-line
+  ctx.strokeStyle='#5b6080'; ctx.setLineDash([5,4]); ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(0)); ctx.lineTo(X(maxV),Y(maxV)); ctx.stroke(); ctx.setLineDash([]);
+
+  // zero-profit line: p w1 + (1-p) w2 = W - p L  => w2 = (W - pL - p w1)/(1-p)
+  const zp=x=>(W-p*L-p*x)/(1-p);
+  ctx.strokeStyle='#4ecdc4'; ctx.lineWidth=2;
+  ctx.beginPath();
+  let x0=0, x1=W; ctx.moveTo(X(x0),Y(zp(x0))); ctx.lineTo(X(x1),Y(zp(x1))); ctx.stroke();
+
+  // indifference curve through (w1,w2): p u(x)+(1-p)u(y)=EU -> y = uInv((EU - p u(x))/(1-p))
+  ctx.strokeStyle='#7c6af7'; ctx.lineWidth=2; ctx.beginPath(); let started=false;
+  for(let xv=1; xv<=maxV; xv+=maxV/240){
+    const yval=(EU - p*u(xv,g))/(1-p);
+    const yv=uInv(yval,g);
+    if(yv>0 && yv<maxV*1.4){ const px=X(xv),py=Y(yv);
+      if(!started){ctx.moveTo(px,py);started=true;} else ctx.lineTo(px,py); }
+  }
+  ctx.stroke();
+
+  // points
+  function pt(x,y,col,r=6){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X(x),Y(y),r,0,7); ctx.fill();
+    ctx.strokeStyle='#0f1117'; ctx.lineWidth=1.5; ctx.stroke(); }
+  pt(W-L, W, '#f46e6e');          // no insurance
+  pt(fairW, fairW, '#6ef496');    // fair full insurance
+  pt(w1, w2, '#f7c86a', 7);       // your contract
+
+  // labels
+  ctx.fillStyle='#f46e6e'; ctx.font='10px Inter'; ctx.fillText('w̃⁰ (no ins.)', X(W-L)+9, Y(W)-6);
+  ctx.fillStyle='#6ef496'; ctx.fillText('fair full', X(fairW)+9, Y(fairW)+4);
+  ctx.fillStyle='#f7c86a'; ctx.fillText('your contract', X(w1)+9, Y(w2)+14);
+
+  // ---- stats ----
+  document.getElementById('oW1').textContent=fmt(w1,1);
+  document.getElementById('oW2').textContent=fmt(w2,1);
+  document.getElementById('oH').textContent=fmt(h,2);
+  const piEl=document.getElementById('oPi'); piEl.textContent=fmt(profit,2);
+  piEl.className='value '+(profit>0.01?'green':profit<-0.01?'red':'');
+  document.getElementById('oEU').textContent=fmt(EU,3);
+  document.getElementById('oCE').textContent=fmt(CE,1);
+
+  // contract description
+  let kind = d<=0.5? 'full insurance (d≈0)' : d>=L-0.5? 'no insurance (d=ℓ)' : 'partial insurance';
+  document.getElementById('contractDesc').textContent =
+    `Contract (h,d) = (${fmt(h,2)}, ${d}) → ${kind}. Payout if loss = ℓ−d = ${fmt(L-d,0)}. Premium = λ·p·(ℓ−d) with λ=${fmt(lam,2)}.`;
+
+  // callout
+  const co=document.getElementById('diagCallout');
+  if(Math.abs(w1-w2)<0.5){
+    co.className='callout good';
+    co.innerHTML='<strong>On the 45° line.</strong> Equal wealth in both states — you carry no risk. '
+      + (Math.abs(lam-1)<0.001? 'At a fair price this is the optimum for <em>any</em> risk-averse agent (the indifference curve is tangent to the zero-profit line here).'
+                              : 'But you paid a loading (λ&gt;1), so removing the last sliver of risk is over-paying — a positive deductible would be better.');
+  } else if(Math.abs(lam-1)<0.001 && Math.abs(profit)<0.05){
+    co.className='callout';
+    co.innerHTML='<strong>On the zero-profit line.</strong> The insurer breaks even. Slide d to 0 and watch your point climb to the green 45°-line tangency — that is the welfare-maximizing fair full-insurance contract.';
+  } else if(profit>0.05){
+    co.className='callout';
+    co.innerHTML='<strong>Profitable for the insurer (Π &gt; 0).</strong> Your contract sits below the teal fair line. A competitor could undercut it; under competition you would slide down to the fair line.';
+  } else {
+    co.className='callout warn';
+    co.innerHTML='<strong>Loss-making for the insurer (Π &lt; 0).</strong> No firm would offer this — it lies above the zero-profit line. Raise the loading λ or the deductible d to bring it back.';
+  }
+}
+
+// ============ TAB 2: MENU OPTIMIZER ============
+const cv2=document.getElementById('cv2'), ctx2=cv2.getContext('2d');
+const M={c0:3,c1:0.40,p:0.30,g:1.0,d:20,W:100,L:60};
+[['mC0','mvC0','c0',1],['mC1','mvC1','c1',2],['mP','mvP','p',2],['mG','mvG','g',1],['mD','mvD','d',0]].forEach(([s,v,k,dec])=>{
+  const el=document.getElementById(s);
+  el.oninput=()=>{ M[k]=parseFloat(el.value); document.getElementById(v).textContent=fmt(M[k],dec); drawMenu(); };
+});
+function menuEU(d){ const w1=M.W-M.c0-(1-M.c1)*d, w2=M.W-M.c0+M.c1*d; return M.p*u(w1,M.g)+(1-M.p)*u(w2,M.g); }
+function drawMenu(){
+  const Wc=cv2.width,Hc=cv2.height,pad=46,ox=pad,oy=Hc-pad;
+  // evaluate over d in [0,L]
+  const N=400; let best=-1e18,bd=0,arr=[],ymin=1e18,ymax=-1e18;
+  for(let i=0;i<=N;i++){ const d=M.L*i/N, e=menuEU(d); arr.push([d,e]); if(e>best){best=e;bd=d;} if(e<ymin)ymin=e; if(e>ymax)ymax=e; }
+  const X=d=>ox+(d/M.L)*(Wc-pad-ox);
+  const pady=(ymax-ymin)*0.08||1; const Y=e=>oy-((e-ymin+pady)/((ymax-ymin)+2*pady))*(oy-pad);
+
+  ctx2.clearRect(0,0,Wc,Hc);
+  ctx2.strokeStyle='#262a40'; ctx2.fillStyle='#5a608a'; ctx2.font='10px Inter'; ctx2.lineWidth=1;
+  for(let i=0;i<=5;i++){ const d=M.L*i/5; ctx2.beginPath(); ctx2.moveTo(X(d),oy); ctx2.lineTo(X(d),pad); ctx2.stroke(); ctx2.fillText(fmt(d,0),X(d)-6,oy+14); }
+  ctx2.strokeStyle='#3a3f63'; ctx2.lineWidth=1.5;
+  ctx2.beginPath(); ctx2.moveTo(ox,oy); ctx2.lineTo(Wc-pad,oy); ctx2.stroke();
+  ctx2.beginPath(); ctx2.moveTo(ox,oy); ctx2.lineTo(ox,pad); ctx2.stroke();
+  ctx2.fillStyle='#8890b8'; ctx2.font='11px Inter'; ctx2.fillText('deductible d   (0 = full insurance,  ℓ = no insurance)', Wc/2-110, Hc-8);
+
+  // EU curve
+  ctx2.strokeStyle='#7c6af7'; ctx2.lineWidth=2.5; ctx2.beginPath();
+  arr.forEach(([d,e],i)=>{ const px=X(d),py=Y(e); if(i===0)ctx2.moveTo(px,py); else ctx2.lineTo(px,py); });
+  ctx2.stroke();
+
+  // optimal point
+  ctx2.fillStyle='#6ef496'; ctx2.beginPath(); ctx2.arc(X(bd),Y(best),7,0,7); ctx2.fill(); ctx2.strokeStyle='#0f1117'; ctx2.lineWidth=1.5; ctx2.stroke();
+  // your point
+  const yourE=menuEU(M.d); ctx2.fillStyle='#f7c86a'; ctx2.beginPath(); ctx2.arc(X(M.d),Y(yourE),6,0,7); ctx2.fill(); ctx2.stroke();
+
+  // vertical drop at optimum
+  ctx2.strokeStyle='rgba(110,244,150,.4)'; ctx2.setLineDash([4,4]); ctx2.beginPath(); ctx2.moveTo(X(bd),Y(best)); ctx2.lineTo(X(bd),oy); ctx2.stroke(); ctx2.setLineDash([]);
+
+  // stats
+  let regime, regClass;
+  if(bd<=0.5){regime='Full insurance'; regClass='green';}
+  else if(bd>=M.L-0.5){regime='No insurance'; regClass='red';}
+  else {regime='Partial insurance'; regClass='yellow';}
+  document.getElementById('mOpt').textContent=fmt(bd,1)+' / '+M.L;
+  const rEl=document.getElementById('mReg'); rEl.textContent=regime; rEl.className='value '+regClass;
+  const cmp=document.getElementById('mCmp');
+  cmp.textContent = M.c1<M.p? 'c₁ < p (cheap)' : M.c1>M.p? 'c₁ > p (dear)' : 'c₁ ≈ p';
+  cmp.className='value '+(M.c1<M.p?'green':M.c1>M.p?'red':'yellow');
+
+  const mc=document.getElementById('menuCallout');
+  if(M.c0<0.1){
+    mc.className='callout';
+    mc.innerHTML='<strong>No fixed cost (c₀≈0): the answer is a corner.</strong> Coverage is full when c₁&lt;p and none when c₁&gt;p — the marginal price of coverage versus the actuarially fair price p decides everything. Add a fixed cost to see an interior partial optimum appear.';
+  } else if(regime==='Partial insurance'){
+    mc.className='callout good';
+    mc.innerHTML='<strong>Interior optimum.</strong> The first-order condition −p(1−c₁)u′(w₁) + (1−p)c₁u′(w₂) = 0 is satisfied at d* = '+fmt(bd,1)+'. Concavity of u guarantees this stationary point is the maximum. More risk aversion (γ↑) or higher p pushes d* toward 0 (more coverage).';
+  } else {
+    mc.className='callout warn';
+    mc.innerHTML='<strong>Corner solution: '+regime+'.</strong> Slide c₁ across p, or change the fixed cost c₀, to move the optimum off the boundary. Raising risk aversion γ tends to pull the optimum toward more coverage (lower d).';
+  }
+}
+
+drawDiagram();
+</script>
+</body>
+</html>
