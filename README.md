@@ -8,22 +8,13 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 
 ## Page links
 
-### Intro to Programming
-
-[Study Tool](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html)
-
-### Microeconomics III
-
-[Utility Index](https://alekswithk.github.io/hsg-maxxing/Micro_III/index.html)
-
-[Simpsons Paradox](https://alekswithk.github.io/hsg-maxxing/Micro_III/simpsons_paradox.html)
-
-[Bayesian HIV](https://alekswithk.github.io/hsg-maxxing/Micro_III/bayes_hiv.html)
-
-[Value of Information](https://alekswithk.github.io/hsg-maxxing/Micro_III/info_value.html)
-
-[Social Learning](https://alekswithk.github.io/hsg-maxxing/Micro_III/social_learning.html)
-
-[Insurance](https://alekswithk.github.io/hsg-maxxing/Micro_III/insurance.html)
-
-
+| Subject | Tool | Link |
+| :--- | :--- | :--- |
+| Intro to Programming | Study Tool | [Open](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html) |
+| Microeconomics III | Utility Index | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/index.html) |
+| Microeconomics III | Simpsons Paradox | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/simpsons_paradox.html) |
+| Microeconomics III | Bayesian HIV | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/bayes_hiv.html) |
+| Microeconomics III | Value of Information | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/info_value.html) |
+| Microeconomics III | Social Learning | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/social_learning.html) |
+| Microeconomics III | Insurance | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/insurance.html) |
+| Microeconomics III | Signaling | [Open](https://alekswithk.github.io/hsg-maxxing/Micro_III/signaling.html) |
