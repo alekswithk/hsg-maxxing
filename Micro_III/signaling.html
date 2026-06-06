@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lecture 10 · Signaling</title>
+<style>
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #22263a;
+    --border:    #2e3250;
+    --accent:    #7c6af7;
+    --accent2:   #4ecdc4;
+    --accent3:   #f7c86a;
+    --red:       #f46e6e;
+    --green:     #6ef496;
+    --text:      #e8eaf6;
+    --muted:     #7880a4;
+    --card-r:    12px;
+    --font:      'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font); padding: 28px 20px 60px; min-height: 100vh;
+  }
+  h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; color: #fff; }
+  .subtitle { color: var(--muted); font-size: .85rem; margin-bottom: 28px; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .tab {
+    padding: 8px 18px; border-radius: 8px 8px 0 0; border: 1px solid transparent;
+    border-bottom: none; cursor: pointer; font-size: .88rem; font-weight: 500;
+    color: var(--muted); background: transparent; transition: all .15s;
+    position: relative; bottom: -1px; font-family: var(--font);
+  }
+  .tab.active { background: var(--surface); border-color: var(--border); color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .panel { display: none; } .panel.active { display: block; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--card-r); padding: 20px 22px; margin-bottom: 18px;
+  }
+  .card-title {
+    font-size: .78rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); margin-bottom: 14px;
+  }
+  .two-col { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
+  @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; } }
+
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .slider-label { width: 200px; font-size: .82rem; color: var(--muted); flex-shrink: 0; }
+  input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; height: 4px; }
+  .slider-val { width: 70px; text-align: right; font-size: .85rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  button.action {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 14px; font-size: .82rem; font-weight: 600;
+    cursor: pointer; font-family: var(--font); transition: all .15s;
+  }
+  button.action:hover { border-color: var(--accent); color: #fff; }
+  button.action.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+  @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+  .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .stat-box .label { font-size: .68rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .07em; }
+  .stat-box .value { font-size: 1.12rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .stat-box .value.green { color: var(--green); } .stat-box .value.yellow { color: var(--accent3); }
+  .stat-box .value.purple { color: var(--accent); } .stat-box .value.red { color: var(--red); }
+  .stat-box .value.teal { color: var(--accent2); }
+
+  .callout {
+    background: rgba(124,106,247,.10); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: .82rem;
+    line-height: 1.6; color: var(--text); margin-top: 14px;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.warn { background: rgba(244,110,110,.10); border-left-color: var(--red); }
+  .callout.warn strong { color: var(--red); }
+  .callout.good { background: rgba(110,244,150,.10); border-left-color: var(--green); }
+  .callout.good strong { color: var(--green); }
+
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; margin-top: 4px; }
+  th, td { padding: 7px 10px; text-align: center; border: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--muted); font-weight: 600; }
+  td.row-name { color: var(--accent3); font-weight: 600; text-align: left; }
+  tr.hl td { background: rgba(124,106,247,.12); }
+  td.best { color: var(--green); font-weight: 700; }
+  .tag { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:6px; }
+  .tag.w { background:rgba(78,205,196,.15); color:var(--accent2); }
+  .tag.n { background:rgba(247,200,106,.15); color:var(--accent3); }
+  .tag.k { background:rgba(120,128,164,.18); color:var(--muted); }
+
+  canvas { display: block; width: 100%; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: .76rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .verdict { font-size:.95rem; font-weight:700; padding:10px 14px; border-radius:8px; margin-top:12px; text-align:center; }
+  .verdict.ok { background:rgba(110,244,150,.12); color:var(--green); border:1px solid rgba(110,244,150,.35); }
+  .verdict.bad { background:rgba(244,110,110,.12); color:var(--red); border:1px solid rgba(244,110,110,.35); }
+  .note { font-size:.78rem; color:var(--muted); line-height:1.55; margin-top:10px; }
+  .eq { font-family: 'SF Mono', ui-monospace, Menlo, monospace; font-size:.82rem; color:var(--accent2); }
+</style>
+</head>
+<body>
+  <h1>Lecture 10 · Signaling</h1>
+  <div class="subtitle">Spence's job-market signal &amp; the IC band · the AI-in-education shock · the used-car warranty equilibrium checker · Microeconomics III, Müller-Itten</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="ic">Education IC Band</button>
+    <button class="tab" data-tab="ai">AI in Education</button>
+    <button class="tab" data-tab="war">Warranty Checker</button>
+  </div>
+
+  <!-- ============ TAB 1: EDUCATION IC BAND ============ -->
+  <div class="panel active" id="panel-ic">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Payoff diagram — utility vs. years of schooling y</div>
+        <canvas id="cvIC" width="640" height="520"></canvas>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--accent2)"></span>High type util: a − c<sub>H</sub>·y (if y≥y*)</span>
+          <span><span class="swatch" style="background:var(--red)"></span>Low type util if imitating: a − c<sub>L</sub>·y</span>
+          <span><span class="swatch" style="background:var(--muted)"></span>payoff of no school (= b)</span>
+          <span><span class="dot" style="background:var(--accent3)"></span>least-cost y*</span>
+          <span><span class="swatch" style="background:rgba(124,106,247,.5)"></span>valid IC band</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Parameters</div>
+        <div class="slider-row"><div class="slider-label">High productivity / wage a</div><input type="range" id="sA" min="4" max="20" step="0.5" value="12"><div class="slider-val" id="vA">12</div></div>
+        <div class="slider-row"><div class="slider-label">Low productivity / wage b</div><input type="range" id="sB" min="1" max="10" step="0.5" value="4"><div class="slider-val" id="vB">4</div></div>
+        <div class="slider-row"><div class="slider-label">Low-type cost / year c<sub>L</sub></div><input type="range" id="sCL" min="0.5" max="6" step="0.1" value="2"><div class="slider-val" id="vCL">2.0</div></div>
+        <div class="slider-row"><div class="slider-label">High-type cost / year c<sub>H</sub></div><input type="range" id="sCH" min="0.2" max="6" step="0.1" value="1"><div class="slider-val" id="vCH">1.0</div></div>
+        <div class="slider-row"><div class="slider-label">Chosen threshold y*</div><input type="range" id="sY" min="0" max="12" step="0.05" value="4"><div class="slider-val" id="vY">4.00</div></div>
+
+        <div class="stats-grid">
+          <div class="stat-box"><div class="label">Prize a − b</div><div class="value yellow" id="oPrize">8.0</div></div>
+          <div class="stat-box"><div class="label">Floor (a−b)/c<sub>L</sub></div><div class="value teal" id="oLo">4.0</div></div>
+          <div class="stat-box"><div class="label">Ceiling (a−b)/c<sub>H</sub></div><div class="value red" id="oHi">8.0</div></div>
+          <div class="stat-box"><div class="label">Least-cost y*</div><div class="value purple" id="oLcse">4.0</div></div>
+          <div class="stat-box"><div class="label">H payoff at y*</div><div class="value green" id="oHpay">8.0</div></div>
+          <div class="stat-box"><div class="label">Pool wage avg</div><div class="value" id="oPool">—</div></div>
+        </div>
+
+        <div class="verdict" id="verIC">—</div>
+        <div class="callout" id="calloutIC"><strong>How to read it.</strong> Separation needs the chosen y* to sit between the floor and ceiling. Below the floor the low type imitates; above the ceiling the high type quits.</div>
+        <button class="action" id="snapBtn" style="margin-top:12px">Snap y* to least-cost</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: AI IN EDUCATION ============ -->
+  <div class="panel" id="panel-ai">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Before vs. after the AI cost shock</div>
+        <canvas id="cvAI" width="640" height="440"></canvas>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--muted)"></span>before AI (y*, H-cost)</span>
+          <span><span class="dot" style="background:var(--accent)"></span>after AI (ỹ*, H-cost)</span>
+        </div>
+        <div class="note">Bars compare the high type's <em>total signaling cost</em> c<sub>H</sub>·y* before and after AI. The arrow shows the least-cost threshold moving right.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">The AI shock</div>
+        <div class="slider-row"><div class="slider-label">Prize a − b</div><input type="range" id="aiPrize" min="2" max="16" step="0.5" value="8"><div class="slider-val" id="aiVPrize">8.0</div></div>
+        <div class="slider-row"><div class="slider-label">Low cost c<sub>L</sub> (before)</div><input type="range" id="aiCL" min="1" max="6" step="0.1" value="2"><div class="slider-val" id="aiVCL">2.0</div></div>
+        <div class="slider-row"><div class="slider-label">High cost c<sub>H</sub> (before)</div><input type="range" id="aiCH" min="0.5" max="5" step="0.1" value="1"><div class="slider-val" id="aiVCH">1.0</div></div>
+        <div class="slider-row"><div class="slider-label">AI help to L (% cost cut)</div><input type="range" id="aiHL" min="0" max="80" step="1" value="50"><div class="slider-val" id="aiVHL">50%</div></div>
+        <div class="slider-row"><div class="slider-label">AI help to H (% cost cut)</div><input type="range" id="aiHH" min="0" max="80" step="1" value="20"><div class="slider-val" id="aiVHH">20%</div></div>
+
+        <div class="stats-grid">
+          <div class="stat-box"><div class="label">y* before</div><div class="value teal" id="aiYb">4.0</div></div>
+          <div class="stat-box"><div class="label">ỹ* after</div><div class="value purple" id="aiYa">8.0</div></div>
+          <div class="stat-box"><div class="label">H cost before</div><div class="value" id="aiCb">4.0</div></div>
+          <div class="stat-box"><div class="label">H cost after</div><div class="value" id="aiCa">6.4</div></div>
+          <div class="stat-box"><div class="label">H payoff Δ</div><div class="value red" id="aiDpay">−2.4</div></div>
+          <div class="stat-box"><div class="label">L payoff Δ</div><div class="value green" id="aiDL">0.0</div></div>
+        </div>
+        <div class="verdict" id="verAI">—</div>
+        <div class="callout warn" id="calloutAI"><strong>The trap.</strong> Pull "AI help to L" above "AI help to H" and watch the high type get worse off even though every cost fell.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: WARRANTY CHECKER ============ -->
+  <div class="panel" id="panel-war">
+    <div class="card">
+      <div class="card-title">Used-car market — six qualities, two prices</div>
+      <div class="slider-row"><div class="slider-label">p₁ — price WITH warranty</div><input type="range" id="wP1" min="1000" max="6000" step="100" value="6000"><div class="slider-val" id="wVP1">$6000</div></div>
+      <div class="slider-row"><div class="slider-label">p₀ — price WITHOUT warranty</div><input type="range" id="wP0" min="0" max="6000" step="100" value="1000"><div class="slider-val" id="wVP0">$1000</div></div>
+
+      <table id="warTable">
+        <thead><tr>
+          <th>Quality</th><th>Seller S<sub>i</sub></th><th>Risk r<sub>i</sub></th>
+          <th>Keep (S<sub>i</sub>)</th><th>Warranty (1−r)p₁</th><th>No warranty (p₀)</th><th>Best choice</th>
+        </tr></thead>
+        <tbody id="warBody"></tbody>
+      </table>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="stat-box"><div class="label">Types selling WITH warranty</div><div class="value teal" id="wWith">q₆</div></div>
+        <div class="stat-box"><div class="label">Types selling WITHOUT warranty</div><div class="value yellow" id="wWithout">q₁</div></div>
+      </div>
+
+      <div class="verdict" id="verWar">—</div>
+      <div class="callout" id="calloutWar"><strong>Separating check.</strong> A clean separating equilibrium has the best car(s) signal with a warranty and the worst sell cheap without — with no overlap and the buyer breaking even. Move the sliders to see separation break.</div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="action" id="warReset">Reset to lecture equilibrium ($6000 / $1000)</button>
+      </div>
+      <div class="note">Buyer note: under competition each price is bid to the buyer's value of the car it attracts. The warranty refunds p₁ on breakdown, so a buyer of the q₆ warranty car nets 0 whether it works or not; the q₁ buyer nets B₁−p₀.</div>
+    </div>
+  </div>
+
+<script>
+/* ---------- tab switching ---------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  });
+});
+
+/* =========================================================
+   TAB 1 — EDUCATION IC BAND
+   ========================================================= */
+const icEl = id=>document.getElementById(id);
+const sA=icEl('sA'),sB=icEl('sB'),sCL=icEl('sCL'),sCH=icEl('sCH'),sY=icEl('sY');
+
+function drawIC(){
+  let a=+sA.value, b=+sB.value, cL=+sCL.value, cH=+sCH.value, y=+sY.value;
+  // keep b < a
+  if(b>=a){ b=a-0.5; sB.value=b; }
+  // ensure cL >= cH visually allowed but flag
+  icEl('vA').textContent=a.toFixed(1); icEl('vB').textContent=b.toFixed(1);
+  icEl('vCL').textContent=cL.toFixed(1); icEl('vCH').textContent=cH.toFixed(1);
+  icEl('vY').textContent=y.toFixed(2);
+
+  const prize=a-b;
+  const lo = prize/cL;          // floor: deter L
+  const hi = prize/cH;          // ceiling: retain H
+  const lcse = lo;              // least-cost separating
+  icEl('oPrize').textContent=prize.toFixed(1);
+  icEl('oLo').textContent=lo.toFixed(2);
+  icEl('oHi').textContent=hi.toFixed(2);
+  icEl('oLcse').textContent=lcse.toFixed(2);
+  icEl('oHpay').textContent=(a-cH*lcse).toFixed(2);
+  icEl('oPool').textContent='need p_H';
+
+  // verdict for the chosen y*
+  const v=icEl('verIC');
+  if(cL<=cH){
+    v.className='verdict bad';
+    v.textContent='No separation possible: need c_L > c_H (school must hurt the low type more).';
+  } else if(y<lo-1e-9){
+    v.className='verdict bad';
+    v.textContent='y* below floor — the LOW type imitates (grabs y*, gets wage a). Not separating.';
+  } else if(y>hi+1e-9){
+    v.className='verdict bad';
+    v.textContent='y* above ceiling — the HIGH type quits (no school, takes wage b). Not separating.';
+  } else {
+    v.className='verdict ok';
+    v.textContent=Math.abs(y-lo)<0.06
+      ? 'Valid separating equilibrium — and this is the least-cost y* (L just indifferent).'
+      : 'Valid separating equilibrium (inside the IC band).';
+  }
+
+  // ---- canvas ----
+  const cv=icEl('cvIC'), ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+  const mL=54,mR=20,mT=20,mB=44;
+  const ymax=Math.max(a*1.1, b+1);
+  const xmax=Math.max(hi*1.25, y*1.15, 4);
+  const X=v=> mL + (v/xmax)*(W-mL-mR);
+  const Y=v=> H-mB - (v/ymax)*(H-mT-mB);
+
+  // grid + axes
+  ctx.strokeStyle='#2a2e44'; ctx.lineWidth=1; ctx.fillStyle='#7880a4'; ctx.font='11px Inter, sans-serif';
+  for(let g=0; g<=ymax; g+=Math.ceil(ymax/6)){ ctx.beginPath(); ctx.moveTo(mL,Y(g)); ctx.lineTo(W-mR,Y(g)); ctx.stroke(); ctx.fillText(g.toFixed(0),6,Y(g)+4); }
+  for(let g=0; g<=xmax; g+=Math.max(1,Math.round(xmax/8))){ ctx.fillText(g.toFixed(0),X(g)-4,H-mB+16); }
+  ctx.fillStyle='#9aa0c8'; ctx.fillText('utility',6,14); ctx.fillText('years of schooling y',W-150,H-8);
+
+  // IC band shading [lo,hi]
+  if(cL>cH){
+    ctx.fillStyle='rgba(124,106,247,.16)';
+    ctx.fillRect(X(lo), mT, X(hi)-X(lo), H-mT-mB);
+    ctx.strokeStyle='rgba(124,106,247,.5)'; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X(lo),mT); ctx.lineTo(X(lo),H-mB); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(hi),mT); ctx.lineTo(X(hi),H-mB); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#7c6af7'; ctx.fillText('floor',X(lo)-12,mT+12); ctx.fillText('ceiling',X(hi)-4,mT+12);
+  }
+
+  // line: payoff of NO school = b (flat) — the deviation payoff baseline
+  ctx.strokeStyle='#7880a4'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(X(0),Y(b)); ctx.lineTo(X(xmax),Y(b)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#7880a4'; ctx.fillText('b (no-school payoff)',X(xmax)-150,Y(b)-6);
+
+  // line: HIGH type utility if it gets the degree = a - cH*y  (worth it while above b)
+  ctx.strokeStyle='#4ecdc4'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(a)); ctx.lineTo(X(xmax),Y(Math.max(0,a-cH*xmax))); ctx.stroke();
+
+  // line: LOW type utility if it IMITATES = a - cL*y (steeper)
+  ctx.strokeStyle='#f46e6e'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(X(0),Y(a)); ctx.lineTo(X(xmax),Y(Math.max(0,a-cL*xmax))); ctx.stroke();
+
+  // mark least-cost y*
+  if(cL>cH){
+    ctx.fillStyle='#f7c86a';
+    ctx.beginPath(); ctx.arc(X(lcse),Y(a-cH*lcse),5,0,7); ctx.fill();
+  }
+  // chosen y* vertical
+  ctx.strokeStyle='rgba(232,234,246,.5)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(X(y),mT); ctx.lineTo(X(y),H-mB); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#e8eaf6'; ctx.fillText('chosen y*',X(y)+4,H-mB-6);
+}
+[sA,sB,sCL,sCH,sY].forEach(s=>s.addEventListener('input',drawIC));
+icEl('snapBtn').addEventListener('click',()=>{
+  const a=+sA.value,b=+sB.value,cL=+sCL.value; sY.value=((a-b)/cL).toFixed(2); drawIC();
+});
+drawIC();
+
+/* =========================================================
+   TAB 2 — AI IN EDUCATION
+   ========================================================= */
+const aiEl=id=>document.getElementById(id);
+const aiP=aiEl('aiPrize'),aiCL=aiEl('aiCL'),aiCH=aiEl('aiCH'),aiHL=aiEl('aiHL'),aiHH=aiEl('aiHH');
+function drawAI(){
+  const prize=+aiP.value, cL=+aiCL.value, cH=+aiCH.value, hl=+aiHL.value/100, hh=+aiHH.value/100;
+  aiEl('aiVPrize').textContent=prize.toFixed(1);
+  aiEl('aiVCL').textContent=cL.toFixed(1); aiEl('aiVCH').textContent=cH.toFixed(1);
+  aiEl('aiVHL').textContent=(hl*100).toFixed(0)+'%'; aiEl('aiVHH').textContent=(hh*100).toFixed(0)+'%';
+
+  const cLn=cL*(1-hl), cHn=cH*(1-hh);
+  const yb=prize/cL, ya=prize/cLn;            // least-cost thresholds
+  const Hb=cH*yb, Ha=cHn*ya;                  // high type total signaling cost
+  const dPay = -(Ha-Hb);                       // change in H payoff (a - cost)
+  aiEl('aiYb').textContent=yb.toFixed(2);
+  aiEl('aiYa').textContent=ya.toFixed(2);
+  aiEl('aiCb').textContent=Hb.toFixed(2);
+  aiEl('aiCa').textContent=Ha.toFixed(2);
+  aiEl('aiDpay').textContent=(dPay>=0?'+':'')+dPay.toFixed(2);
+  aiEl('aiDpay').className='value '+(dPay<-1e-6?'red':dPay>1e-6?'green':'');
+  aiEl('aiDL').textContent='0.0';
+
+  const v=aiEl('verAI');
+  if(Ha>Hb+1e-6){ v.className='verdict bad'; v.textContent='Pareto WORSE: H pays more total cost ('+Ha.toFixed(2)+' > '+Hb.toFixed(2)+'), L unchanged.'; }
+  else if(Ha<Hb-1e-6){ v.className='verdict ok'; v.textContent='H is better off (AI helped H proportionally more) — unusual case.'; }
+  else { v.className='verdict'; v.style.background='rgba(120,128,164,.12)'; v.style.color='#7880a4'; v.textContent='Neutral: cost ratio unchanged, H cost identical.'; }
+
+  // canvas: two bars (H cost before/after) + threshold arrow
+  const cv=aiEl('cvAI'), ctx=cv.getContext('2d'); const W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+  const mB=46,mT=30; const maxC=Math.max(Hb,Ha)*1.25||1;
+  const baseY=H-mB; const bh=v=>(v/maxC)*(H-mT-mB);
+  // bars
+  const bw=120, x1=W*0.27-bw/2, x2=W*0.62-bw/2;
+  ctx.fillStyle='#5b6080'; ctx.fillRect(x1,baseY-bh(Hb),bw,bh(Hb));
+  ctx.fillStyle='#7c6af7'; ctx.fillRect(x2,baseY-bh(Ha),bw,bh(Ha));
+  ctx.fillStyle='#e8eaf6'; ctx.font='12px Inter, sans-serif'; ctx.textAlign='center';
+  ctx.fillText('H cost before',x1+bw/2,baseY+18); ctx.fillText(Hb.toFixed(2),x1+bw/2,baseY-bh(Hb)-8);
+  ctx.fillText('H cost after',x2+bw/2,baseY+18); ctx.fillText(Ha.toFixed(2),x2+bw/2,baseY-bh(Ha)-8);
+  ctx.textAlign='left';
+  // threshold annotation
+  ctx.fillStyle='#7880a4'; ctx.font='11px Inter, sans-serif';
+  ctx.fillText('y*: '+yb.toFixed(2)+'  →  ỹ*: '+ya.toFixed(2)+'  (threshold rises)', 20, 18);
+}
+[aiP,aiCL,aiCH,aiHL,aiHH].forEach(s=>s.addEventListener('input',drawAI));
+drawAI();
+
+/* =========================================================
+   TAB 3 — WARRANTY CHECKER
+   ========================================================= */
+const CARS=[
+  {q:'q₁',S:900, r:0.85},
+  {q:'q₂',S:1800,r:0.72},
+  {q:'q₃',S:2700,r:0.56},
+  {q:'q₄',S:3600,r:0.45},
+  {q:'q₅',S:4500,r:0.26},
+  {q:'q₆',S:5400,r:0.01},
+];
+const wP1=document.getElementById('wP1'), wP0=document.getElementById('wP0');
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function drawWar(){
+  const p1=+wP1.value, p0=+wP0.value;
+  document.getElementById('wVP1').textContent=fmt(p1);
+  document.getElementById('wVP0').textContent=fmt(p0);
+  const body=document.getElementById('warBody'); body.innerHTML='';
+  const withW=[], withoutW=[];
+  CARS.forEach(c=>{
+    const keep=c.S, war=(1-c.r)*p1, no=p0;
+    const m=Math.max(keep,war,no);
+    let choice;
+    if(Math.abs(war-m)<1e-6 && war>=keep && war>=no){ choice='w'; withW.push(c.q); }
+    else if(Math.abs(no-m)<1e-6 && no>=keep){ choice='n'; withoutW.push(c.q); }
+    else choice='k';
+    const tr=document.createElement('tr');
+    if(choice!=='k') tr.className='hl';
+    const tag = choice==='w'?'<span class="tag w">sell · warranty</span>'
+              : choice==='n'?'<span class="tag n">sell · no warranty</span>'
+              : '<span class="tag k">keep</span>';
+    tr.innerHTML=`<td class="row-name">${c.q}</td><td>${fmt(c.S)}</td><td>${(c.r*100).toFixed(0)}%</td>`+
+      `<td class="${choice==='k'?'best':''}">${fmt(keep)}</td>`+
+      `<td class="${choice==='w'?'best':''}">${fmt(war)}</td>`+
+      `<td class="${choice==='n'?'best':''}">${fmt(no)}</td>`+
+      `<td>${tag}</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('wWith').textContent=withW.length?withW.join(', '):'—';
+  document.getElementById('wWithout').textContent=withoutW.length?withoutW.join(', '):'—';
+
+  // verdict: separating iff exactly the top quality signals with warranty,
+  // the warranty group is strictly higher quality than the no-warranty group, and no overlap.
+  const v=document.getElementById('verWar');
+  const idxW = withW.map(q=>CARS.findIndex(c=>c.q===q));
+  const idxN = withoutW.map(q=>CARS.findIndex(c=>c.q===q));
+  const separates = idxW.length>0 && idxN.length>0 &&
+        Math.min(...idxW) > Math.max(...idxN);   // warranty cars strictly better quality
+  if(separates){
+    v.className='verdict ok';
+    v.textContent='Separating: high-quality '+withW.join(',')+' signal with warranty; low-quality '+withoutW.join(',')+' sell cheap. Signal not imitated.';
+  } else if(withW.length===0){
+    v.className='verdict bad';
+    v.textContent='No one buys the warranty — p₁ too low to tempt even the best car. No separation.';
+  } else if(idxN.length && Math.min(...idxW)<=Math.max(...idxN)){
+    v.className='verdict bad';
+    v.textContent='Signal imitated / overlap: a lower-quality type also takes the warranty. Not a clean separating equilibrium.';
+  } else {
+    v.className='verdict bad';
+    v.textContent='Not a separating equilibrium at these prices.';
+  }
+}
+[wP1,wP0].forEach(s=>s.addEventListener('input',drawWar));
+document.getElementById('warReset').addEventListener('click',()=>{ wP1.value=6000; wP0.value=1000; drawWar(); });
+drawWar();
+</script>
+</body>
+</html>
