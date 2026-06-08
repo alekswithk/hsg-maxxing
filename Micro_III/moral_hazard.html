@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L11 · Insurance–Incentive Trade-off Frontier</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3250;
+    --accent: #6c8ef5;
+    --accent2: #f56c8e;
+    --accent3: #6cf5b8;
+    --accent4: #f5c46c;
+    --text: #e8eaf6;
+    --text-muted: #8890b0;
+    --text-dim: #555a80;
+    --green: #4caf7d;
+    --red: #e05c6e;
+    --orange: #f0a040;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .widget-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+  }
+  .widget-subtitle {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    max-width: 1100px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .slider-group { margin-bottom: 16px; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .slider-label span:first-child {
+    color: var(--text);
+    font-size: 13px;
+  }
+  .slider-val {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--surface2);
+    padding: 1px 7px;
+    border-radius: 4px;
+  }
+  input[type=range] {
+    width: 100%;
+    height: 4px;
+    appearance: none;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    cursor: pointer;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 14px 0;
+  }
+
+  .info-box {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 12.5px;
+  }
+  .info-box.ic { border-color: var(--accent2); }
+  .info-box.fb { border-color: var(--accent3); }
+  .info-box.sb { border-color: var(--accent4); }
+
+  .info-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .info-label.pc { color: var(--accent); }
+  .info-label.ic { color: var(--accent2); }
+  .info-label.fb { color: var(--accent3); }
+  .info-label.sb { color: var(--accent4); }
+
+  .info-val {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .canvas-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  canvas {
+    border-radius: 6px;
+    background: #12151f;
+    width: 100%;
+    display: block;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-line {
+    width: 22px; height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-dash {
+    width: 22px; height: 2px;
+    flex-shrink: 0;
+    background: repeating-linear-gradient(to right,
+      var(--text-dim) 0px, var(--text-dim) 5px,
+      transparent 5px, transparent 9px);
+  }
+
+  .insight-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .insight-card {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+  }
+  .insight-card .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+  .insight-card .value {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .ok { color: var(--green); }
+  .warn { color: var(--red); }
+  .neutral { color: var(--accent4); }
+</style>
+</head>
+<body>
+
+<div class="widget-title">Insurance–Incentive Trade-off Frontier</div>
+<div class="widget-subtitle">Lecture 11 · Moral Hazard · PC and IC curves in (w<sub>L</sub>, w<sub>H</sub>) space</div>
+
+<div class="layout">
+  <!-- Controls -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">Model Parameters</div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Effort probability p¹</span>
+          <span class="slider-val" id="val-p1">0.90</span>
+        </div>
+        <input type="range" id="sl-p1" min="0.5" max="0.99" step="0.01" value="0.90">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>No-effort probability p⁰</span>
+          <span class="slider-val" id="val-p0">0.20</span>
+        </div>
+        <input type="range" id="sl-p0" min="0.01" max="0.49" step="0.01" value="0.20">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Effort cost c</span>
+          <span class="slider-val" id="val-c">0.50</span>
+        </div>
+        <input type="range" id="sl-c" min="0.05" max="2.0" step="0.05" value="0.50">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Outside option ū</span>
+          <span class="slider-val" id="val-u">1.50</span>
+        </div>
+        <input type="range" id="sl-u" min="0.5" max="3.0" step="0.1" value="1.50">
+      </div>
+
+      <hr class="divider">
+      <div class="panel-title">Utility v(w) = √w</div>
+
+      <div class="info-box" style="border-color: var(--accent);">
+        <div class="info-label pc">PC Curve (binds)</div>
+        <div class="info-val" id="pc-eq">p¹·√w_H + (1-p¹)·√w_L = ū + c</div>
+      </div>
+
+      <div class="info-box ic">
+        <div class="info-label ic">IC Curve (binds)</div>
+        <div class="info-val" id="ic-eq">(p¹−p⁰)·[√w_H − √w_L] = c</div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="info-box fb">
+        <div class="info-label fb">First-Best (Full Insurance)</div>
+        <div class="info-val" id="fb-val">w* = (ū + c)² = —</div>
+      </div>
+
+      <div class="info-box sb">
+        <div class="info-label sb">Second-Best Contract</div>
+        <div class="info-val" id="sb-val">w_H = —, w_L = —</div>
+      </div>
+    </div>
+
+    <div class="insight-row" style="margin-top:10px;">
+      <div class="insight-card">
+        <div class="label">IC gap needed</div>
+        <div class="value neutral" id="gap-needed">—</div>
+      </div>
+      <div class="insight-card">
+        <div class="label">Risk premium</div>
+        <div class="value warn" id="risk-prem">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrap">
+    <canvas id="chart" height="480"></canvas>
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--accent)"></div>
+        <span>PC curve (p.c. binds)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--accent2)"></div>
+        <span>IC curve (i.c. binds)</span>
+      </div>
+      <div class="legend-dash"></div>
+      <span style="font-size:12px;color:var(--text-muted)">45° line (full insurance)</span>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--accent3)"></div>
+        <span>First-best (FB)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--accent4)"></div>
+        <span>Second-best (SB)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--accent)"></div>
+        <span>Hover point</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+
+// DPI
+function resize() {
+  const w = canvas.offsetWidth;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = 480 * dpr;
+  ctx.scale(dpr, dpr);
+  draw();
+}
+
+// params
+let p1 = 0.90, p0 = 0.20, c = 0.50, u_bar = 1.50;
+let hover = null;
+
+// margin
+const M = { top: 30, right: 30, bottom: 50, left: 60 };
+
+function canvasW() { return canvas.offsetWidth; }
+function canvasH() { return 480; }
+function plotW() { return canvasW() - M.left - M.right; }
+function plotH() { return canvasH() - M.top - M.bottom; }
+
+// w range for axes
+const wMax = 16;
+
+function toX(wL) { return M.left + (wL / wMax) * plotW(); }
+function toY(wH) { return M.top + (1 - wH / wMax) * plotH(); }
+function fromX(px) { return ((px - M.left) / plotW()) * wMax; }
+function fromY(py) { return (1 - (py - M.top) / plotH()) * wMax; }
+
+// Second-best: solve PC and IC simultaneously
+// PC: p1*sqrt(wH) + (1-p1)*sqrt(wL) = u_bar + c
+// IC: (p1-p0)*(sqrt(wH) - sqrt(wL)) = c
+// Let a = sqrt(wH), b = sqrt(wL)
+// (p1-p0)*(a - b) = c  →  a = b + c/(p1-p0)
+// p1*(b + c/(p1-p0)) + (1-p1)*b = u_bar + c
+// b*(p1 + 1 - p1) + p1*c/(p1-p0) = u_bar + c
+// b + p1*c/(p1-p0) = u_bar + c
+// b = u_bar + c - p1*c/(p1-p0)
+function computeSB() {
+  const dp = p1 - p0;
+  const b = u_bar + c - p1 * c / dp;
+  const a = b + c / dp;
+  if (b < 0 || a < 0) return null;
+  return { wL: b * b, wH: a * a, sqL: b, sqH: a };
+}
+
+// PC curve: wH as function of wL (p1*sqrt(wH) = u_bar+c - (1-p1)*sqrt(wL))
+function pcWH(wL) {
+  const rhs = u_bar + c - (1 - p1) * Math.sqrt(wL);
+  if (rhs <= 0) return null;
+  return (rhs / p1) ** 2;
+}
+
+// IC curve: wH as function of wL
+// (p1-p0)*(sqrt(wH)-sqrt(wL)) = c → sqrt(wH) = sqrt(wL) + c/(p1-p0)
+function icWH(wL) {
+  const dp = p1 - p0;
+  const sqH = Math.sqrt(wL) + c / dp;
+  return sqH * sqH;
+}
+
+// First-best
+function computeFB() {
+  const w = (u_bar + c) ** 2;
+  return { wL: w, wH: w };
+}
+
+// EU principal at second-best vs first-best (not shown directly but for risk premium)
+function riskPremium(sb, fb) {
+  if (!sb) return NaN;
+  // Cost to principal:
+  // FB: w* paid for sure
+  // SB: p1*wH_sb + (1-p1)*wL_sb
+  const costFB = fb.wH;
+  const costSB = p1 * sb.wH + (1 - p1) * sb.wL;
+  return costSB - costFB;
+}
+
+function draw() {
+  const W = canvasW(), H = canvasH();
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#12151f';
+  ctx.fillRect(0, 0, W, H);
+
+  const sb = computeSB();
+  const fb = computeFB();
+
+  // --- Grid ---
+  ctx.strokeStyle = '#1e2236';
+  ctx.lineWidth = 1;
+  for (let v = 0; v <= wMax; v += 2) {
+    ctx.beginPath();
+    ctx.moveTo(toX(v), M.top);
+    ctx.lineTo(toX(v), M.top + plotH());
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(M.left, toY(v));
+    ctx.lineTo(M.left + plotW(), toY(v));
+    ctx.stroke();
+  }
+
+  // --- 45-degree line (full insurance) ---
+  ctx.strokeStyle = '#3a3f60';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(0));
+  ctx.lineTo(toX(wMax), toY(wMax));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Label 45° line
+  ctx.fillStyle = '#3a3f60';
+  ctx.font = '11px ' + getComputedStyle(document.body).fontFamily;
+  ctx.save();
+  ctx.translate(toX(12.5), toY(12.5));
+  ctx.rotate(-Math.PI / 4);
+  ctx.fillText('w_H = w_L (full insurance)', -50, -6);
+  ctx.restore();
+
+  // --- PC curve ---
+  ctx.strokeStyle = '#6c8ef5';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  let started = false;
+  for (let wL = 0; wL <= wMax; wL += 0.05) {
+    const wH = pcWH(wL);
+    if (wH === null || wH < 0 || wH > wMax) { started = false; continue; }
+    const x = toX(wL), y = toY(wH);
+    if (!started) { ctx.moveTo(x, y); started = true; }
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // PC label
+  {
+    const wL_lbl = 0.5;
+    const wH_lbl = pcWH(wL_lbl);
+    if (wH_lbl && wH_lbl < wMax) {
+      ctx.fillStyle = '#6c8ef5';
+      ctx.font = 'bold 11px ' + getComputedStyle(document.body).fontFamily;
+      ctx.fillText('PC curve', toX(wL_lbl) + 6, toY(wH_lbl) - 6);
+    }
+  }
+
+  // --- IC curve ---
+  ctx.strokeStyle = '#f56c8e';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  started = false;
+  for (let wL = 0; wL <= wMax; wL += 0.05) {
+    const wH = icWH(wL);
+    if (wH < 0 || wH > wMax || wL > wMax) { started = false; continue; }
+    const x = toX(wL), y = toY(wH);
+    if (!started) { ctx.moveTo(x, y); started = true; }
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // IC label
+  {
+    const wL_lbl = 3;
+    const wH_lbl = icWH(wL_lbl);
+    if (wH_lbl && wH_lbl < wMax) {
+      ctx.fillStyle = '#f56c8e';
+      ctx.font = 'bold 11px ' + getComputedStyle(document.body).fontFamily;
+      ctx.fillText('IC curve', toX(wL_lbl) + 6, toY(wH_lbl) - 6);
+    }
+  }
+
+  // --- Feasibility shading: above PC and above IC ---
+  // Light shade where both constraints satisfied
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#6cf5b8';
+  ctx.beginPath();
+  // trace PC from right to left, then IC from left to right
+  let first = true;
+  for (let wL = wMax; wL >= 0; wL -= 0.1) {
+    const wH = pcWH(wL);
+    if (!wH || wH < 0 || wH > wMax) continue;
+    if (first) { ctx.moveTo(toX(wL), toY(wH)); first = false; }
+    else ctx.lineTo(toX(wL), toY(wH));
+  }
+  for (let wL = 0; wL <= wMax; wL += 0.1) {
+    const wH = icWH(wL);
+    if (wH < 0 || wH > wMax) continue;
+    ctx.lineTo(toX(wL), toY(wH));
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // --- First-best point ---
+  {
+    const x = toX(fb.wL), y = toY(fb.wH);
+    ctx.shadowColor = '#6cf5b8';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fillStyle = '#6cf5b8';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#e8eaf6';
+    ctx.font = 'bold 12px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillText('FB', x + 10, y - 4);
+    ctx.font = '10px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle = '#8890b0';
+    ctx.fillText(`(${fb.wL.toFixed(2)}, ${fb.wH.toFixed(2)})`, x + 10, y + 10);
+  }
+
+  // --- Second-best point ---
+  if (sb) {
+    const x = toX(sb.wL), y = toY(sb.wH);
+    ctx.shadowColor = '#f5c46c';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fillStyle = '#f5c46c';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#e8eaf6';
+    ctx.font = 'bold 12px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillText('SB', x + 10, y - 4);
+    ctx.font = '10px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle = '#8890b0';
+    ctx.fillText(`(${sb.wL.toFixed(2)}, ${sb.wH.toFixed(2)})`, x + 10, y + 10);
+
+    // Arrow from FB to SB
+    ctx.strokeStyle = '#555a80';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(toX(fb.wL), toY(fb.wH));
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // --- Hover point ---
+  if (hover) {
+    const { wL, wH } = hover;
+    const sqL = Math.sqrt(wL), sqH = Math.sqrt(wH);
+    const icVal = (p1 - p0) * (sqH - sqL);
+    const pcVal = p1 * sqH + (1 - p1) * sqL;
+    const target = u_bar + c;
+    const icOk = icVal >= c - 0.001;
+    const pcOk = Math.abs(pcVal - target) < 0.5;
+
+    const x = toX(wL), y = toY(wH);
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    ctx.fillStyle = '#6c8ef5';
+    ctx.fill();
+
+    // Tooltip
+    const tipW = 180, tipH = 90;
+    let tx = x + 14, ty = y - 10;
+    if (tx + tipW > canvasW() - 10) tx = x - tipW - 10;
+    if (ty + tipH > canvasH() - 10) ty = y - tipH;
+    ctx.fillStyle = '#1a1d27';
+    ctx.strokeStyle = '#2e3250';
+    ctx.lineWidth = 1;
+    roundRect(ctx, tx, ty, tipW, tipH, 6);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = '#e8eaf6';
+    ctx.font = '11px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillText(`w_L = ${wL.toFixed(2)},  w_H = ${wH.toFixed(2)}`, tx + 10, ty + 18);
+    ctx.fillStyle = icOk ? '#4caf7d' : '#e05c6e';
+    ctx.fillText(`IC: ${icVal.toFixed(3)} ${icOk ? '≥' : '<'} ${c.toFixed(2)} ${icOk ? '✓' : '✗'}`, tx + 10, ty + 38);
+    ctx.fillStyle = '#8890b0';
+    ctx.fillText(`PC: p¹√w_H+(1-p¹)√w_L = ${pcVal.toFixed(3)}`, tx + 10, ty + 56);
+    ctx.fillText(`target = ū+c = ${target.toFixed(3)}`, tx + 10, ty + 72);
+  }
+
+  // --- Axes ---
+  ctx.strokeStyle = '#2e3250';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(M.left, M.top);
+  ctx.lineTo(M.left, M.top + plotH());
+  ctx.lineTo(M.left + plotW(), M.top + plotH());
+  ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle = '#8890b0';
+  ctx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+  for (let v = 0; v <= wMax; v += 2) {
+    ctx.fillText(v, toX(v) - 5, M.top + plotH() + 18);
+    ctx.fillText(v, M.left - 28, toY(v) + 4);
+  }
+
+  // Axis titles
+  ctx.fillStyle = '#e8eaf6';
+  ctx.font = 'bold 13px ' + getComputedStyle(document.body).fontFamily;
+  ctx.fillText('w_L  (low-output wage)', M.left + plotW() / 2 - 70, H - 8);
+  ctx.save();
+  ctx.translate(14, M.top + plotH() / 2 + 50);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('w_H  (high-output wage)', 0, 0);
+  ctx.restore();
+
+  // Update info panel
+  updatePanel(sb, fb);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function updatePanel(sb, fb) {
+  document.getElementById('fb-val').textContent =
+    `w* = (ū+c)² = ${fb.wL.toFixed(3)}`;
+
+  if (sb) {
+    document.getElementById('sb-val').textContent =
+      `w_H = ${sb.wH.toFixed(3)},  w_L = ${sb.wL.toFixed(3)}`;
+    const rp = riskPremium(sb, fb);
+    document.getElementById('risk-prem').textContent = `+${rp.toFixed(3)}`;
+  } else {
+    document.getElementById('sb-val').textContent = 'No valid solution';
+    document.getElementById('risk-prem').textContent = '—';
+  }
+
+  const dp = p1 - p0;
+  document.getElementById('gap-needed').textContent =
+    `√w_H − √w_L ≥ ${(c / dp).toFixed(3)}`;
+  document.getElementById('pc-eq').textContent =
+    `${p1.toFixed(2)}·√w_H + ${(1-p1).toFixed(2)}·√w_L = ${(u_bar+c).toFixed(2)}`;
+  document.getElementById('ic-eq').textContent =
+    `${dp.toFixed(2)}·[√w_H − √w_L] = ${c.toFixed(2)}`;
+}
+
+// Slider listeners
+function bind(id, valId, setter) {
+  const sl = document.getElementById(id);
+  const vd = document.getElementById(valId);
+  sl.addEventListener('input', () => {
+    setter(parseFloat(sl.value));
+    vd.textContent = parseFloat(sl.value).toFixed(2);
+    draw();
+  });
+}
+
+bind('sl-p1', 'val-p1', v => { p1 = v; });
+bind('sl-p0', 'val-p0', v => { p0 = v; });
+bind('sl-c',  'val-c',  v => { c = v; });
+bind('sl-u',  'val-u',  v => { u_bar = v; });
+
+// Mouse hover
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const wL = fromX(mx);
+  const wH = fromY(my);
+  if (wL >= 0 && wL <= wMax && wH >= 0 && wH <= wMax) {
+    hover = { wL, wH };
+  } else {
+    hover = null;
+  }
+  draw();
+});
+canvas.addEventListener('mouseleave', () => { hover = null; draw(); });
+
+// Init
+window.addEventListener('resize', resize);
+resize();
+</script>
+</body>
+</html>
