@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12 · Bayesian Persuasion — Posterior Diagram</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222638;
+    --border: #2e3350;
+    --accent: #6c8ef5;
+    --accent2: #a78bfa;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --small: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    max-width: 1100px;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  canvas {
+    width: 100%;
+    display: block;
+  }
+  .controls { display: flex; flex-direction: column; gap: 16px; }
+  .ctrl-group {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .ctrl-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .ctrl-group label span {
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    min-width: 40px;
+    text-align: right;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .output-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .stat-card .label {
+    font-size: 11px;
+    color: var(--small);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .stat-card .value {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Georgia', serif;
+  }
+  .verdict-bar {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 28px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .verdict-acquit {
+    background: #1e3a4a;
+    color: #67e8f9;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 0.3s ease;
+  }
+  .verdict-convict {
+    background: #3b1a2e;
+    color: #f9a8d4;
+    display: flex; align-items: center; justify-content: center;
+    transition: width 0.3s ease;
+  }
+  .result-banner {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(108,142,245,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .formula-row {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    text-align: center;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+<h1>Bayesian Persuasion — Posterior Diagram</h1>
+<div class="subtitle">Lecture 12 · Micro III · Müller-Itten &nbsp;|&nbsp; Drag the sliders to explore signal structures</div>
+
+<div class="layout">
+  <!-- Left: canvas -->
+  <div class="panel">
+    <h2>Posterior Diagram &amp; Signal Distribution</h2>
+    <canvas id="cvs" height="400"></canvas>
+    <p class="formula-row">Judge convicts iff Pr(g | s) ≥ π* = 0.5</p>
+  </div>
+
+  <!-- Right: controls + stats -->
+  <div class="controls">
+    <div class="panel">
+      <h2>Signal Parameters</h2>
+
+      <div class="ctrl-group">
+        <label>Prior Pr(g) = π <span id="lbl-prior">0.30</span></label>
+        <input type="range" id="sl-prior" min="0.01" max="0.99" step="0.01" value="0.30">
+      </div>
+
+      <div class="ctrl-group" style="margin-top:12px">
+        <label>q('g' | guilty) <span id="lbl-qg">1.00</span></label>
+        <input type="range" id="sl-qg" min="0" max="1" step="0.01" value="1.00">
+        <div class="formula-row" style="margin-top:6px; font-style:normal; font-size:11px; color:var(--small)">
+          Prob. 'g' is sent when defendant IS guilty
+        </div>
+      </div>
+
+      <div class="ctrl-group" style="margin-top:12px">
+        <label>q('g' | innocent) <span id="lbl-qi">0.40</span></label>
+        <input type="range" id="sl-qi" min="0" max="1" step="0.01" value="0.40">
+        <div class="formula-row" style="margin-top:6px; font-style:normal; font-size:11px; color:var(--small)">
+          Prob. 'g' is sent when defendant IS innocent
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Computed Outcomes</h2>
+      <div class="output-grid">
+        <div class="stat-card">
+          <div class="label">Pr('g')</div>
+          <div class="value" id="out-prg" style="color:var(--accent)">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pr(g | 'g')</div>
+          <div class="value" id="out-post-g">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pr('i')</div>
+          <div class="value" id="out-pri" style="color:var(--accent2)">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pr(g | 'i')</div>
+          <div class="value" id="out-post-i">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px">
+        <div class="stat-card">
+          <div class="label">Prosecutor payoff = Pr(conviction)</div>
+          <div class="value" id="out-upros" style="color:var(--yellow); font-size:26px">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="label" style="font-size:11px; color:var(--small); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px">Verdict composition</div>
+        <div class="verdict-bar" id="verdict-bar">
+          <div class="verdict-acquit" id="vb-acquit" style="width:42%">Acquit</div>
+          <div class="verdict-convict" id="vb-convict" style="width:58%">Convict</div>
+        </div>
+      </div>
+
+      <div class="result-banner" id="result-banner"></div>
+      <div class="note" id="note-text"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+
+const slPrior = document.getElementById('sl-prior');
+const slQg = document.getElementById('sl-qg');
+const slQi = document.getElementById('sl-qi');
+
+function getVals() {
+  return {
+    prior: parseFloat(slPrior.value),
+    qg: parseFloat(slQg.value),    // q('g'|guilty)
+    qi: parseFloat(slQi.value),    // q('g'|innocent)
+  };
+}
+
+function compute(v) {
+  const { prior, qg, qi } = v;
+  const prG = qg * prior + qi * (1 - prior);        // Pr('g')
+  const prI = 1 - prG;                               // Pr('i')
+  const postGg = prG > 0 ? (qg * prior) / prG : 0;  // Pr(g|'g')
+  const postGi = prI > 0 ? ((1 - qg) * prior) / prI : 0; // Pr(g|'i')
+
+  const threshold = 0.5;
+  const convictOnG = postGg >= threshold;
+  const convictOnI = postGi >= threshold;
+
+  const uPros = (convictOnG ? prG : 0) + (convictOnI ? prI : 0);
+
+  return { prG, prI, postGg, postGi, convictOnG, convictOnI, uPros };
+}
+
+function draw() {
+  const DPR = window.devicePixelRatio || 1;
+  const W = cvs.parentElement.clientWidth - 40;
+  const H = 400;
+  cvs.width = W * DPR;
+  cvs.height = H * DPR;
+  cvs.style.width = W + 'px';
+  cvs.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+
+  const pad = { t: 30, r: 30, b: 50, l: 55 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+
+  const v = getVals();
+  const c = compute(v);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Map posterior value to x pixel
+  function px(post) { return pad.l + post * pw; }
+  // Map payoff [0,1] to y pixel (1=top, 0=bottom)
+  function py(val) { return pad.t + (1 - val) * ph; }
+
+  // ── Background zones ──────────────────────────────────────
+  // Acquit zone (left of 0.5)
+  ctx.fillStyle = 'rgba(103,232,249,0.04)';
+  ctx.fillRect(pad.l, pad.t, pw * 0.5, ph);
+  // Convict zone (right of 0.5)
+  ctx.fillStyle = 'rgba(249,168,212,0.05)';
+  ctx.fillRect(pad.l + pw * 0.5, pad.t, pw * 0.5, ph);
+
+  // ── Zone labels ─────────────────────────────────────────
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(103,232,249,0.5)';
+  ctx.textAlign = 'center';
+  ctx.fillText('ACQUIT', pad.l + pw * 0.25, pad.t + 14);
+  ctx.fillStyle = 'rgba(249,168,212,0.5)';
+  ctx.fillText('CONVICT', pad.l + pw * 0.75, pad.t + 14);
+
+  // ── Grid lines ───────────────────────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const x = pad.l + (i / 10) * pw;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+    const y = pad.t + (i / 10) * ph;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + pw, y); ctx.stroke();
+  }
+
+  // ── Threshold line ───────────────────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  const thX = px(0.5);
+  ctx.beginPath(); ctx.moveTo(thX, pad.t); ctx.lineTo(thX, pad.t + ph); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = 'bold 11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('π* = 0.5', thX, pad.t + ph + 18);
+
+  // ── Payoff curves: EU(acquit) and EU(convict) ────────────
+  // EU(acquit) = 1*(1-π) → slope -1, y-intercept 1
+  // EU(convict) = 1*π → slope +1, y-intercept 0
+  const steps = 200;
+  function drawLine(fn, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const post = i / steps;
+      const x = px(post);
+      const y = py(fn(post));
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  drawLine(p => 1 - p, '#67e8f9');   // acquit curve
+  drawLine(p => p, '#f9a8d4');       // convict curve
+
+  // Labels for curves
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.fillStyle = '#67e8f9';
+  ctx.textAlign = 'left';
+  ctx.fillText('EU(acquit)', pad.l + 4, py(0.78));
+  ctx.fillStyle = '#f9a8d4';
+  ctx.fillText('EU(convict)', pad.l + pw * 0.55, py(0.60));
+
+  // ── Prior marker ─────────────────────────────────────────
+  const priorX = px(v.prior);
+  ctx.strokeStyle = 'rgba(251,191,36,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(priorX, pad.t); ctx.lineTo(priorX, pad.t + ph); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('π', priorX, pad.t + ph + 30);
+
+  // ── Posterior dots ────────────────────────────────────────
+  function drawDot(post, prob, color, label, msgLabel) {
+    if (prob < 0.001) return;
+    const x = px(post);
+    const dotR = 6 + prob * 12;
+
+    // Vertical dashed line from x-axis up to dot
+    ctx.strokeStyle = color + '55';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x, pad.t + ph); ctx.lineTo(x, py(post)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dot
+    ctx.beginPath();
+    ctx.arc(x, py(post), dotR, 0, Math.PI * 2);
+    ctx.fillStyle = color + '30';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Probability weight label below x-axis
+    ctx.fillStyle = color;
+    ctx.font = 'bold 11px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(msgLabel, x, pad.t + ph + 18);
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.fillStyle = color + 'cc';
+    ctx.fillText('(' + (prob * 100).toFixed(1) + '%)', x, pad.t + ph + 30);
+  }
+
+  drawDot(c.postGg, c.prG, '#6c8ef5', 'g', "'g'");
+  drawDot(c.postGi, c.prI, '#a78bfa', 'i', "'i'");
+
+  // ── Axes ─────────────────────────────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ph); ctx.lineTo(pad.l + pw, pad.t + ph); ctx.stroke();
+
+  // x-axis ticks
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) {
+    const v2 = i / 5;
+    const x = px(v2);
+    ctx.fillText(v2.toFixed(1), x, pad.t + ph + 8);
+  }
+
+  // y-axis ticks
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v2 = i / 4;
+    ctx.fillText(v2.toFixed(2), pad.l - 5, py(v2) + 4);
+  }
+
+  // Axis labels
+  ctx.save();
+  ctx.translate(12, pad.t + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.fillText('Judge payoff', 0, 0);
+  ctx.restore();
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Posterior Pr(g | signal)', pad.l + pw / 2, H - 4);
+}
+
+function update() {
+  const v = getVals();
+  const c = compute(v);
+
+  // Update labels
+  document.getElementById('lbl-prior').textContent = v.prior.toFixed(2);
+  document.getElementById('lbl-qg').textContent = v.qg.toFixed(2);
+  document.getElementById('lbl-qi').textContent = v.qi.toFixed(2);
+
+  // Update stats
+  document.getElementById('out-prg').textContent = c.prG.toFixed(3);
+  document.getElementById('out-pri').textContent = c.prI.toFixed(3);
+
+  const postGEl = document.getElementById('out-post-g');
+  postGEl.textContent = c.postGg.toFixed(3);
+  postGEl.style.color = c.convictOnG ? '#4ade80' : '#f87171';
+
+  const postIEl = document.getElementById('out-post-i');
+  postIEl.textContent = c.postGi.toFixed(3);
+  postIEl.style.color = c.convictOnI ? '#4ade80' : '#f87171';
+
+  document.getElementById('out-upros').textContent = c.uPros.toFixed(3);
+
+  // Verdict bar
+  const convPct = (c.uPros * 100).toFixed(1);
+  const acquitPct = (100 - parseFloat(convPct)).toFixed(1);
+  document.getElementById('vb-convict').style.width = convPct + '%';
+  document.getElementById('vb-acquit').style.width = acquitPct + '%';
+  document.getElementById('vb-convict').textContent = convPct + '% Convict';
+  document.getElementById('vb-acquit').textContent = acquitPct + '% Acquit';
+
+  // Result banner
+  const banner = document.getElementById('result-banner');
+  const note = document.getElementById('note-text');
+
+  const optConvRate = v.prior / 0.5;  // globally optimal conviction rate
+
+  if (c.postGg >= 0.5 && c.postGg <= 0.501 && c.prG > 0.01) {
+    banner.style.background = 'rgba(74,222,128,0.15)';
+    banner.style.color = '#4ade80';
+    banner.style.border = '1px solid rgba(74,222,128,0.3)';
+    banner.textContent = '✓ Globally optimal: judge is exactly indifferent after \'g\'';
+    note.textContent = 'Pr(g|\'g\') ≈ 0.5 means the judge is just at the conviction threshold — maximum dilution without losing the conviction.';
+  } else if (c.postGg > 0.5 && c.convictOnG && !c.convictOnI) {
+    const slack = (c.postGg - 0.5).toFixed(3);
+    banner.style.background = 'rgba(251,191,36,0.1)';
+    banner.style.color = '#fbbf24';
+    banner.style.border = '1px solid rgba(251,191,36,0.25)';
+    banner.textContent = `⚑ Valid — but ${slack} of posterior slack left above threshold`;
+    note.textContent = `Raising q('g'|innocent) from ${v.qi.toFixed(2)} would dilute the 'g' signal further and boost Pr(conviction) toward the ${(optConvRate*100).toFixed(1)}% optimum.`;
+  } else if (c.postGg < 0.5 || !c.convictOnG) {
+    banner.style.background = 'rgba(248,113,113,0.1)';
+    banner.style.color = '#f87171';
+    banner.style.border = '1px solid rgba(248,113,113,0.25)';
+    banner.textContent = '✗ Over-diluted: judge acquits after \'g\' — no convictions';
+    note.textContent = 'Pr(g|\'g\') < 0.5 means the \'g\' message is too mixed with innocent defendants. The judge rationally acquits. Prosecutor payoff = 0.';
+  } else if (v.prior >= 0.5) {
+    banner.style.background = 'rgba(108,142,245,0.1)';
+    banner.style.color = '#6c8ef5';
+    banner.style.border = '1px solid rgba(108,142,245,0.25)';
+    banner.textContent = 'π ≥ 0.5: prior alone triggers conviction — signal design is trivial';
+    note.textContent = 'When the prior already exceeds the threshold, even an uninformative signal (no investigation) leads to conviction. The prosecutor\'s persuasion problem disappears.';
+  } else {
+    banner.style.background = 'rgba(108,142,245,0.08)';
+    banner.style.color = '#6c8ef5';
+    banner.style.border = '1px solid rgba(108,142,245,0.2)';
+    banner.textContent = 'Valid signal structure';
+    note.textContent = '';
+  }
+
+  draw();
+}
+
+[slPrior, slQg, slQi].forEach(sl => sl.addEventListener('input', update));
+
+// Initial draw
+update();
+window.addEventListener('resize', update);
+</script>
+</body>
+</html>

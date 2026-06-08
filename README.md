@@ -19,5 +19,7 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 | | [10. Signaling](https://alekswithk.github.io/hsg-maxxing/Micro_III/signaling.html) |
 | | [11. Moral Hazard - Grades](https://alekswithk.github.io/hsg-maxxing/Micro_III/grades.html) |
 | | [11. Moral Hazard](https://alekswithk.github.io/hsg-maxxing/Micro_III/moral_hazard.html) |
+| | [12. Bayesian Persuasion](https://alekswithk.github.io/hsg-maxxing/Micro_III/persuasion.html) |
+| | [12. Bayesian Persuasion - Posterior Diagram](https://alekswithk.github.io/hsg-maxxing/Micro_III/posterior-diagram.html) |
 
 

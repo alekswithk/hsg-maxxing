@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L12 · Bayesian Persuasion — Four-Option Payoff Calculator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222638;
+    --border: #2e3350;
+    --accent: #6c8ef5;
+    --accent2: #a78bfa;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --cyan: #67e8f9;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --small: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    padding: 24px;
+  }
+  h1 { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .top-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .prior-ctrl { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 260px; }
+  .prior-ctrl label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .prior-ctrl input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px; background: var(--border); border-radius: 2px; outline: none;
+  }
+  .prior-ctrl input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    background: var(--accent); border-radius: 50%; cursor: pointer;
+  }
+  .prior-val {
+    font-size: 20px; font-weight: 700; color: var(--accent);
+    font-family: 'Georgia', serif; font-style: italic; min-width: 44px;
+  }
+  .threshold-note {
+    font-size: 12px; color: var(--small); padding: 6px 10px;
+    background: rgba(108,142,245,0.07); border: 1px solid rgba(108,142,245,0.2);
+    border-radius: 6px;
+  }
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .options-grid { grid-template-columns: 1fr; }
+  }
+  .opt-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+  .opt-card.equilibrium {
+    border-color: var(--yellow);
+    box-shadow: 0 0 24px rgba(251,191,36,0.12);
+  }
+  .eq-badge {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--yellow); color: #0f1117;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+    padding: 2px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .opt-number {
+    font-size: 11px; color: var(--small); text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 6px;
+  }
+  .opt-name {
+    font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text);
+  }
+  .sig-table {
+    background: var(--surface2); border-radius: 6px; padding: 8px 10px;
+    margin-bottom: 12px; font-size: 12px;
+  }
+  .sig-row {
+    display: flex; justify-content: space-between;
+    color: var(--muted); padding: 2px 0;
+  }
+  .sig-row span:last-child { color: var(--text); font-weight: 600; font-family: 'Georgia', serif; }
+  .calc-section { margin-bottom: 12px; }
+  .calc-label { font-size: 11px; color: var(--small); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .calc-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 8px; border-radius: 6px; margin-bottom: 4px;
+    font-size: 12px; font-family: 'Georgia', serif; font-style: italic;
+  }
+  .calc-row .lhs { color: var(--muted); flex: 1; }
+  .calc-row .eq { color: var(--small); }
+  .calc-row .rhs { font-weight: 700; min-width: 50px; text-align: right; }
+  .calc-row .verdict { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; font-style: normal; font-family: sans-serif; letter-spacing: 0.05em; }
+  .verdict-c { background: rgba(249,168,212,0.2); color: #f9a8d4; }
+  .verdict-a { background: rgba(103,232,249,0.2); color: #67e8f9; }
+  .payoff-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 10px;
+  }
+  .payoff-card {
+    border-radius: 6px; padding: 8px 10px; text-align: center;
+  }
+  .payoff-card .plabel { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--small); margin-bottom: 3px; }
+  .payoff-card .pval { font-size: 22px; font-weight: 800; font-family: 'Georgia', serif; }
+  .payoff-judge { background: rgba(103,232,249,0.06); border: 1px solid rgba(103,232,249,0.15); }
+  .payoff-judge .pval { color: var(--cyan); }
+  .payoff-pros { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15); }
+  .payoff-pros .pval { color: var(--yellow); }
+  .chart-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .chart-wrap h2 {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted); margin-bottom: 16px;
+  }
+  canvas { width: 100%; display: block; }
+  .key-insight {
+    background: rgba(108,142,245,0.07);
+    border: 1px solid rgba(108,142,245,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 20px;
+  }
+  .key-insight strong { color: var(--text); }
+</style>
+</head>
+<body>
+<h1>Bayesian Persuasion — Four-Option Calculator</h1>
+<div class="subtitle">Lecture 12 · Micro III · Müller-Itten &nbsp;|&nbsp; Adjust the prior to see how equilibrium changes</div>
+
+<div class="top-row">
+  <div class="prior-ctrl">
+    <label>Prior probability of guilt: <em>π(g)</em></label>
+    <input type="range" id="sl-prior" min="0.01" max="0.99" step="0.01" value="0.30">
+    <div class="prior-val" id="lbl-prior">0.30</div>
+  </div>
+  <div class="threshold-note" id="thresh-note">
+    Conviction threshold π* = 0.50. Prior is below threshold — persuasion is non-trivial.
+  </div>
+</div>
+
+<div class="options-grid" id="opts-grid"></div>
+
+<div class="chart-wrap">
+  <h2>Payoff comparison across four options</h2>
+  <canvas id="bar-cvs" height="200"></canvas>
+</div>
+
+<div class="key-insight" id="insight"></div>
+
+<script>
+const OPTIONS = [
+  {
+    id: 1,
+    name: 'No Information',
+    desc: 'Always same message',
+    qgG: 1.0, qgI: 1.0,   // q('g'|guilty), q('g'|innocent) -- but here only one message 'x'
+    useOneMsg: true,        // special flag: posterior = prior
+  },
+  {
+    id: 2,
+    name: 'Full Information',
+    desc: 'Perfect signal',
+    qgG: 1.0, qgI: 0.0,
+    useOneMsg: false,
+  },
+  {
+    id: 3,
+    name: 'Symmetric Suggestive',
+    desc: '80% accuracy each side',
+    qgG: 0.8, qgI: 0.2,
+    useOneMsg: false,
+  },
+  {
+    id: 4,
+    name: 'Asymmetric Partial',
+    desc: 'Equilibrium choice',
+    qgG: 1.0, qgI: 0.4,
+    useOneMsg: false,
+  },
+];
+
+const THRESHOLD = 0.5;
+
+function computeOption(opt, prior) {
+  if (opt.useOneMsg) {
+    // No info: single message 'x', posterior = prior
+    const post = prior;
+    const convict = post >= THRESHOLD;
+    const uPros = convict ? 1 : 0;
+    const uJudge = convict ? prior : (1 - prior);
+    return {
+      prG: 1, prI: 0,
+      postGg: post, postGi: null,
+      convictOnG: convict, convictOnI: false,
+      uPros, uJudge,
+    };
+  }
+  const { qgG, qgI } = opt;
+  const qiG = 1 - qgG;  // q('i'|guilty)
+  const qiI = 1 - qgI;  // q('i'|innocent)
+
+  const prG = qgG * prior + qgI * (1 - prior);
+  const prI = 1 - prG;
+
+  const postGg = prG > 0 ? (qgG * prior) / prG : 0;
+  const postGi = prI > 0 ? (qiG * prior) / prI : 0;
+
+  const convictOnG = postGg >= THRESHOLD;
+  const convictOnI = postGi >= THRESHOLD;
+
+  const uPros = (convictOnG ? prG : 0) + (convictOnI ? prI : 0);
+
+  // Judge payoff: prob of being right
+  let uJudge = 0;
+  // After 'g': judge correct if convicts and def is guilty, or acquits and def is innocent
+  uJudge += prG * (convictOnG ? postGg : 1 - postGg);
+  uJudge += prI * (convictOnI ? postGi : 1 - postGi);
+
+  return { prG, prI, postGg, postGi, convictOnG, convictOnI, uPros, uJudge };
+}
+
+function fmt(v) { return v.toFixed(3); }
+
+function renderCards(prior) {
+  const grid = document.getElementById('opts-grid');
+  grid.innerHTML = '';
+
+  const payoffs = OPTIONS.map(o => computeOption(o, prior));
+  const maxPros = Math.max(...payoffs.map(c => c.uPros));
+  const equilibOpts = OPTIONS.filter((o, i) => payoffs[i].uPros === maxPros);
+  const equilibIds = new Set(equilibOpts.map(o => o.id));
+
+  OPTIONS.forEach((opt, idx) => {
+    const c = payoffs[idx];
+    const isEquilib = equilibIds.has(opt.id);
+
+    const card = document.createElement('div');
+    card.className = 'opt-card' + (isEquilib ? ' equilibrium' : '');
+
+    if (isEquilib) {
+      const badge = document.createElement('div');
+      badge.className = 'eq-badge';
+      badge.textContent = '★ PROSECUTOR CHOICE';
+      card.appendChild(badge);
+    }
+
+    // Signal structure display
+    let sigHTML = '';
+    if (opt.useOneMsg) {
+      sigHTML = `
+        <div class="sig-row"><span>q('x' | guilty)</span><span>1.00</span></div>
+        <div class="sig-row"><span>q('x' | innocent)</span><span>1.00</span></div>
+      `;
+    } else {
+      sigHTML = `
+        <div class="sig-row"><span>q('g' | guilty)</span><span>${opt.qgG.toFixed(2)}</span></div>
+        <div class="sig-row"><span>q('g' | innocent)</span><span>${opt.qgI.toFixed(2)}</span></div>
+        <div class="sig-row"><span>q('i' | guilty)</span><span>${(1-opt.qgG).toFixed(2)}</span></div>
+        <div class="sig-row"><span>q('i' | innocent)</span><span>${(1-opt.qgI).toFixed(2)}</span></div>
+      `;
+    }
+
+    // Computation rows
+    let calcHTML = '';
+    if (opt.useOneMsg) {
+      const vd = c.postGg >= THRESHOLD;
+      calcHTML = `
+        <div class="calc-row ${vd ? 'verdict-c' : 'verdict-a'}" style="background:${vd ? 'rgba(249,168,212,0.06)' : 'rgba(103,232,249,0.06)'}">
+          <span class="lhs">Pr(g | 'x')</span>
+          <span class="eq">=</span>
+          <span class="rhs" style="color:${vd ? '#f9a8d4' : '#67e8f9'}">${fmt(c.postGg)}</span>
+          <span class="verdict ${vd ? 'verdict-c' : 'verdict-a'}">${vd ? 'CONVICT' : 'ACQUIT'}</span>
+        </div>
+        <div class="calc-row" style="color:var(--small); font-size:11px; font-style:normal; font-family:sans-serif">
+          Posterior = prior (no information)
+        </div>
+      `;
+    } else {
+      const vdG = c.convictOnG;
+      const vdI = c.convictOnI;
+      calcHTML = `
+        <div class="calc-row" style="background:var(--surface2)">
+          <span class="lhs">Pr('g')</span>
+          <span class="eq">=</span>
+          <span class="rhs" style="color:var(--accent)">${fmt(c.prG)}</span>
+        </div>
+        <div class="calc-row ${vdG ? '' : ''}" style="background:${vdG ? 'rgba(249,168,212,0.06)' : 'rgba(103,232,249,0.06)'}; margin-top:4px">
+          <span class="lhs">Pr(g | 'g')</span>
+          <span class="eq">=</span>
+          <span class="rhs" style="color:${vdG ? '#f9a8d4' : '#67e8f9'}">${fmt(c.postGg)}</span>
+          <span class="verdict ${vdG ? 'verdict-c' : 'verdict-a'}">${vdG ? 'CONVICT' : 'ACQUIT'}</span>
+        </div>
+        <div class="calc-row" style="background:${vdI ? 'rgba(249,168,212,0.06)' : 'rgba(103,232,249,0.06)'}">
+          <span class="lhs">Pr(g | 'i')</span>
+          <span class="eq">=</span>
+          <span class="rhs" style="color:${vdI ? '#f9a8d4' : '#67e8f9'}">${fmt(c.postGi)}</span>
+          <span class="verdict ${vdI ? 'verdict-c' : 'verdict-a'}">${vdI ? 'CONVICT' : 'ACQUIT'}</span>
+        </div>
+      `;
+    }
+
+    card.innerHTML += `
+      <div class="opt-number">Option ${opt.id}</div>
+      <div class="opt-name">${opt.name}<br><span style="font-size:11px; font-weight:400; color:var(--small)">${opt.desc}</span></div>
+      <div class="sig-table">${sigHTML}</div>
+      <div class="calc-section">
+        <div class="calc-label">Bayes' Rule</div>
+        ${calcHTML}
+      </div>
+      <div class="payoff-row">
+        <div class="payoff-card payoff-judge">
+          <div class="plabel">Judge</div>
+          <div class="pval">${c.uJudge.toFixed(3)}</div>
+        </div>
+        <div class="payoff-card payoff-pros">
+          <div class="plabel">Prosecutor</div>
+          <div class="pval">${c.uPros.toFixed(3)}</div>
+        </div>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  // Update insight
+  const optConvRate = prior < THRESHOLD ? prior / THRESHOLD : 1;
+  const insightEl = document.getElementById('insight');
+  if (prior >= THRESHOLD) {
+    insightEl.innerHTML = `<strong>π(g) ≥ 0.5:</strong> The prior already exceeds the conviction threshold. Even the uninformative signal (Option 1) leads to conviction — the posterior stays at ${prior.toFixed(2)}, which is above 0.5. Persuasion is trivial here: the prosecutor gets a conviction without running any investigation. This illustrates why the problem is only non-trivial when π(g) < π*.`;
+  } else {
+    insightEl.innerHTML = `<strong>Key result:</strong> The prosecutor's equilibrium choice achieves a conviction rate of <strong>${(maxPros * 100).toFixed(1)}%</strong> despite a prior guilt probability of only <strong>${(prior * 100).toFixed(0)}%</strong>. This is achieved without any deception — the prosecutor truthfully reports all investigation findings (Exam 2024, Q13). The globally optimal signal structure would push this toward <strong>${(optConvRate * 100).toFixed(1)}%</strong> by setting Pr(g | 'g') exactly equal to 0.5.`;
+  }
+
+  return payoffs;
+}
+
+function drawBars(payoffs) {
+  const cvs = document.getElementById('bar-cvs');
+  const ctx = cvs.getContext('2d');
+  const DPR = window.devicePixelRatio || 1;
+  const W = cvs.parentElement.clientWidth - 40;
+  const H = 200;
+  cvs.width = W * DPR; cvs.height = H * DPR;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = { t: 20, r: 20, b: 40, l: 40 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.t + (i / 5) * ph;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + pw, y); ctx.stroke();
+    ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText((1 - i / 5).toFixed(1), pad.l - 4, y + 4);
+  }
+
+  const n = OPTIONS.length;
+  const groupW = pw / n;
+  const barW = groupW * 0.3;
+  const gap = barW * 0.4;
+
+  const maxPros = Math.max(...payoffs.map(c => c.uPros));
+
+  OPTIONS.forEach((opt, i) => {
+    const c = payoffs[i];
+    const gx = pad.l + i * groupW + groupW / 2;
+
+    // Judge bar
+    const jH = c.uJudge * ph;
+    ctx.fillStyle = 'rgba(103,232,249,0.7)';
+    ctx.beginPath();
+    ctx.roundRect(gx - barW - gap / 2, pad.t + ph - jH, barW, jH, [3, 3, 0, 0]);
+    ctx.fill();
+
+    // Prosecutor bar
+    const pHpx = c.uPros * ph;
+    const isEq = c.uPros === maxPros;
+    ctx.fillStyle = isEq ? 'rgba(251,191,36,0.9)' : 'rgba(251,191,36,0.5)';
+    ctx.beginPath();
+    ctx.roundRect(gx + gap / 2, pad.t + ph - pHpx, barW, pHpx, [3, 3, 0, 0]);
+    ctx.fill();
+
+    if (isEq) {
+      ctx.strokeStyle = 'rgba(251,191,36,0.8)'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(gx + gap / 2, pad.t + ph - pHpx, barW, pHpx);
+    }
+
+    // Value labels
+    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#67e8f9';
+    if (jH > 14) ctx.fillText(c.uJudge.toFixed(2), gx - barW / 2 - gap / 2, pad.t + ph - jH - 3);
+    ctx.fillStyle = isEq ? '#fbbf24' : 'rgba(251,191,36,0.7)';
+    if (pHpx > 14) ctx.fillText(c.uPros.toFixed(2), gx + barW / 2 + gap / 2, pad.t + ph - pHpx - 3);
+
+    // X label
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif';
+    ctx.fillText('Opt ' + opt.id, gx, pad.t + ph + 14);
+    ctx.fillStyle = '#64748b'; ctx.font = '9px sans-serif';
+    ctx.fillText(opt.name.replace(' ', '\n'), gx, pad.t + ph + 26);
+  });
+
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ph); ctx.lineTo(pad.l + pw, pad.t + ph); ctx.stroke();
+
+  // Legend
+  ctx.fillStyle = '#67e8f9'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillRect(pad.l, pad.t, 10, 10);
+  ctx.fillStyle = '#94a3b8'; ctx.fillText('Judge payoff', pad.l + 14, pad.t + 9);
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(pad.l + 110, pad.t, 10, 10);
+  ctx.fillStyle = '#94a3b8'; ctx.fillText('Prosecutor payoff', pad.l + 124, pad.t + 9);
+}
+
+function update() {
+  const prior = parseFloat(document.getElementById('sl-prior').value);
+  document.getElementById('lbl-prior').textContent = prior.toFixed(2);
+
+  const noteEl = document.getElementById('thresh-note');
+  if (prior >= THRESHOLD) {
+    noteEl.textContent = `π(g) = ${prior.toFixed(2)} ≥ π* = 0.50 — prior alone triggers conviction. Persuasion is trivial.`;
+    noteEl.style.borderColor = 'rgba(251,191,36,0.3)';
+    noteEl.style.color = '#fbbf24';
+  } else {
+    noteEl.textContent = `Conviction threshold π* = 0.50. Prior ${prior.toFixed(2)} is below threshold — persuasion is non-trivial.`;
+    noteEl.style.borderColor = 'rgba(108,142,245,0.2)';
+    noteEl.style.color = 'var(--muted)';
+  }
+
+  const payoffs = renderCards(prior);
+  drawBars(payoffs);
+}
+
+document.getElementById('sl-prior').addEventListener('input', update);
+update();
+window.addEventListener('resize', () => {
+  const payoffs = OPTIONS.map(o => computeOption(o, parseFloat(document.getElementById('sl-prior').value)));
+  drawBars(payoffs);
+});
+</script>
+</body>
+</html>
