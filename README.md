@@ -22,5 +22,5 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 | | [12. Bayesian Persuasion](https://alekswithk.github.io/hsg-maxxing/Micro_III/persuasion.html) |
 | | [12. Bayesian Persuasion - Posterior Diagram](https://alekswithk.github.io/hsg-maxxing/Micro_III/posterior-diagram.html) |
 | | [Mock Exam](https://alekswithk.github.io/hsg-maxxing/Micro_III/mock.html) |
-
+| | [Mock Exam - Extended](https://alekswithk.github.io/hsg-maxxing/Micro_III/mock_extended.html) |
 

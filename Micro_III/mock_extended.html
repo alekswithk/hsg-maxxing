@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microeconomics III — Topic Practice</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1f2933; --muted:#6b7280;
+    --line:#e3e6ea; --brand:#1f4e79; --brand-soft:#e8eef5;
+    --correct:#1b7f4b; --correct-bg:#e7f5ee; --wrong:#b42318; --wrong-bg:#fdeceb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:840px;margin:0 auto;padding:32px 20px 110px}
+  header.exam{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 30px;margin-bottom:22px}
+  header.exam h1{margin:0 0 6px;font-size:1.5rem;color:var(--brand);letter-spacing:-.2px}
+  header.exam .sub{color:var(--muted);font-size:.95rem;margin:0}
+  .instructions{font-size:.9rem;color:#3c4a57;background:#fafbfc;border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:8px;padding:12px 16px;margin-top:16px}
+
+  .overall{display:flex;align-items:center;gap:12px;margin:6px 0 20px}
+  .overall .track{flex:1;height:8px;background:#e3e6ea;border-radius:999px;overflow:hidden}
+  .overall .fill{height:100%;width:0;background:var(--brand);transition:width .3s}
+  .overall .lab{font-size:.78rem;color:var(--muted);white-space:nowrap}
+
+  /* topic grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .topic-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px;cursor:pointer;
+    transition:transform .12s,box-shadow .12s,border-color .12s;display:flex;flex-direction:column;gap:8px;min-height:118px}
+  .topic-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(31,78,121,.10);border-color:var(--brand)}
+  .topic-card .tnum{font-size:.72rem;font-weight:700;color:var(--brand);letter-spacing:.4px;text-transform:uppercase}
+  .topic-card .tname{font-weight:600;font-size:1.02rem;line-height:1.3;flex:1}
+  .topic-card .tmeta{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+  .topic-card .qc{font-size:.8rem;color:var(--muted)}
+  .topic-card .status{font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:999px}
+  .status.todo{background:#eef2f6;color:#41566b}
+  .status.done{background:var(--correct-bg);color:var(--correct)}
+
+  /* topic detail */
+  .detail{display:none}
+  .detail.show{display:block}
+  .crumb{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.9rem}
+  .linkbtn{background:none;border:none;color:var(--brand);cursor:pointer;font-weight:600;font-size:.9rem;padding:4px 0}
+  .linkbtn:hover{text-decoration:underline}
+  .detail h2{margin:4px 0 2px;color:var(--brand);font-size:1.25rem}
+  .detail .dsub{color:var(--muted);font-size:.85rem;margin:0 0 14px}
+
+  .q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:14px 0}
+  .q-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .q-num{font-weight:700;color:var(--brand)}
+  .tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:6px}
+  .tag.type{background:#eef2f6;color:#41566b}
+  .tag.easy{background:#e7f5ee;color:#1b7f4b}
+  .tag.medium{background:#fff4e0;color:#b5781a}
+  .tag.hard{background:#fdeceb;color:#b42318}
+  .q-text{font-size:1rem;margin:4px 0 14px}
+
+  .opts{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;cursor:pointer;transition:background .12s,border-color .12s}
+  .opt:hover{background:#f7f9fb}
+  .opt input{margin-top:3px;accent-color:var(--brand)}
+  .opt .lab{flex:1}
+  .opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+  .opt.correct{border-color:var(--correct);background:var(--correct-bg)}
+  .opt.wrong{border-color:var(--wrong);background:var(--wrong-bg)}
+
+  .md-line{font-size:1rem;margin:4px 0 6px;line-height:2.2}
+  select.blank{font-size:.95rem;padding:5px 8px;border:1px solid var(--brand);border-radius:7px;background:#fff;color:var(--ink);margin:0 3px;min-width:88px;cursor:pointer}
+  select.blank.correct{border-color:var(--correct);background:var(--correct-bg)}
+  select.blank.wrong{border-color:var(--wrong);background:var(--wrong-bg)}
+
+  .explain{display:none;margin-top:14px;padding:12px 14px;border-radius:9px;background:#f6f8fa;border:1px solid var(--line);font-size:.9rem}
+  .explain.show{display:block}
+  .explain .verdict{font-weight:700;margin-bottom:6px}
+  .verdict.ok{color:var(--correct)} .verdict.no{color:var(--wrong)}
+
+  .topic-score{display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:14px 0}
+  .topic-score.show{display:block}
+  .topic-score .big{font-size:1.7rem;font-weight:800;color:var(--brand)}
+
+  .controls{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:13px 20px;display:flex;justify-content:center;gap:10px;z-index:30;flex-wrap:wrap}
+  .controls.hidden{display:none}
+  .btn{font-size:.92rem;font-weight:600;padding:10px 18px;border-radius:9px;border:1px solid var(--brand);cursor:pointer;transition:opacity .15s}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.ghost{background:#fff;color:var(--brand)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  @media (max-width:560px){.wrap{padding:18px 12px 120px}header.exam{padding:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="exam">
+    <h1>Microeconomics III — Topic Practice</h1>
+    <p class="sub">Pick a topic and drill 2–3 exam-style questions · solutions revealed after you submit each topic</p>
+    <div class="instructions">Each topic mixes True/False, MCQ, and Multiple-Dropdown items at varying difficulty. Multi-select questions are flagged <em>(Select all that apply.)</em>. For numeric dropdowns pick the closest listed value. The long chained problems reuse earlier results — work top to bottom.</div>
+  </header>
+
+  <!-- landing -->
+  <div id="landing">
+    <div class="overall">
+      <span class="lab">Overall</span>
+      <div class="track"><div class="fill" id="ovFill"></div></div>
+      <span class="lab" id="ovLab">0 / 11 topics done</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- detail -->
+  <div class="detail" id="detail">
+    <div class="crumb">
+      <button class="linkbtn" id="backBtn">← All topics</button>
+    </div>
+    <h2 id="dTitle"></h2>
+    <p class="dsub" id="dSub"></p>
+    <div id="dQuestions"></div>
+    <div class="topic-score" id="dScore"></div>
+  </div>
+</div>
+
+<div class="controls hidden" id="controls">
+  <button class="btn ghost" id="prevBtn">← Prev topic</button>
+  <button class="btn primary" id="submitBtn">Submit topic &amp; reveal</button>
+  <button class="btn ghost" id="nextBtn">Next topic →</button>
+</div>
+
+<script>
+// ===== DATA =====
+const TOPICS = [
+ {name:"Preference & relation axioms", qs:[1,2,3]},
+ {name:"Expected utility / vNM / independence axiom", qs:[4,5]},
+ {name:"Risk aversion / risk premium / CE / Arrow–Pratt", qs:[6,7,8]},
+ {name:"Stochastic dominance / mean-preserving spreads", qs:[9,10]},
+ {name:"Value of information", qs:[11,12,13]},
+ {name:"Social learning / information cascades", qs:[14,15,16,17]},
+ {name:"Insurance (deductibles, wealth diagram, CE, DARA)", qs:[18,19,20]},
+ {name:"Adverse selection / lemons / screening", qs:[21,22,23]},
+ {name:"Signaling", qs:[24,25,26]},
+ {name:"Moral hazard", qs:[27,28]},
+ {name:"Bayesian persuasion", qs:[29,30]}
+];
+
+const Q = {
+1:{type:"tf",diff:"easy",text:"A binary relation $\\succsim$ over $X$ is reflexive if $x \\succsim x$ for every $x \\in X$.",opts:["True","False"],ans:[0],
+ exp:"This is the definition of reflexivity: every element is at least as good as itself. Reflexivity is implied by completeness (set $y=x$), but on its own it is just the stated condition."},
+2:{type:"tf",diff:"medium",text:"If $\\succsim$ is a binary relation over $X$ such that $x \\succsim y$ and $z \\succsim y$ together imply $x \\succsim z$, then $\\succsim$ is transitive.",opts:["True","False"],ans:[1],
+ exp:"Transitivity is $x\\succsim y$ and $y\\succsim z\\Rightarrow x\\succsim z$ — the common element must be on the <i>right</i> of the first and <i>left</i> of the second. Here $y$ is on the right of both: a different, non-equivalent condition. Variable-position trap."},
+3:{type:"mcq",diff:"hard",multi:true,text:"A preference relation $\\succsim$ over a finite set $X$ can be represented by a utility function $u:X\\to\\mathbb{R}$ (i.e. $x\\succsim y \\iff u(x)\\ge u(y)$). Which properties must $\\succsim$ then satisfy? <em>(Select all that apply.)</em>",opts:["Completeness","Transitivity","Continuity","Strict monotonicity in a numeraire good"],ans:[0,1],
+ exp:"A real-valued representation forces completeness (any two reals compare) and transitivity (the order on $\\mathbb{R}$ is transitive). On a finite $X$ these are also sufficient; continuity needs a topology and isn't required (C). Monotonicity (D) is an economic assumption, not a logical consequence."},
+4:{type:"tf",diff:"medium",text:"A decision maker who evaluates every lottery by the expectation of its outcomes plus a bonus equal to the variance, $V(p)=E_p[x]+\\lambda\\,\\mathrm{Var}_p[x]$ with $\\lambda>0$, satisfies the von Neumann–Morgenstern independence axiom.",opts:["True","False"],ans:[1],
+ exp:"Independence is equivalent to the functional being linear in probabilities ($\\sum_i p_i u(x_i)$). Variance is quadratic (nonlinear) in the probabilities, so $V$ is not an expected-utility functional and independence can be violated."},
+5:{type:"md",diff:"medium",text:"A researcher calibrates Quincy's vNM index with $u(\\text{worst})=0$ and $u(\\text{best})=1$. Quincy is indifferent between a <b>mid prize</b> for sure and a lottery giving the best prize w.p. $0.7$ and the worst w.p. $0.3$. Then $u(\\text{mid})=$ {{0}}. If instead $u(\\text{best})=10,\\,u(\\text{worst})=0$ (a positive rescaling), the ranking of any two lotteries would {{1}}.",
+ blanks:[{opts:["0.7","0.3","0.5","1.0"],ans:"0.7"},{opts:["stay the same","reverse","become undefined"],ans:"stay the same"}],
+ exp:"$u(\\text{mid})=0.7(1)+0.3(0)=0.7$. vNM utilities are unique up to a positive affine transform $au+b,\\ a>0$; rescaling leaves all expected-utility comparisons — hence all rankings — unchanged."},
+6:{type:"md",diff:"easy",text:"Petra has $u(m)=\\sqrt{m}$ and faces a lottery paying $400$ w.p. $0.5$ and $100$ w.p. $0.5$. Her expected utility is {{0}}, her certainty equivalent is {{1}}, her expected wealth is {{2}}, and her risk premium is {{3}}.",
+ blanks:[{opts:["15","20","12.5","17.5"],ans:"15"},{opts:["225","250","200","210"],ans:"225"},{opts:["250","225","240","260"],ans:"250"},{opts:["25","0","50","12.5"],ans:"25"}],
+ exp:"$EU=0.5\\sqrt{400}+0.5\\sqrt{100}=0.5(20)+0.5(10)=15$. $CE=15^2=225$. $E[m]=0.5(400)+0.5(100)=250$. Risk premium $=250-225=25$."},
+7:{type:"md",diff:"medium",text:"Three indices over $w>0$: (i) $u=\\ln w$, (ii) $u=1-e^{-\\alpha w}$ (CARA), (iii) $u=w^{1/4}$. The Arrow–Pratt coefficient $R_a=-u''/u'$ for (i) is {{0}} and for (iii) is {{1}}. As wealth rises, the ARA of (ii) {{2}}, and that of (iii) {{3}}.",
+ blanks:[{opts:["$1/w$","$1/w^2$","$\\alpha$","$3/(4w)$"],ans:"$1/w$"},{opts:["$3/(4w)$","$1/w$","$1/(4w)$","$\\alpha$"],ans:"$3/(4w)$"},{opts:["increases","decreases","stays equal"],ans:"stays equal"},{opts:["increases","decreases","stays equal"],ans:"decreases"}],
+ exp:"(i) $u'=1/w,\\ u''=-1/w^2\\Rightarrow R_a=1/w$. (iii) $u'=\\tfrac14 w^{-3/4},\\ u''=-\\tfrac{3}{16}w^{-7/4}\\Rightarrow R_a=\\tfrac{3}{4w}$. CARA: constant $\\alpha$. (iii) $3/(4w)$ falls with $w$ (DARA — true of all $w^{1/n}$)."},
+8:{type:"md",diff:"hard",text:"<i>Two partners share a risky payoff.</i> A venture pays $216$ w.p. $0.5$ and $8$ w.p. $0.5$. <b>Rhea</b> has $u(m)=m^{1/3}$. Alone, her expected utility is {{0}}, her certainty equivalent is {{1}}, and her risk premium is {{2}}. Her partner <b>Toma</b> is less risk averse. Toma's certainty equivalent would be {{3}} Rhea's, and his risk premium would be {{4}} Rhea's.",
+ blanks:[{opts:["4","6","8","3"],ans:"4"},{opts:["64","112","100","48"],ans:"64"},{opts:["48","0","64","96"],ans:"48"},{opts:["higher than","lower than","equal to"],ans:"higher than"},{opts:["lower than","higher than","equal to"],ans:"lower than"}],
+ exp:"$EU=0.5(216)^{1/3}+0.5(8)^{1/3}=0.5(6)+0.5(2)=4$. $CE=4^3=64$. $E[m]=0.5(216)+0.5(8)=112$, so risk premium $=112-64=48$. A less risk-averse DM needs smaller compensation: higher CE (closer to mean $112$), lower risk premium."},
+9:{type:"tf",diff:"medium",text:"If lottery $X$ has the same mean as lottery $Y$ but a strictly larger variance, then $Y$ second-order stochastically dominates $X$.",opts:["True","False"],ans:[1],
+ exp:"Equal mean + larger variance is necessary but not sufficient for SOSD. SOSD requires the integrated-CDF condition for all $t$, which can fail when distributions cross. Variance is just one summary statistic."},
+10:{type:"md",diff:"hard",text:"Lottery $P$ pays $\\{10,20,30\\}$ w.p. $\\{0.2,0.5,0.3\\}$; lottery $Q$ pays $\\{10,20,30\\}$ w.p. $\\{0.1,0.5,0.4\\}$. Mean of $P$ is {{0}}, mean of $Q$ is {{1}}. Lottery {{2}} first-order stochastically dominates, so {{3}} increasing DM prefers it. Their relationship {{4}} a mean-preserving spread.",
+ blanks:[{opts:["21","22","20","23"],ans:"21"},{opts:["23","21","22","24"],ans:"23"},{opts:["Q","P","neither"],ans:"Q"},{opts:["every","no","only a risk-averse"],ans:"every"},{opts:["is not","is","could be"],ans:"is not"}],
+ exp:"$E[P]=2+10+9=21$; $E[Q]=1+10+12=23$. $F_Q\\le F_P$ everywhere (strict at $10,20$), so $Q$ FOSD $P$ and every increasing DM prefers $Q$. An MPS needs equal means; $21\\ne23$, so this is strict FOSD, not an MPS."},
+11:{type:"tf",diff:"easy",text:"For an expected-utility maximizer who can choose to acquire a (free) signal before acting, the value of information can never be negative.",opts:["True","False"],ans:[0],
+ exp:"More information weakly expands the contingent plans available: the DM can ignore the signal and replicate the no-info optimum, so optimized expected payoff is at least as high. VoI $\\ge 0$ (zero if the signal never changes the action, never strictly negative)."},
+12:{type:"md",diff:"medium",text:"<i>Investment under uncertainty.</i> The state is High ($H$) or Low ($L$), each prior $0.5$. A risky project pays $7$ if $H$, $0$ if $L$; a safe project pays $3.5$ for sure. The DM is risk neutral. With no information, the risky project's expected payoff is {{0}}, so she is {{1}} between the two and gets $3.5$.",
+ blanks:[{opts:["3.5","7","2","0"],ans:"3.5"},{opts:["indifferent","strictly preferring risky","strictly preferring safe"],ans:"indifferent"}],
+ exp:"$E[\\text{risky}]=0.5(7)+0.5(0)=3.5$, equal to the safe payoff, so the risk-neutral DM is indifferent and secures $3.5$."},
+13:{type:"md",diff:"hard",text:"Continue (states $H,L$ each prior $0.5$; risky pays $7$ if $H$, $0$ if $L$; safe $3.5$). The DM may buy one binary signal with accuracy $q=4/7$. After a \"high\" signal her posterior on $H$ is {{0}}, the risky payoff is {{1}}, and she chooses {{2}}. After a \"low\" signal her posterior on $H$ is {{3}} and she chooses {{4}}. Each signal is equally likely, so her expected payoff with the signal is {{5}}, and her willingness to pay for the signal is {{6}}.",
+ blanks:[{opts:["4/7","3/7","1/2","16/25"],ans:"4/7"},{opts:["4","3","3.5","7"],ans:"4"},{opts:["risky","safe","indifferent"],ans:"risky"},{opts:["3/7","4/7","1/2","9/25"],ans:"3/7"},{opts:["safe","risky","indifferent"],ans:"safe"},{opts:["3.75","3.5","4","3.25"],ans:"3.75"},{opts:["0.25","0.5","0","0.1429"],ans:"0.25"}],
+ exp:"With prior $0.5$ and symmetric signal, $P(H|\\text{high})=q=4/7$, $P(H|\\text{low})=3/7$. After high: $E[\\text{risky}]=\\tfrac47(7)=4>3.5\\Rightarrow$ risky. After low: $\\tfrac37(7)=3<3.5\\Rightarrow$ safe. $EU_{\\text{info}}=0.5(4)+0.5(3.5)=3.75$. VoI $=3.75-3.5=0.25$."},
+14:{type:"tf",diff:"easy",text:"In an information cascade, agents who herd are behaving irrationally — a rational Bayesian agent would always follow their own private signal.",opts:["True","False"],ans:[1],
+ exp:"Cascades arise from rational Bayesian behavior. When the public history is informative enough, the posterior from others' actions outweighs one private signal, so ignoring one's own signal is optimal. The inefficiency is failed information aggregation, not irrationality."},
+15:{type:"md",diff:"medium",text:"Cafés <b>Aurora</b> and <b>Boreal</b> are equally likely better ($0.5$ each). Each customer gets a signal of accuracy $q=4/7$. Customers choose sequentially, seeing earlier choices (not signals), tie-breaking on their own signal. The first two, <b>Ada</b> and <b>Bram</b>, each got an \"Aurora\" signal and chose Aurora. The public posterior that Aurora is better is now {{0}}, which is {{1}} the prior of $0.5$.",
+ blanks:[{opts:["0.64","0.5714","0.50","0.76"],ans:"0.64"},{opts:["above","below","equal to"],ans:"above"}],
+ exp:"Posterior $=\\dfrac{0.5\\,q^2}{0.5\\,q^2+0.5(1-q)^2}=\\dfrac{(4/7)^2}{(4/7)^2+(3/7)^2}=\\dfrac{16}{25}=0.64$, above $0.5$."},
+16:{type:"md",diff:"hard",text:"<i>(Long chain.)</i> Reset: prior $0.5$, $q=4/7$, tie-break by own signal. Customer 1 <b>Cleo</b> draws an \"Aurora\" signal; her posterior on Aurora is {{0}}, so she chooses {{1}}. Customer 2 <b>Dane</b> sees Cleo's choice (public belief $4/7$) and draws a \"Boreal\" signal; his posterior on Aurora becomes {{2}}, so being indifferent he follows his signal and chooses {{3}}. Customer 3 <b>Esra</b> now sees one Aurora and one Boreal choice, so her public belief is back to {{4}}. Esra's choice {{5}} informative to later customers, so a cascade {{6}} yet begun.",
+ blanks:[{opts:["4/7","3/7","16/25","1/2"],ans:"4/7"},{opts:["Aurora","Boreal","a coin flip"],ans:"Aurora"},{opts:["1/2","4/7","16/25","3/7"],ans:"1/2"},{opts:["Boreal","Aurora","a coin flip"],ans:"Boreal"},{opts:["0.50","0.64","0.5714","0.36"],ans:"0.50"},{opts:["is","is not","may or may not be"],ans:"is"},{opts:["has not","has","must have"],ans:"has not"}],
+ exp:"Cleo: posterior $=q=4/7>0.5\\Rightarrow$ Aurora. Dane updates $4/7$ with a \"Boreal\" signal: $\\dfrac{\\tfrac47\\cdot\\tfrac37}{\\tfrac47\\cdot\\tfrac37+\\tfrac37\\cdot\\tfrac47}=\\tfrac12$. Indifferent, he follows his \"Boreal\" signal $\\Rightarrow$ Boreal. After one of each, the public belief returns to $0.50$. Esra is at a tie, follows (and reveals) her own signal — informative, so no cascade has begun yet."},
+17:{type:"md",diff:"hard",text:"<i>(Value of a private signal as beliefs move.)</i> A customer earns $1$ if correct and $0$ otherwise, and may buy a signal of accuracy $q=4/7$. At a tie (public belief $0.50$), buying the signal raises expected payoff from $0.50$ to {{0}}, so the willingness to pay is {{1}}. Once a cascade has formed and the belief is $0.64$, the customer picks the favored café regardless of the signal, so the signal's value is {{2}}. As a cascade sets in, the private value of information {{3}}.",
+ blanks:[{opts:["0.5714","0.64","0.50","0.75"],ans:"0.5714"},{opts:["0.0714","0.1428","0.0000","0.1400"],ans:"0.0714"},{opts:["0","0.0714","0.14","0.5"],ans:"0"},{opts:["falls to zero","rises","stays constant"],ans:"falls to zero"}],
+ exp:"At a tie the customer follows the signal; by symmetry correct w.p. $q=4/7\\approx0.5714$, so WTP $=0.5714-0.50=1/14\\approx0.0714$. At $0.64$ even a contrary signal gives posterior $\\tfrac{0.64\\cdot3/7}{0.64\\cdot3/7+0.36\\cdot4/7}=0.5714>0.5$, so the action never changes and the signal is worth $0$. Marginal value falls to zero."},
+18:{type:"md",diff:"easy",text:"<b>Nora</b> has wealth $w=100$. W.p. $p=0.25$ her e-bike is stolen, loss $L=64$. With good-state wealth on the horizontal axis and bad-state on the vertical, her uninsured endowment is good-state {{0}} and bad-state {{1}}, lying {{2}} the $45°$ diagonal. Her expected wealth is {{3}}.",
+ blanks:[{opts:["100","36","84","64"],ans:"100"},{opts:["36","100","84","25"],ans:"36"},{opts:["below","on","above"],ans:"below"},{opts:["84","100","80","90"],ans:"84"}],
+ exp:"Good: $100$. Bad: $100-64=36$. Since good $>$ bad, $(100,36)$ lies below the $45°$ diagonal. $E[w]=0.75(100)+0.25(36)=84$."},
+19:{type:"md",diff:"hard",text:"<i>(Long chain — Nora: $w=100$, $p=0.25$, $L=64$, $u(m)=\\sqrt{m}$.)</i> The actuarially fair premium for full coverage is {{0}}. With full fair insurance, wealth is {{1}} in both states and the certainty equivalent is {{2}}. Without insurance, expected utility is {{3}} and the certainty equivalent is {{4}}. So full fair insurance raises the CE by {{5}}. Because $\\sqrt{m}$ exhibits DARA, a wealthier Nora facing a loaded premium would choose a deductible that is {{6}}.",
+ blanks:[{opts:["16","64","25","48"],ans:"16"},{opts:["84","100","80","36"],ans:"84"},{opts:["84","100","81","80"],ans:"84"},{opts:["9","9.17","8.4","10"],ans:"9"},{opts:["81","84","80","64"],ans:"81"},{opts:["3","0","19","4"],ans:"3"},{opts:["larger","smaller","zero"],ans:"larger"}],
+ exp:"Fair premium $=pL=0.25(64)=16$. Full coverage $\\Rightarrow$ wealth $=100-16=84$ in every state, CE $=84$. Uninsured: $EU=0.75(10)+0.25(6)=9$, CE $=81$. Gain $=84-81=3$. Under DARA a richer agent self-insures more — a larger deductible."},
+20:{type:"tf",diff:"hard",text:"An insurer writing this e-bike policy to thousands of independent customers can rely on the law of large numbers so average payouts are close to the expected loss — but if a single citywide event (an organized theft ring) could steal many e-bikes simultaneously, that reliance breaks down.",opts:["True","False"],ans:[0],
+ exp:"The LLN makes the average payout predictable only when losses are approximately independent. A common aggregate shock makes losses strongly positively correlated, so they don't average out. Both clauses are correct — the statement is true."},
+21:{type:"mcq",diff:"easy",text:"Which of the following is the most direct example of <b>adverse selection</b>?",opts:["A tenant treats a furnished flat carelessly because the damage deposit is small.","When health insurance is voluntary and priced at the population-average risk, the sickest individuals are the most likely to enrol.","A job applicant earns an expensive degree mainly to convince employers she is talented.","A prosecutor designs which evidence to disclose so as to maximize the conviction rate."],ans:[1],
+ exp:"Adverse selection = hidden information about a fixed type at contracting. At an average-risk price the sickest self-select in while low-risk opt out. A is moral hazard, C is signaling, D is Bayesian persuasion."},
+22:{type:"md",diff:"medium",text:"A used-tractor market has good tractors worth $90{,}000$ and lemons worth $30{,}000$ to buyers. Good owners sell only at prices $\\ge 65{,}000$; lemon owners sell at any price. Buyers are competitive, so price $=$ expected value of tractors offered. If half are good and all owners were forced to offer, the price would be {{0}}. But at that price the good-tractor owners {{1}}, so in the voluntary market only lemons are offered and the price collapses to {{2}}.",
+ blanks:[{opts:["60000","90000","30000","45000"],ans:"60000"},{opts:["refuse to sell","sell eagerly","are indifferent"],ans:"refuse to sell"},{opts:["30000","60000","90000","45000"],ans:"30000"}],
+ exp:"Forced 50/50: price $=0.5(90{,}000)+0.5(30{,}000)=60{,}000<65{,}000$, so good owners refuse. Only lemons remain, price $=30{,}000$ — full unraveling."},
+23:{type:"md",diff:"hard",text:"<i>(Long chain — screening.)</i> A monopolist faces two equally likely types and offers \"Basic\" and \"Premium\" (cost $\\approx0$). The <b>High</b> type values Basic at $8$, Premium at $14$; the <b>Low</b> type values Basic at $5$, Premium at $7$. It wants Low$\\to$Basic, High$\\to$Premium, but cannot observe types. To keep Low buying, $p_B\\le$ {{0}}, so set $p_B=$ {{1}}. To stop High buying Basic ($14-p_P\\ge 8-p_B$), set $p_P=$ {{2}}, leaving High an information rent of {{3}}. Profit from serving both types is {{4}}. Excluding Low and selling only Premium to High at $14$ gives profit {{5}}. Hence serving both is {{6}}.",
+ blanks:[{opts:["5","8","7","14"],ans:"5"},{opts:["5","8","7","14"],ans:"5"},{opts:["11","14","8","7"],ans:"11"},{opts:["3","0","6","5"],ans:"3"},{opts:["8","7","16","19"],ans:"8"},{opts:["7","8","14","11"],ans:"7"},{opts:["more profitable","less profitable","equally profitable"],ans:"more profitable"}],
+ exp:"Low participation: $p_B\\le5\\Rightarrow p_B=5$. High IC: $14-p_P\\ge8-5=3\\Rightarrow p_P\\le11$, set $11$. Rent $=14-11=3$. Expected profit $=0.5(5)+0.5(11)=8$. Exclusion: $0.5(14)=7$. $8>7$, so serving both is more profitable."},
+24:{type:"tf",diff:"medium",text:"Education can serve as a credible signal of worker productivity only if acquiring it is more costly for low-productivity workers than for high-productivity workers.",opts:["True","False"],ans:[0],
+ exp:"This is the single-crossing (Spence) condition. If education is cheaper per unit for high types, a level exists the high type will buy but the low type won't, separating them credibly. Without the cost difference the low type mimics and the signal conveys nothing."},
+25:{type:"md",diff:"hard",text:"<i>(Long chain — separating equilibrium.)</i> Without a signal employers pay a pooled wage that has collapsed so an unsignaled worker earns $20$, while a certified worker (believed High) earns $80$. Certification costs the High type $c_H$ and the Low type $c_L$. A High-type worker certifies as long as $c_H\\le$ {{0}}. A Low-type worker refrains as long as $c_L\\ge$ {{1}}. A separating equilibrium exists when the cost is {{2}} for the Low type and {{3}} for the High type. If certification were equally cheap for both, the Low type {{4}} mimic and the signal {{5}}.",
+ blanks:[{opts:["60","80","20","100"],ans:"60"},{opts:["60","80","20","0"],ans:"60"},{opts:["high","low","irrelevant"],ans:"high"},{opts:["low","high","irrelevant"],ans:"low"},{opts:["would also","would not","might or might not"],ans:"would also"},{opts:["collapses (no separation)","still separates","becomes more informative"],ans:"collapses (no separation)"}],
+ exp:"The gross gain from certifying is $80-20=60$ for either type. High certifies iff $c_H\\le60$; Low refrains iff $c_L\\ge60$. Separation needs $c_L$ high (above $60$) and $c_H$ low (below $60$). If equally cheap, Low also certifies, the belief breaks, and separation collapses."},
+26:{type:"mcq",diff:"medium",multi:true,text:"A firm offers a long, unconditional money-back warranty. Which statements about this as a signal are correct? <em>(Select all that apply.)</em>",opts:["The warranty is credible as a quality signal only if it is more costly for low-quality producers (whose goods fail often) than for high-quality producers.","Signaling, when it works, can mitigate the adverse-selection problem that would otherwise unravel the market.","Because the warranty is costly, a separating equilibrium with the warranty must be Pareto-superior to the no-signal outcome for the high-quality firm.","If the warranty were costless for everyone to offer, it could still separate high- from low-quality firms."],ans:[0,1],
+ exp:"A is the single-crossing condition. B is correct — a credible signal restores trade adverse selection would destroy. C is false: signaling is wasteful, so the separating outcome need not Pareto-dominate. D is false: a costless signal can't separate, since the low type imitates for free."},
+27:{type:"tf",diff:"easy",text:"Leaving an insured bicycle unlocked because any theft is fully reimbursed is an example of moral hazard.",opts:["True","False"],ans:[0],
+ exp:"Moral hazard is a hidden action after contracting. Full coverage removes the incentive to take care (lock the bike); the insurer cannot monitor this effort, so behavior changes post-contract. Textbook moral hazard."},
+28:{type:"md",diff:"hard",text:"<i>(Long chain — incentive contract.)</i> A risk-neutral principal hires an agent with $u(w)=\\sqrt{w}-c(e)$, where $c(\\text{low})=0$, $c(\\text{high})=1$. Success probability is $0.75$ under high effort, $0.25$ under low. Outside option $\\bar u=4$. To implement high effort:<br><b>(a) Observable effort:</b> pay fixed $w^*$ with $\\sqrt{w^*}-1=\\bar u$, so $w^*=$ {{0}}.<br><b>(b) Unobservable:</b> pay $w_S$ on success, $w_F$ on failure. With $a=\\sqrt{w_S},\\ b=\\sqrt{w_F}$, the incentive constraint is $a-b\\ge$ {{1}}, and participation $0.75a+0.25b-1\\ge4$ binds. Then $a=$ {{2}}, $b=$ {{3}}, so $w_S=$ {{4}}, $w_F=$ {{5}}. The expected wage bill is {{6}}, which is {{7}} than part (a).",
+ blanks:[{opts:["25","16","36","20"],ans:"25"},{opts:["2","1","0.5","4"],ans:"2"},{opts:["5.5","5","6","4.5"],ans:"5.5"},{opts:["3.5","3","4","2.5"],ans:"3.5"},{opts:["30.25","25","36","12.25"],ans:"30.25"},{opts:["12.25","30.25","9","16"],ans:"12.25"},{opts:["25.75","25","30.25","21.25"],ans:"25.75"},{opts:["higher","lower","equal"],ans:"higher"}],
+ exp:"(a) $\\sqrt{w^*}=4+1=5\\Rightarrow w^*=25$. (b) IC: $(0.75-0.25)(a-b)\\ge1\\Rightarrow a-b\\ge2$ (bind). PC binds: $0.75a+0.25b=5$. Sub $a=b+2$: $b+1.5=5\\Rightarrow b=3.5,\\ a=5.5$. $w_S=30.25,\\ w_F=12.25$. Bill $=0.75(30.25)+0.25(12.25)=25.75>25$ — the incentive premium for risk."},
+29:{type:"tf",diff:"medium",text:"In Bayesian persuasion, the sender commits in advance to an information structure, and the receiver updates by Bayes' rule; the sender can sometimes do strictly better than either revealing everything or revealing nothing.",opts:["True","False"],ans:[0],
+ exp:"Commitment to a signal structure and Bayes-rational updating are the defining features. By choosing an optimal garbling, the sender can induce more favorable actions than under full or no disclosure — strictly better in general."},
+30:{type:"md",diff:"hard",text:"<i>(Persuasion design.)</i> A prosecutor wants to maximize the conviction probability. The defendant is Guilty w.p. $0.3$, Innocent w.p. $0.7$. The judge convicts only if her posterior on Guilt is $\\ge0.5$. With no information the belief is $0.3<0.5$, so she {{0}} and the conviction rate is {{1}}. The optimal signal recommends \"convict\" for every Guilty defendant and for just enough Innocent ones to keep the posterior exactly at $0.5$. The total probability of a \"convict\" recommendation is then {{2}}, which is {{3}} than under full disclosure of guilt.",
+ blanks:[{opts:["acquits","convicts","flips a coin"],ans:"acquits"},{opts:["0","0.3","0.5","0.7"],ans:"0"},{opts:["0.6","0.3","0.5","0.7"],ans:"0.6"},{opts:["higher","lower","equal"],ans:"higher"}],
+ exp:"No info: prior $0.3<0.5$, judge acquits all, conviction rate $0$. Optimal: recommend convict for all guilty ($0.3$) plus innocent amount $x$ with $\\tfrac{0.3}{0.3+x}=0.5\\Rightarrow x=0.3$. Total convict prob $=0.6$. Full disclosure convicts only the guilty ($0.3$). $0.6>0.3$, so persuasion does strictly better."}
+};
+
+// ===== STATE =====
+const N_TOPICS = TOPICS.length;
+let current = -1;                 // index of open topic, -1 = landing
+const submitted = new Array(N_TOPICS).fill(false);
+const scores = new Array(N_TOPICS).fill(null);
+
+// ===== HELPERS =====
+function typeLabel(t){return t==="tf"?"True / False":t==="mcq"?"Multiple Choice":"Multiple Dropdown";}
+function diffLabel(d){return d.charAt(0).toUpperCase()+d.slice(1);}
+function txtOpt(s){return s.replace(/\$/g,'').replace(/\\sqrt\{(\d+)\}/g,'√$1').replace(/\\alpha/g,'α');}
+
+// ===== LANDING =====
+const grid = document.getElementById('grid');
+function renderGrid(){
+  grid.innerHTML='';
+  TOPICS.forEach((t,i)=>{
+    const card=document.createElement('div'); card.className='topic-card'; card.tabIndex=0;
+    const done=submitted[i];
+    const statusHtml = done
+      ? `<span class="status done">✓ ${scores[i][0]}/${scores[i][1]}</span>`
+      : `<span class="status todo">Not done</span>`;
+    card.innerHTML=`<div class="tnum">Topic ${i+1}</div>
+      <div class="tname">${t.name}</div>
+      <div class="tmeta"><span class="qc">${t.qs.length} questions</span>${statusHtml}</div>`;
+    card.addEventListener('click',()=>openTopic(i));
+    card.addEventListener('keydown',e=>{if(e.key==='Enter')openTopic(i);});
+    grid.appendChild(card);
+  });
+  const done=submitted.filter(Boolean).length;
+  document.getElementById('ovFill').style.width=(done/N_TOPICS*100)+'%';
+  document.getElementById('ovLab').textContent=`${done} / ${N_TOPICS} topics done`;
+}
+
+// ===== TOPIC DETAIL =====
+function openTopic(i){
+  current=i;
+  document.getElementById('landing').style.display='none';
+  const d=document.getElementById('detail'); d.classList.add('show');
+  document.getElementById('controls').classList.remove('hidden');
+  const t=TOPICS[i];
+  document.getElementById('dTitle').textContent=`Topic ${i+1} — ${t.name}`;
+  document.getElementById('dSub').textContent=`${t.qs.length} questions · solutions reveal after you submit this topic`;
+  const wrap=document.getElementById('dQuestions'); wrap.innerHTML='';
+  t.qs.forEach(n=>wrap.appendChild(renderQ(n,Q[n])));
+  document.getElementById('dScore').classList.remove('show');
+  document.getElementById('dScore').innerHTML='';
+
+  // restore submitted state if revisiting
+  document.getElementById('submitBtn').disabled = submitted[i];
+  document.getElementById('prevBtn').disabled = (i===0);
+  document.getElementById('nextBtn').disabled = (i===N_TOPICS-1);
+  if(submitted[i]) gradeTopic(true);
+
+  window.scrollTo({top:0,behavior:'instant'});
+  typeset();
+}
+function backToLanding(){
+  current=-1;
+  document.getElementById('detail').classList.remove('show');
+  document.getElementById('controls').classList.add('hidden');
+  document.getElementById('landing').style.display='block';
+  renderGrid();
+  typeset();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function renderQ(n,q){
+  const wrap=document.createElement('div'); wrap.className='q'; wrap.id='q'+n;
+  const top=document.createElement('div'); top.className='q-top';
+  top.innerHTML=`<span class="q-num">Q${n}</span>
+    <span class="tag type">${typeLabel(q.type)}</span>
+    <span class="tag ${q.diff}">${diffLabel(q.diff)}</span>`;
+  wrap.appendChild(top);
+
+  if(q.type==="md"){
+    const line=document.createElement('div'); line.className='md-line';
+    const parts=q.text.split(/\{\{(\d+)\}\}/);
+    parts.forEach((seg,i)=>{
+      if(i%2===0){ const span=document.createElement('span'); span.innerHTML=seg; line.appendChild(span); }
+      else{
+        const bi=parseInt(seg,10);
+        const sel=document.createElement('select'); sel.className='blank'; sel.dataset.q=n; sel.dataset.blank=bi;
+        const ph=document.createElement('option'); ph.value=''; ph.textContent='— select —'; sel.appendChild(ph);
+        q.blanks[bi].opts.forEach(o=>{const op=document.createElement('option'); op.value=o; op.textContent=txtOpt(o); sel.appendChild(op);});
+        sel.disabled = submitted[current];
+        line.appendChild(sel);
+      }
+    });
+    wrap.appendChild(line);
+  } else {
+    const t=document.createElement('div'); t.className='q-text'; t.innerHTML=q.text; wrap.appendChild(t);
+    const opts=document.createElement('div'); opts.className='opts';
+    q.opts.forEach((o,i)=>{
+      const lab=document.createElement('label'); lab.className='opt';
+      const inp=document.createElement('input');
+      inp.type = q.multi ? 'checkbox':'radio'; inp.name='q'+n; inp.value=i; inp.dataset.q=n;
+      inp.disabled = submitted[current];
+      inp.addEventListener('change',()=>{
+        opts.querySelectorAll('.opt').forEach(el=>el.classList.remove('sel'));
+        opts.querySelectorAll('input').forEach(x=>{if(x.checked)x.closest('.opt').classList.add('sel');});
+      });
+      const span=document.createElement('span'); span.className='lab'; span.innerHTML=String.fromCharCode(65+i)+') '+o;
+      lab.appendChild(inp); lab.appendChild(span); opts.appendChild(lab);
+    });
+    wrap.appendChild(opts);
+  }
+  const exp=document.createElement('div'); exp.className='explain'; exp.id='exp'+n; wrap.appendChild(exp);
+  return wrap;
+}
+
+// ===== GRADING =====
+function gradeTopic(silent){
+  const t=TOPICS[current]; let correct=0;
+  t.qs.forEach(n=>{
+    const q=Q[n]; let ok=false;
+    const expEl=document.getElementById('exp'+n);
+    if(q.type==="md"){
+      const sels=document.querySelectorAll(`select[data-q="${n}"]`); ok=true;
+      sels.forEach(s=>{
+        const bi=parseInt(s.dataset.blank,10); const right=q.blanks[bi].ans;
+        s.classList.remove('correct','wrong');
+        if(s.value===right) s.classList.add('correct'); else { s.classList.add('wrong'); ok=false; }
+        s.disabled=true;
+      });
+    } else {
+      const chosen=[...document.querySelectorAll(`input[data-q="${n}"]:checked`)].map(x=>parseInt(x.value,10)).sort();
+      const ans=[...q.ans].sort();
+      ok = chosen.length===ans.length && chosen.every((v,i)=>v===ans[i]);
+      document.querySelectorAll(`#q${n} .opt`).forEach((el,i)=>{
+        const inp=el.querySelector('input'); inp.disabled=true;
+        if(q.ans.includes(i)) el.classList.add('correct');
+        else if(inp.checked) el.classList.add('wrong');
+      });
+    }
+    expEl.innerHTML = (ok?`<div class="verdict ok">✓ Correct</div>`:`<div class="verdict no">✗ Incorrect</div>`)+`<div>${q.exp}</div>`;
+    expEl.classList.add('show');
+    if(ok) correct++;
+  });
+
+  submitted[current]=true; scores[current]=[correct,t.qs.length];
+  const sc=document.getElementById('dScore'); sc.classList.add('show');
+  const pct=Math.round(correct/t.qs.length*100);
+  sc.innerHTML=`<div class="big">${correct} / ${t.qs.length}</div><div style="color:var(--muted);font-size:.9rem">${pct}% on this topic. Review the worked solutions above, then move to the next topic.</div>`;
+  document.getElementById('submitBtn').disabled=true;
+  if(!silent){ typeset(); sc.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+
+function typeset(){ if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise(); }
+
+// ===== CONTROLS =====
+document.getElementById('backBtn').addEventListener('click',backToLanding);
+document.getElementById('submitBtn').addEventListener('click',()=>{
+  if(submitted[current]) return;
+  const t=TOPICS[current];
+  let answered=0, totalItems=t.qs.length;
+  t.qs.forEach(n=>{
+    const q=Q[n];
+    if(q.type==="md"){ const sels=[...document.querySelectorAll(`select[data-q="${n}"]`)]; if(sels.every(s=>s.value!=='')) answered++; }
+    else if(document.querySelectorAll(`input[data-q="${n}"]:checked`).length>0) answered++;
+  });
+  if(answered<totalItems){ if(!confirm(`You've answered ${answered} of ${totalItems} questions in this topic. Submit and reveal answers?`)) return; }
+  gradeTopic(false);
+});
+document.getElementById('prevBtn').addEventListener('click',()=>{ if(current>0) openTopic(current-1); });
+document.getElementById('nextBtn').addEventListener('click',()=>{ if(current<N_TOPICS-1) openTopic(current+1); });
+
+// init
+renderGrid();
+typeset();
+</script>
+</body>
+</html>
