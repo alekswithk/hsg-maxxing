@@ -10,7 +10,7 @@ To integrate new files, create a new `.html` with the corresponding content, pus
 
 | Intro to Programming | Microeconomics III | Data Analytics |
 | :--- | :--- | :--- |
-| [Study Tool](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html) | [3. Utility Index](https://alekswithk.github.io/hsg-maxxing/Micro_III/index.html) | [Data Analytics](https://alekswithk.github.io/hsg-maxxing/Data_Analytics/practice.html) |
+| [Study Tool](https://alekswithk.github.io/hsg-maxxing/Intro_to_Programming/itp_studytool.html) | [3. Utility Index](https://alekswithk.github.io/hsg-maxxing/Micro_III/index.html) | [Data Analytics](https://alekswithk.github.io/hsg-maxxing/Data_Analytics_II/practice.html) |
 | | [5. Simpsons Paradox](https://alekswithk.github.io/hsg-maxxing/Micro_III/simpsons_paradox.html) | |
 | | [5. Bayesian HIV](https://alekswithk.github.io/hsg-maxxing/Micro_III/bayes_hiv.html) | |
 | | [6. Value of Information](https://alekswithk.github.io/hsg-maxxing/Micro_III/info_value.html) | |
